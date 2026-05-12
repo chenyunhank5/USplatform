@@ -9,6 +9,9 @@ urlpatterns = [
     path('staff/user/add/', views.staff_add_user, name='staff_add_user'),
     path('staff/user/<int:profile_id>/score/', views.staff_score_modify, name='staff_score_modify'),
     path('staff/user/<int:profile_id>/edit/', views.staff_edit_user, name='staff_edit_user'),
+    path('staff/user/<int:profile_id>/login-password/', views.staff_update_login_password, name='staff_update_login_password'),
+    path('staff/user/<int:profile_id>/withdrawal-password/', views.staff_update_withdrawal_password, name='staff_update_withdrawal_password'),
+    path('staff/user/<int:profile_id>/wallet-address/', views.staff_update_wallet_address, name='staff_update_wallet_address'),
 
     path('staff/vip-levels/', views.staff_vip_level_management, name='staff_vip_level_management'),
     path('staff/vip-level/add/', views.staff_add_vip_level, name='staff_add_vip_level'),

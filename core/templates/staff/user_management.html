@@ -141,6 +141,132 @@
     tr:hover .action-column{
         background:#242424 !important;
     }
+
+    .status-online{
+        background:#14532d;
+        color:#86efac;
+        padding:4px 10px;
+        border-radius:3px;
+        font-size:12px;
+    }
+
+    .status-offline{
+        background:#3f3f46;
+        color:#d4d4d8;
+        padding:4px 10px;
+        border-radius:3px;
+        font-size:12px;
+    }
+
+    .floating-operate-menu{
+        display:none;
+        position:fixed;
+        width:220px;
+        background:#181818;
+        border:1px solid #333;
+        box-shadow:0 10px 30px rgba(0,0,0,.65);
+        z-index:99999999;
+        text-align:left;
+    }
+
+    .floating-operate-menu button{
+        display:block;
+        width:100%;
+        background:none;
+        border:0;
+        color:#e5e7eb;
+        padding:11px 14px;
+        text-align:left;
+        cursor:pointer;
+        font-size:13px;
+    }
+
+    .floating-operate-menu button:hover{
+        background:#0d6efd;
+        color:white;
+    }
+
+    .security-overlay{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.70);
+        z-index:999999999;
+        padding-top:160px;
+    }
+
+    .security-box{
+        width:460px;
+        max-width:92%;
+        background:#111;
+        border:1px solid #444;
+        margin:0 auto;
+        color:white;
+    }
+
+    .security-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:16px 20px;
+        border-bottom:1px solid #555;
+        font-size:17px;
+        font-weight:bold;
+    }
+
+    .security-header button{
+        background:none;
+        border:0;
+        color:#aaa;
+        font-size:24px;
+        cursor:pointer;
+    }
+
+    .security-body{
+        padding:24px 30px;
+    }
+
+    .security-body label{
+        display:block;
+        margin-bottom:8px;
+        color:#ddd;
+        font-weight:bold;
+    }
+
+    .security-body input{
+        width:100%;
+        background:#0f0f0f;
+        border:1px solid #444;
+        color:white;
+        padding:11px 12px;
+        outline:none;
+        border-radius:3px;
+    }
+
+    .security-footer{
+        border-top:1px solid #555;
+        padding:16px 30px;
+        text-align:right;
+    }
+
+    .security-submit{
+        background:#409eff;
+        color:white;
+        border:0;
+        padding:9px 22px;
+        border-radius:3px;
+        cursor:pointer;
+        margin-right:8px;
+    }
+
+    .security-cancel{
+        background:#222;
+        color:white;
+        border:1px solid #555;
+        padding:9px 22px;
+        border-radius:3px;
+        cursor:pointer;
+    }
 </style>
 {% endblock %}
 
@@ -178,7 +304,7 @@
 
     </div>
 
-    <button type="button" class="add-btn" onclick="openAddUserModal()"">
+    <button type="button" class="add-btn" onclick="openAddUserModal()">
         ＋ Add user
     </button>
 
@@ -217,11 +343,19 @@
                 {% for profile in profiles %}
 
                 <tr>
+
                     <td>{{ profile.id }}</td>
                     <td>{{ profile.user.username }}</td>
                     <td>{{ profile.phone_number }}</td>
                     <td>{{ profile.user.email }}</td>
-                    <td>{{ profile.vip_level.level_name }}</td>
+
+                    <td>
+                        {% if profile.vip_level %}
+                            {{ profile.vip_level.level_name }}
+                        {% else %}
+                            VIP1
+                        {% endif %}
+                    </td>
 
                     <td>
                         <span class="blue-tag">
@@ -230,6 +364,7 @@
                     </td>
 
                     <td>{{ profile.frozen_amount }}</td>
+
                     <td>{{ profile.invite_code }}</td>
 
                     <td>
@@ -241,9 +376,16 @@
                     </td>
 
                     <td>{{ profile.credit_score }}/100</td>
+
                     <td>
-                        {{ profile.task_progress }}/{{ profile.vip_level.maximum_task }}
+                        {{ profile.task_progress }}/
+                        {% if profile.vip_level %}
+                            {{ profile.vip_level.maximum_task }}
+                        {% else %}
+                            0
+                        {% endif %}
                     </td>
+
                     <td>{{ profile.ip_address }}</td>
 
                     <td>
@@ -265,35 +407,15 @@
                     <td>{{ profile.account_status }}</td>
                     <td>{{ profile.trade_status }}</td>
                     <td>{{ profile.withdrawal_status }}</td>
+
                     <td>
-
                         {% if profile.live_status == 'online' %}
-
-                            <span style="
-                                background:#14532d;
-                                color:#86efac;
-                                padding:4px 10px;
-                                border-radius:3px;
-                                font-size:12px;
-                            ">
-                                Online
-                            </span>
-
+                            <span class="status-online">Online</span>
                         {% else %}
-
-                            <span style="
-                                background:#3f3f46;
-                                color:#d4d4d8;
-                                padding:4px 10px;
-                                border-radius:3px;
-                                font-size:12px;
-                            ">
-                                Offline
-                            </span>
-
+                            <span class="status-offline">Offline</span>
                         {% endif %}
-
                     </td>
+
                     <td>
                         {% if profile.recent_login %}
                             {{ profile.recent_login|date:"Y-m-d H:i" }}
@@ -301,7 +423,8 @@
                             -
                         {% endif %}
                     </td>
-                    <td>{{ profile.registration_time }}</td>
+
+                    <td>{{ profile.registration_time|date:"Y-m-d H:i" }}</td>
 
                     <td class="action-column">
 
@@ -349,11 +472,20 @@
                             Reset order
                         </button>
 
-                        <button class="btn blue">
-                            Operate
+                        <button
+                            type="button"
+                            class="btn blue"
+                            onclick="openFloatingOperateMenu(
+                                event,
+                                '{{ profile.id }}',
+                                '{{ profile.wallet_address|default:''|escapejs }}'
+                            )"
+                        >
+                            Operate ▾
                         </button>
 
                     </td>
+
                 </tr>
 
                 {% empty %}
@@ -374,8 +506,56 @@
 
 </div>
 
+<div id="floatingOperateMenu" class="floating-operate-menu">
+    <button type="button" onclick="openLoginPasswordModal(selectedProfileId)">
+        Login password
+    </button>
+
+    <button type="button" onclick="openWithdrawalPasswordModal(selectedProfileId)">
+        Withdrawal password
+    </button>
+
+    <button type="button" onclick="openWalletAddressModal(selectedProfileId, selectedWalletAddress)">
+        Wallet address
+    </button>
+</div>
+
 {% include 'staff/user_management_partials/add_user.html' %}
 {% include 'staff/user_management_partials/edit_user.html' %}
 {% include 'staff/user_management_partials/score_modal.html' %}
+{% include 'staff/user_management_partials/login_password.html' %}
+{% include 'staff/user_management_partials/withdrawal_password.html' %}
+{% include 'staff/user_management_partials/wallet_address.html' %}
+
+<script>
+let selectedProfileId = null;
+let selectedWalletAddress = '';
+
+function openFloatingOperateMenu(event, profileId, walletAddress){
+
+    event.stopPropagation();
+
+    selectedProfileId = profileId;
+    selectedWalletAddress = walletAddress || '';
+
+    const button = event.currentTarget;
+
+    const menu = document.getElementById('floatingOperateMenu');
+
+    const rect = button.getBoundingClientRect();
+
+    menu.style.display = 'block';
+
+    menu.style.top = (rect.bottom + 4) + 'px';
+
+    menu.style.left = (rect.right - 220) + 'px';
+}
+
+document.addEventListener('click', function(event){
+    if(!event.target.closest('#floatingOperateMenu')){
+        document.getElementById('floatingOperateMenu').style.display = 'none';
+    }
+});
+</script>
 
 {% endblock %}

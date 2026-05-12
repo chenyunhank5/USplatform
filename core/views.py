@@ -121,6 +121,48 @@ def staff_add_user(request):
     return redirect('staff_user_management')
 
 
+def staff_update_login_password(request, profile_id):
+    profile = get_object_or_404(UserProfile.objects.select_related('user'), id=profile_id)
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password', '').strip()
+
+        if new_password:
+            profile.user.set_password(new_password)
+            profile.user.save()
+            messages.success(request, 'Login password updated successfully.')
+
+    return redirect('staff_user_management')
+
+
+def staff_update_withdrawal_password(request, profile_id):
+    profile = get_object_or_404(UserProfile, id=profile_id)
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password', '').strip()
+
+        if new_password:
+            profile.transaction_password = make_password(new_password)
+            profile.save()
+            messages.success(request, 'Withdrawal password updated successfully.')
+
+    return redirect('staff_user_management')
+
+
+def staff_update_wallet_address(request, profile_id):
+    profile = get_object_or_404(UserProfile, id=profile_id)
+
+    if request.method == 'POST':
+        wallet_address = request.POST.get('wallet_address', '').strip()
+
+        profile.wallet_address = wallet_address
+        profile.save()
+
+        messages.success(request, 'Wallet address updated successfully.')
+
+    return redirect('staff_user_management')
+
+
 def staff_edit_user(request, profile_id):
     profile = get_object_or_404(UserProfile.objects.select_related('user'), id=profile_id)
 
