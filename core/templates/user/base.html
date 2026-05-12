@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}User{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        *{box-sizing:border-box}
+
+        body{
+            margin:0;
+            font-family:Arial, sans-serif;
+            background:#f5f7fb;
+            color:#111827;
+        }
+
+        .app{
+            max-width:430px;
+            margin:0 auto;
+            min-height:100vh;
+            background:white;
+            padding-bottom:82px;
+            position:relative;
+        }
+
+        .content{
+            padding:14px 16px;
+        }
+
+        /* BOTTOM NAV */
+
+        .bottom-nav{
+            position:fixed;
+            bottom:0;
+            left:50%;
+            transform:translateX(-50%);
+            width:100%;
+            max-width:430px;
+            height:70px;
+            background:white;
+            border-top:1px solid #e5e7eb;
+            display:flex;
+            justify-content:space-around;
+            align-items:center;
+            z-index:100;
+        }
+
+        .nav-item{
+            text-align:center;
+            font-size:12px;
+            color:#777;
+            text-decoration:none;
+            width:20%;
+        }
+
+        .nav-icon{
+            width:26px;
+            height:26px;
+            margin:0 auto 4px;
+            border-radius:8px;
+            background:#d1d5db;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-size:15px;
+        }
+
+        .nav-item.active{
+            color:#2f5af7;
+        }
+
+        .nav-item.active .nav-icon{
+            background:#2f5af7;
+        }
+
+        .order-center{
+            margin-top:-32px;
+        }
+
+        .order-circle{
+            width:70px;
+            height:70px;
+            border-radius:50%;
+            background:#d1d5db;
+            margin:0 auto 4px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-size:22px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <nav class="bottom-nav">
+
+        <a href="/user/home/" class="nav-item active">
+            <div class="nav-icon">🏠</div>
+            Home
+        </a>
+
+        <a href="/user/records/" class="nav-item">
+            <div class="nav-icon">📄</div>
+            Records
+        </a>
+
+        <a href="/user/order/" class="nav-item order-center">
+            <div class="order-circle">⭐</div>
+            Order
+        </a>
+
+        <a href="/user/messages/" class="nav-item">
+            <div class="nav-icon">💬</div>
+            Messages
+        </a>
+
+        <a href="/user/settings/" class="nav-item">
+            <div class="nav-icon">⚙</div>
+            Settings
+        </a>
+
+    </nav>
+
+</div>
+
+</body>
+</html>

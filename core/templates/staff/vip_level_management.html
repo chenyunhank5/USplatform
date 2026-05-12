@@ -1,0 +1,209 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}VIP Level Management{% endblock %}
+{% block page_title %}VIP Level Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .panel{
+        background:#1b1b1b;
+        border:1px solid #333;
+        padding:16px;
+        min-height:600px;
+    }
+
+    .vip-table-actions{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:16px;
+    }
+
+    .add-level-btn{
+        background:#409eff;
+        color:white;
+        border:0;
+        padding:9px 18px;
+        border-radius:3px;
+        cursor:pointer;
+        font-size:13px;
+    }
+
+    .table-tools{
+        display:flex;
+        gap:8px;
+    }
+
+    .tool-btn{
+        width:30px;
+        height:30px;
+        background:#111;
+        color:white;
+        border:1px solid #777;
+        cursor:pointer;
+    }
+
+    .table-scroll{
+        width:100%;
+        overflow:auto;
+        border:1px solid #333;
+        background:#111;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        font-size:13px;
+    }
+
+    th{
+        background:#171717;
+        color:#6b7280;
+        padding:13px 12px;
+        text-align:left;
+        border:1px solid #333;
+        white-space:nowrap;
+    }
+
+    td{
+        padding:16px 12px;
+        border:1px solid #333;
+        color:#e5e7eb;
+        white-space:nowrap;
+        background:#151515;
+        text-align:center;
+    }
+
+    td:first-child,
+    th:first-child{
+        text-align:left;
+    }
+
+    tr:hover td{
+        background:#242424;
+    }
+
+    .vip-icon{
+        width:36px;
+        height:36px;
+        border-radius:6px;
+        object-fit:cover;
+    }
+
+    .operate a{
+        text-decoration:none;
+        margin-right:12px;
+        font-size:13px;
+    }
+
+    .edit-link{
+        color:#409eff;
+    }
+
+    .delete-link{
+        color:#ef4444;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="panel">
+
+    <div class="vip-table-actions">
+
+      <button type="button" class="add-level-btn" onclick="openAddLevelModal()">＋ Add level</button>
+        <div class="table-tools">
+            <button class="tool-btn">↻</button>
+            <button class="tool-btn">≡</button>
+            <button class="tool-btn">⛶</button>
+        </div>
+
+    </div>
+
+    <div class="table-scroll">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Icon</th>
+                    <th>Level name</th>
+                    <th>Minimum amount</th>
+                    <th>Commission rate</th>
+                    <th>Successive order commission rate</th>
+                    <th>Maximum task</th>
+                    <th>Operate</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for vip in vip_levels %}
+
+                <tr>
+                    <td>{{ vip.id }}</td>
+
+                    <td>
+                        {% if vip.icon %}
+                            <img src="{{ vip.icon.url }}" class="vip-icon">
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>{{ vip.level_name }}</td>
+
+                    <td>{{ vip.minimum_amount }}</td>
+
+                    <td>{{ vip.commission_rate }}</td>
+
+                    <td>{{ vip.successive_order_commission_rate }}</td>
+
+                    <td>{{ vip.maximum_task }}</td>
+
+                    <td class="operate">
+                      <a href="#"
+                         class="edit-link"
+                         onclick="openEditLevelModal(
+                             '{{ vip.id }}',
+                             '{{ vip.level_name|escapejs }}',
+                             '{{ vip.minimum_amount }}',
+                             '{{ vip.commission_rate }}',
+                             '{{ vip.successive_order_commission_rate }}',
+                             '{{ vip.maximum_task }}',
+                             '{{ vip.description|default:''|escapejs }}'
+                         )">
+                         ✎Edit
+                      </a>
+                      <a href="#"
+                         class="delete-link"
+                         onclick="openDeleteLevelModal(
+                             '{{ vip.id }}',
+                             '{{ vip.level_name|escapejs }}'
+                         )">
+                         🗑Delete
+                      </a>
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="8">No VIP levels found.</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+{% include 'staff/vip_level_management_partials/add_level.html' %}
+{% include 'staff/vip_level_management_partials/edit_level.html' %}
+{% include 'staff/vip_level_management_partials/delete_level.html' %}
+{% endblock %}

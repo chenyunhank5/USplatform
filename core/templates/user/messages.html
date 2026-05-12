@@ -1,0 +1,109 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Messages{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-title{
+        font-size:16px;
+        font-weight:bold;
+        padding:8px 0 20px;
+    }
+
+    .service-card,
+    .notice-header,
+    .notice-item{
+        background:white;
+        margin:0 -16px;
+        padding:18px 16px;
+        display:flex;
+        align-items:center;
+    }
+
+    .service-icon,
+    .notice-icon{
+        width:56px;
+        height:56px;
+        border-radius:10px;
+        background:#eef2ff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:28px;
+        margin-right:16px;
+    }
+
+    .service-title,
+    .notice-title{
+        font-weight:bold;
+        font-size:15px;
+    }
+
+    .arrow{
+        margin-left:auto;
+        font-size:24px;
+    }
+
+    .notice-header{
+        margin-top:14px;
+        justify-content:space-between;
+        font-weight:bold;
+    }
+
+    .toggle{
+        background:#d1d5db;
+        color:white;
+        padding:4px 12px;
+        border-radius:20px;
+        font-size:12px;
+    }
+
+    .notice-date{
+        font-size:12px;
+        color:#374151;
+        margin-top:6px;
+    }
+
+    .no-data{
+        text-align:center;
+        color:#9ca3af;
+        margin-top:48px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-title">Customer Service Center</div>
+
+<div class="service-card">
+    <div class="service-icon">⭕</div>
+    <div class="service-title">Online Customer Service</div>
+    <div class="arrow">›</div>
+</div>
+
+<div class="notice-header">
+    <div>System Notification</div>
+    <div>Hide Read <span class="toggle">OFF</span></div>
+</div>
+
+<div class="notice-item">
+    <div class="notice-icon">💳</div>
+
+    <div>
+        <div class="notice-title">
+            Current account accumulates 50
+        </div>
+        <div class="notice-date">
+            05-04-2026 10:26:48 pm
+        </div>
+    </div>
+
+    <div class="arrow">›</div>
+</div>
+
+<div class="no-data">
+    No More Data...
+</div>
+
+{% endblock %}

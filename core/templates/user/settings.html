@@ -1,0 +1,444 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+
+    .profile-row{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        margin-bottom:16px;
+    }
+
+    .avatar{
+        width:62px;
+        height:62px;
+        border-radius:50%;
+        background:#000;
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:30px;
+        flex-shrink:0;
+    }
+
+    .username{
+        font-weight:bold;
+        font-size:16px;
+        display:flex;
+        align-items:center;
+        gap:6px;
+        margin-bottom:4px;
+    }
+
+    .vip-badge{
+        background:#000;
+        color:#facc15;
+        padding:2px 5px;
+        border-radius:4px;
+        font-size:12px;
+    }
+
+    .credit-row,
+    .invite-row{
+        display:flex;
+        align-items:center;
+        gap:6px;
+        font-weight:bold;
+        margin-top:4px;
+        flex-wrap:wrap;
+    }
+
+    .label-gray{
+        color:#9ca3af;
+    }
+
+    .credit-bar-wrapper{
+        width:90px;
+        height:8px;
+        background:#e5e7eb;
+        border-radius:20px;
+        overflow:hidden;
+    }
+
+    .credit-bar{
+        height:100%;
+        background:#9bf08b;
+        border-radius:20px;
+    }
+
+    .copy-btn{
+        background:#b9f7a5;
+        border:0;
+        padding:4px 10px;
+        border-radius:10px;
+        font-weight:bold;
+        cursor:pointer;
+    }
+
+    .wallet-card{
+        background:#2f5af7;
+        color:white;
+        border-radius:8px;
+        padding:20px 16px;
+        margin-bottom:18px;
+        position:relative;
+        overflow:hidden;
+    }
+
+    .wallet-card::before{
+        content:'';
+        position:absolute;
+        left:-30px;
+        top:40px;
+        width:180px;
+        height:180px;
+        border-radius:50%;
+        background:rgba(255,255,255,0.06);
+    }
+
+    .wallet-card::after{
+        content:'';
+        position:absolute;
+        right:-40px;
+        bottom:-40px;
+        width:160px;
+        height:160px;
+        border-radius:50%;
+        background:rgba(255,255,255,0.05);
+    }
+
+    .wallet-title{
+        font-weight:bold;
+        margin-bottom:8px;
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-amount{
+        font-size:30px;
+        font-weight:bold;
+        margin-bottom:16px;
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-amount span{
+        font-size:12px;
+        font-weight:normal;
+    }
+
+    .wallet-tabs{
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-tabs button{
+        background:transparent;
+        border:1px solid white;
+        color:white;
+        padding:5px 8px;
+        border-radius:4px;
+        margin-right:4px;
+        font-size:12px;
+    }
+
+    .wallet-tabs .active{
+        background:#c6f7a6;
+        color:black;
+    }
+
+    .wallet-stats{
+        display:flex;
+        margin-top:14px;
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-stat{
+        flex:1;
+        border-right:1px solid rgba(255,255,255,.6);
+        padding-right:8px;
+    }
+
+    .wallet-stat:last-child{
+        border-right:0;
+        padding-left:10px;
+    }
+
+    .wallet-stat small{
+        display:block;
+        margin-bottom:8px;
+    }
+
+    .wallet-stat b{
+        font-size:20px;
+    }
+
+    .section-title{
+        font-weight:bold;
+        margin:18px 0 12px;
+        font-size:16px;
+    }
+
+    .menu-grid{
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:10px;
+    }
+
+    .menu-card{
+        height:82px;
+        background:white;
+        border-radius:8px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        font-weight:bold;
+        text-align:center;
+        font-size:13px;
+        box-shadow:0 2px 8px rgba(0,0,0,.04);
+    }
+
+    .menu-icon{
+        font-size:26px;
+        margin-bottom:8px;
+        color:#2f5af7;
+    }
+
+    .vip-card{
+        height:62px;
+        background:#2f5af7;
+        border-radius:8px;
+        color:white;
+        display:flex;
+        align-items:center;
+        padding:0 12px;
+        font-weight:bold;
+        font-size:18px;
+    }
+
+    .vip-current{
+        margin-left:auto;
+        font-size:14px;
+    }
+
+    .other-box{
+        background:white;
+        border-radius:8px;
+        overflow:hidden;
+    }
+
+    .other-row{
+        height:64px;
+        display:flex;
+        align-items:center;
+        padding:0 16px;
+        border-bottom:1px solid #eee;
+        font-size:16px;
+    }
+
+    .other-row:last-child{
+        border-bottom:0;
+    }
+
+    .other-row span{
+        margin-left:14px;
+    }
+
+    .other-row .arrow{
+        margin-left:auto;
+        color:#9ca3af;
+        font-size:24px;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-row">
+
+    <div class="avatar">
+        👤
+    </div>
+
+    <div>
+
+        <div class="username">
+
+            {{ request.user.username }}
+
+            <span class="vip-badge">
+                {{ request.user.userprofile.vip_level }}
+            </span>
+
+        </div>
+
+        <div class="credit-row">
+
+            <span class="label-gray">
+                Credit Score:
+            </span>
+
+            <div class="credit-bar-wrapper">
+
+                <div
+                    class="credit-bar"
+                    style="width:{{ request.user.userprofile.credit_score }}%;"
+                ></div>
+
+            </div>
+
+            {{ request.user.userprofile.credit_score }}%
+
+        </div>
+
+        <div class="invite-row">
+
+            <span class="label-gray">
+                Invitation Code:
+            </span>
+
+            {{ request.user.userprofile.invite_code }}
+
+            <button class="copy-btn">
+                Copy
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="wallet-card">
+
+    <div class="wallet-title">
+        Wallet Account
+    </div>
+
+    <div class="wallet-amount">
+        {{ request.user.userprofile.balance }}
+        <span>USD</span>
+    </div>
+
+    <div class="wallet-title">
+        Special Lucky Bonus
+    </div>
+
+    <div class="wallet-amount">
+        37.00
+        <span>USD</span>
+    </div>
+
+    <div class="wallet-tabs">
+        <button class="active">
+            Todays Earnings
+        </button>
+
+        <button>
+            Total Earnings
+        </button>
+    </div>
+
+    <div class="wallet-stats">
+
+        <div class="wallet-stat">
+            <small>Order Revenue</small>
+            <b>0</b>
+        </div>
+
+        <div class="wallet-stat">
+            <small>Team</small>
+            <b>0</b>
+        </div>
+
+        <div class="wallet-stat">
+            <small>Total Earnings</small>
+            <b>0</b>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="section-title">
+    Transaction History
+</div>
+
+<div class="menu-grid">
+
+    <div class="menu-card">
+        <div class="menu-icon">💳</div>
+        Deposit
+    </div>
+
+    <div class="menu-card">
+        <div class="menu-icon">💳</div>
+        Withdraw
+    </div>
+
+    <div class="menu-card">
+        <div class="menu-icon">💷</div>
+        Trading Account
+    </div>
+
+    <div class="menu-card">
+        <div class="menu-icon">👤</div>
+        Personal Information
+    </div>
+
+</div>
+
+<div class="section-title">
+    VIP Levels
+</div>
+
+<div class="vip-card">
+
+    <span class="vip-badge">
+        V1
+    </span>
+
+    &nbsp;
+
+    {{ request.user.userprofile.vip_level }}
+
+    <div class="vip-current">
+        Current VIP Level
+    </div>
+
+</div>
+
+<div class="section-title">
+    Other
+</div>
+
+<div class="other-box">
+
+    <div class="other-row">
+        🔔
+        <span>Official Announcement</span>
+
+        <div class="arrow">
+            ›
+        </div>
+    </div>
+
+    <div class="other-row">
+        📖
+        <span>More Services</span>
+
+        <div class="arrow">
+            ›
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

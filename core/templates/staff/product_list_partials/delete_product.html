@@ -1,0 +1,127 @@
+<style>
+
+    .delete-product-overlay{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.70);
+        z-index:99999;
+    }
+
+    .delete-product-box{
+        width:420px;
+        max-width:92%;
+        background:#111;
+        border:1px solid #444;
+        margin:180px auto;
+        color:white;
+        border-radius:4px;
+    }
+
+    .delete-product-header{
+        padding:16px 20px;
+        border-bottom:1px solid #444;
+        font-size:17px;
+        font-weight:bold;
+    }
+
+    .delete-product-body{
+        padding:30px 20px;
+        font-size:14px;
+        line-height:1.7;
+        color:#d1d5db;
+    }
+
+    .delete-product-name{
+        color:#409eff;
+        font-weight:bold;
+        word-break:break-word;
+    }
+
+    .delete-product-footer{
+        border-top:1px solid #444;
+        padding:16px 20px;
+        text-align:right;
+    }
+
+    .delete-product-confirm{
+        background:#ef4444;
+        color:white;
+        border:0;
+        padding:10px 22px;
+        border-radius:3px;
+        cursor:pointer;
+        margin-right:8px;
+    }
+
+    .delete-product-cancel{
+        background:#222;
+        color:white;
+        border:1px solid #555;
+        padding:10px 22px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+
+</style>
+
+<div class="delete-product-overlay" id="deleteProductModal">
+
+    <div class="delete-product-box">
+
+        <div class="delete-product-header">
+            Delete Product
+        </div>
+
+        <div class="delete-product-body">
+
+            Are you sure you want to delete:
+
+            <div class="delete-product-name" id="deleteProductName">
+            </div>
+
+        </div>
+
+        <div class="delete-product-footer">
+
+            <form method="POST" id="deleteProductForm">
+
+                {% csrf_token %}
+
+                <button type="submit" class="delete-product-confirm">
+                    Delete
+                </button>
+
+                <button
+                    type="button"
+                    class="delete-product-cancel"
+                    onclick="closeDeleteProductModal()"
+                >
+                    Cancel
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function openDeleteProductModal(id, name){
+
+    document.getElementById('deleteProductModal').style.display = 'block';
+
+    document.getElementById('deleteProductName').innerText = name;
+
+    document.getElementById('deleteProductForm').action =
+        '/staff/product/' + id + '/delete/';
+}
+
+function closeDeleteProductModal(){
+    document.getElementById('deleteProductModal').style.display = 'none';
+}
+
+</script>

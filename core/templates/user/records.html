@@ -1,0 +1,335 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Records{% endblock %}
+
+{% block extra_css %}
+<style>
+
+    .tabs{
+        display:flex;
+        background:white;
+        position:sticky;
+        top:0;
+        z-index:10;
+    }
+
+    .tab-btn{
+        flex:1;
+        height:36px;
+
+        border:0;
+        background:#f3f4f6;
+
+        font-size:16px;
+        cursor:pointer;
+    }
+
+    .tab-btn.active{
+        background:black;
+        color:white;
+        border-radius:2px;
+    }
+
+    .records-list{
+        padding:10px 0 20px;
+    }
+
+    .record-time{
+        font-size:14px;
+        font-weight:bold;
+        margin:14px 0 8px;
+    }
+
+    .record-card{
+        background:white;
+        padding:12px;
+        border-radius:2px;
+        position:relative;
+    }
+
+    .status{
+        position:absolute;
+        top:10px;
+        right:12px;
+
+        background:#9df18c;
+        color:black;
+
+        font-size:14px;
+        padding:4px 10px;
+    }
+
+    .record-top{
+        display:flex;
+        gap:12px;
+    }
+
+    .product-image{
+        width:62px;
+        height:62px;
+        border-radius:8px;
+        background:#ddd;
+        object-fit:cover;
+        flex-shrink:0;
+    }
+
+    .product-title{
+        font-size:17px;
+        font-weight:bold;
+        line-height:1.55;
+    }
+
+    .stars{
+        margin-top:8px;
+        color:#facc15;
+        font-size:18px;
+    }
+
+    .empty-star{
+        color:#d1d5db;
+    }
+
+    .bottom-info{
+        display:flex;
+        margin-top:14px;
+    }
+
+    .info-box{
+        flex:1;
+    }
+
+    .info-label{
+        font-size:14px;
+        font-weight:bold;
+        margin-bottom:8px;
+    }
+
+    .info-value{
+        font-size:18px;
+        font-weight:bold;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="tabs">
+
+    <button class="tab-btn active">
+        All
+    </button>
+
+    <button class="tab-btn">
+        Pending
+    </button>
+
+    <button class="tab-btn">
+        Completed
+    </button>
+
+</div>
+
+<div class="records-list">
+
+    <!-- CARD 1 -->
+
+    <div class="record-time">
+        05-04-2026 10:27:32 pm
+    </div>
+
+    <div class="record-card">
+
+        <div class="status">
+            Completed
+        </div>
+
+        <div class="record-top">
+
+            <img
+                src="https://m.media-amazon.com/images/I/71l6wot9KkL._AC_SL1500_.jpg"
+                class="product-image"
+            >
+
+            <div>
+
+                <div class="product-title">
+                    YQkoop Kids Arts and Crafts Set - DIY Plaster Making and Painting Kit, Paint Your Own Figurines, Creative Activity DIY Toys Boys Girls
+                </div>
+
+                <div class="stars">
+                    <span class="empty-star">☆</span>
+                    <span class="empty-star">☆</span>
+                    <span class="empty-star">☆</span>
+                    <span class="empty-star">☆</span>
+                    <span class="empty-star">☆</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="bottom-info">
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Total Amount
+                </div>
+
+                <div class="info-value">
+                    USD 23.29
+                </div>
+
+            </div>
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Commission
+                </div>
+
+                <div class="info-value">
+                    USD 0.09
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CARD 2 -->
+
+    <div class="record-time">
+        05-04-2026 10:27:22 pm
+    </div>
+
+    <div class="record-card">
+
+        <div class="status">
+            Completed
+        </div>
+
+        <div class="record-top">
+
+            <img
+                src="https://m.media-amazon.com/images/I/81QpkIctqPL._AC_SL1500_.jpg"
+                class="product-image"
+            >
+
+            <div>
+
+                <div class="product-title">
+                    Disney Junior Mickey Mouse Funhouse Dino Rover 6-piece Play Figures and Vehicle Playset, Officially Licensed Kids Toys for Ages 3 Up by Just Play
+                </div>
+
+                <div class="stars">
+                    ★ ★ ★ ★
+                    <span class="empty-star">☆</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="bottom-info">
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Total Amount
+                </div>
+
+                <div class="info-value">
+                    USD 30.24
+                </div>
+
+            </div>
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Commission
+                </div>
+
+                <div class="info-value">
+                    USD 0.12
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CARD 3 -->
+
+    <div class="record-time">
+        05-04-2026 10:27:13 pm
+    </div>
+
+    <div class="record-card">
+
+        <div class="status">
+            Completed
+        </div>
+
+        <div class="record-top">
+
+            <img
+                src="https://m.media-amazon.com/images/I/71e5GgQj9NL._AC_SL1500_.jpg"
+                class="product-image"
+            >
+
+            <div>
+
+                <div class="product-title">
+                    Lavender Handmade Soap - B&B Products OKC, All Natural Farm Soap, 100% Natural and Organic Ingredients Moisturizing For Women, Men, All Skin Types
+                </div>
+
+                <div class="stars">
+                    <span class="empty-star">☆</span>
+                    <span class="empty-star">☆</span>
+                    <span class="empty-star">☆</span>
+                    <span class="empty-star">☆</span>
+                    <span class="empty-star">☆</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="bottom-info">
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Total Amount
+                </div>
+
+                <div class="info-value">
+                    USD 40.00
+                </div>
+
+            </div>
+
+            <div class="info-box">
+
+                <div class="info-label">
+                    Commission
+                </div>
+
+                <div class="info-value">
+                    USD 0.16
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

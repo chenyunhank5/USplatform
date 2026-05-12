@@ -1,0 +1,128 @@
+<style>
+
+    .delete-level-overlay{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.70);
+        z-index:99999;
+    }
+
+    .delete-level-box{
+        width:430px;
+        max-width:92%;
+        background:#111;
+        border:1px solid #444;
+        margin:180px auto;
+        color:white;
+        border-radius:4px;
+    }
+
+    .delete-level-header{
+        padding:16px 20px;
+        border-bottom:1px solid #444;
+        font-size:17px;
+        font-weight:bold;
+    }
+
+    .delete-level-body{
+        padding:30px 20px;
+        font-size:14px;
+        line-height:1.7;
+        color:#d1d5db;
+    }
+
+    .delete-level-name{
+        color:#409eff;
+        font-weight:bold;
+        word-break:break-word;
+        margin-top:10px;
+    }
+
+    .delete-level-footer{
+        border-top:1px solid #444;
+        padding:16px 20px;
+        text-align:right;
+    }
+
+    .delete-level-confirm{
+        background:#ef4444;
+        color:white;
+        border:0;
+        padding:10px 22px;
+        border-radius:3px;
+        cursor:pointer;
+        margin-right:8px;
+    }
+
+    .delete-level-cancel{
+        background:#222;
+        color:white;
+        border:1px solid #555;
+        padding:10px 22px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+
+</style>
+
+<div class="delete-level-overlay" id="deleteLevelModal">
+
+    <div class="delete-level-box">
+
+        <div class="delete-level-header">
+            Delete VIP Level
+        </div>
+
+        <div class="delete-level-body">
+
+            Are you sure you want to delete:
+
+            <div class="delete-level-name" id="deleteLevelName">
+            </div>
+
+        </div>
+
+        <div class="delete-level-footer">
+
+            <form method="POST" id="deleteLevelForm">
+
+                {% csrf_token %}
+
+                <button type="submit" class="delete-level-confirm">
+                    Delete
+                </button>
+
+                <button
+                    type="button"
+                    class="delete-level-cancel"
+                    onclick="closeDeleteLevelModal()"
+                >
+                    Cancel
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function openDeleteLevelModal(id, name){
+
+    document.getElementById('deleteLevelModal').style.display = 'block';
+
+    document.getElementById('deleteLevelName').innerText = name;
+
+    document.getElementById('deleteLevelForm').action =
+        '/staff/vip-level/' + id + '/delete/';
+}
+
+function closeDeleteLevelModal(){
+    document.getElementById('deleteLevelModal').style.display = 'none';
+}
+
+</script>

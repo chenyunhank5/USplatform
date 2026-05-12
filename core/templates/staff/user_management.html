@@ -1,0 +1,381 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Member List{% endblock %}
+{% block page_title %}Member management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .panel{
+        background:#111;
+        border:1px solid #2a2a2a;
+        padding:16px;
+    }
+
+    .filter-bar{
+        display:flex;
+        gap:14px;
+        align-items:center;
+        margin-bottom:16px;
+        flex-wrap:wrap;
+        color:white;
+        font-size:13px;
+    }
+
+    .filter-bar input,
+    .filter-bar select{
+        background:#1a1a1a;
+        border:1px solid #444;
+        color:white;
+        padding:8px 12px;
+        border-radius:3px;
+        outline:none;
+        min-width:180px;
+    }
+
+    .filter-btn,
+    .add-btn{
+        background:#409eff;
+        color:white;
+        border:0;
+        padding:8px 18px;
+        border-radius:3px;
+        cursor:pointer;
+        font-size:13px;
+    }
+
+    .reset-btn{
+        background:#5aa9ff;
+    }
+
+    .add-btn{
+        margin-bottom:14px;
+    }
+
+    .table-scroll{
+        width:100%;
+        overflow:auto;
+        border:1px solid #333;
+        background:#111;
+        max-height:650px;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        font-size:13px;
+    }
+
+    th{
+        background:#171717;
+        color:#9ca3af;
+        padding:13px 12px;
+        text-align:left;
+        border:1px solid #333;
+        white-space:nowrap;
+    }
+
+    td{
+        padding:13px 12px;
+        border:1px solid #333;
+        color:#e5e7eb;
+        white-space:nowrap;
+        background:#151515;
+    }
+
+    tr:nth-child(even) td{
+        background:#181818;
+    }
+
+    tr:hover td{
+        background:#242424;
+    }
+
+    .blue-tag{
+        background:#0b3a66;
+        color:#60a5fa;
+        padding:4px 8px;
+        border-radius:3px;
+        display:inline-block;
+    }
+
+    .btn{
+        border:0;
+        color:white;
+        padding:7px 12px;
+        border-radius:3px;
+        margin-right:4px;
+        cursor:pointer;
+        font-size:12px;
+        white-space:nowrap;
+    }
+
+    .orange{background:#f59e0b}
+    .purple{background:#6366f1}
+    .blue{background:#409eff}
+    .red{background:#ef4444}
+
+    .action-header{
+        position:sticky;
+        right:0;
+        background:#171717;
+        z-index:20;
+        text-align:right;
+        width:1%;
+        white-space:nowrap;
+    }
+
+    .action-column{
+        position:sticky;
+        right:0;
+        background:#151515 !important;
+        z-index:10;
+        text-align:right;
+        width:1%;
+        white-space:nowrap;
+    }
+
+    tr:nth-child(even) .action-column{
+        background:#181818 !important;
+    }
+
+    tr:hover .action-column{
+        background:#242424 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="panel">
+
+    <div class="filter-bar">
+
+        <label>Keyword:</label>
+        <input type="text" placeholder="Please enter keyword">
+
+        <label>Registration time:</label>
+        <input type="text" placeholder="Start time">
+
+        <span>To</span>
+
+        <input type="text" placeholder="End time">
+
+        <label>Is dummy or not:</label>
+
+        <select>
+            <option>Is dummy...</option>
+            <option>Yes</option>
+            <option>No</option>
+        </select>
+
+        <button class="filter-btn">
+            Query
+        </button>
+
+        <button class="filter-btn reset-btn">
+            Reset
+        </button>
+
+    </div>
+
+    <button type="button" class="add-btn" onclick="openAddUserModal()"">
+        ＋ Add user
+    </button>
+
+    <div class="table-scroll">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User name</th>
+                    <th>Mobile number</th>
+                    <th>Mailbox</th>
+                    <th>Level</th>
+                    <th>Balance</th>
+                    <th>Frozen</th>
+                    <th>Invite code</th>
+                    <th>Invited by</th>
+                    <th>Credit score</th>
+                    <th>Task progress</th>
+                    <th>IP address</th>
+                    <th>Authorized</th>
+                    <th>Need auth</th>
+                    <th>Account status</th>
+                    <th>Trade status</th>
+                    <th>Withdrawal status</th>
+                    <th>Online status</th>
+                    <th>Recent login</th>
+                    <th>Registration time</th>
+                    <th class="action-header">Operate</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for profile in profiles %}
+
+                <tr>
+                    <td>{{ profile.id }}</td>
+                    <td>{{ profile.user.username }}</td>
+                    <td>{{ profile.phone_number }}</td>
+                    <td>{{ profile.user.email }}</td>
+                    <td>{{ profile.vip_level.level_name }}</td>
+
+                    <td>
+                        <span class="blue-tag">
+                            {{ profile.balance }}
+                        </span>
+                    </td>
+
+                    <td>{{ profile.frozen_amount }}</td>
+                    <td>{{ profile.invite_code }}</td>
+
+                    <td>
+                        {% if profile.invited_by %}
+                            {{ profile.invited_by.user.username }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>{{ profile.credit_score }}/100</td>
+                    <td>
+                        {{ profile.task_progress }}/{{ profile.vip_level.maximum_task }}
+                    </td>
+                    <td>{{ profile.ip_address }}</td>
+
+                    <td>
+                        {% if profile.is_authorized %}
+                            Yes
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if profile.need_authorization %}
+                            Yes
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+
+                    <td>{{ profile.account_status }}</td>
+                    <td>{{ profile.trade_status }}</td>
+                    <td>{{ profile.withdrawal_status }}</td>
+                    <td>
+
+                        {% if profile.live_status == 'online' %}
+
+                            <span style="
+                                background:#14532d;
+                                color:#86efac;
+                                padding:4px 10px;
+                                border-radius:3px;
+                                font-size:12px;
+                            ">
+                                Online
+                            </span>
+
+                        {% else %}
+
+                            <span style="
+                                background:#3f3f46;
+                                color:#d4d4d8;
+                                padding:4px 10px;
+                                border-radius:3px;
+                                font-size:12px;
+                            ">
+                                Offline
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+                    <td>
+                        {% if profile.recent_login %}
+                            {{ profile.recent_login|date:"Y-m-d H:i" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ profile.registration_time }}</td>
+
+                    <td class="action-column">
+
+                        <button
+                            type="button"
+                            class="btn orange"
+                            onclick="openScoreModal('{{ profile.id }}', '{{ profile.balance }}')"
+                        >
+                            Score modification
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn purple"
+                            onclick="openEditUserModal(
+                                '{{ profile.id }}',
+                                '{{ profile.user.username|escapejs }}',
+                                '{{ profile.phone_number|default:''|escapejs }}',
+                                '{{ profile.user.email|default:''|escapejs }}',
+
+                                {% if profile.vip_level %}
+                                    '{{ profile.vip_level.id }}',
+                                {% else %}
+                                    '',
+                                {% endif %}
+
+                                '{{ profile.balance }}',
+                                '{{ profile.frozen_amount }}',
+                                '{{ profile.credit_score }}',
+                                '{{ profile.task_progress }}',
+                                '{{ profile.need_authorization }}',
+                                '{{ profile.account_status }}',
+                                '{{ profile.trade_status }}',
+                                '{{ profile.withdrawal_status }}'
+                            )"
+                        >
+                            View details
+                        </button>
+
+                        <button class="btn blue">
+                            Successive order
+                        </button>
+
+                        <button class="btn red">
+                            Reset order
+                        </button>
+
+                        <button class="btn blue">
+                            Operate
+                        </button>
+
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="21">
+                        No users found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% include 'staff/user_management_partials/add_user.html' %}
+{% include 'staff/user_management_partials/edit_user.html' %}
+{% include 'staff/user_management_partials/score_modal.html' %}
+
+{% endblock %}

@@ -1,0 +1,222 @@
+<style>
+    .edit-level-overlay{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.70);
+        z-index:9999;
+        padding-top:80px;
+    }
+
+    .edit-level-box{
+        width:70%;
+        max-width:90%;
+        background:#111;
+        border:1px solid #444;
+        margin:0 auto;
+        color:white;
+    }
+
+    .edit-level-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:16px 20px;
+        border-bottom:1px solid #555;
+        font-size:18px;
+        font-weight:bold;
+    }
+
+    .edit-level-header button{
+        background:none;
+        border:0;
+        color:#aaa;
+        font-size:24px;
+        cursor:pointer;
+    }
+
+    .edit-level-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:20px 32px;
+        padding:28px 34px;
+    }
+
+    .edit-level-row{
+        display:flex;
+        align-items:center;
+        gap:14px;
+    }
+
+    .edit-level-row label{
+        width:190px;
+        font-size:13px;
+        color:#ddd;
+        text-align:right;
+        line-height:1.3;
+    }
+
+    .edit-level-row label span{
+        color:#ff4d4f;
+    }
+
+    .edit-level-row input{
+        flex:1;
+        min-width:260px;
+        background:#111;
+        border:1px solid #444;
+        color:white;
+        padding:10px 12px;
+        outline:none;
+    }
+
+    .edit-description-box{
+        padding:0 34px 28px;
+    }
+
+    .edit-description-box label{
+        display:block;
+        margin-bottom:8px;
+        color:#ddd;
+        font-size:13px;
+        font-weight:bold;
+    }
+
+    .edit-description-box textarea{
+        width:100%;
+        min-height:220px;
+        background:#0f0f0f;
+        border:1px solid #444;
+        color:#e5e7eb;
+        padding:14px;
+        outline:none;
+        resize:vertical;
+        font-family:Consolas, monospace;
+        font-size:13px;
+        line-height:1.5;
+        border-radius:3px;
+    }
+
+    .edit-description-box textarea:focus{
+        border-color:#409eff;
+    }
+
+    .edit-level-footer{
+        border-top:1px solid #555;
+        padding:18px 34px;
+        text-align:right;
+    }
+
+    .edit-level-submit{
+        background:#409eff;
+        color:white;
+        border:0;
+        padding:9px 22px;
+        border-radius:3px;
+        cursor:pointer;
+        margin-right:8px;
+    }
+
+    .edit-level-cancel{
+        background:#222;
+        color:white;
+        border:1px solid #555;
+        padding:9px 22px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+</style>
+
+<div class="edit-level-overlay" id="editLevelModal">
+
+    <div class="edit-level-box">
+
+        <div class="edit-level-header">
+            <span>Edit VIP Level</span>
+
+            <button type="button" onclick="closeEditLevelModal()">
+                ×
+            </button>
+        </div>
+
+        <form method="POST" id="editLevelForm" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="edit-level-grid">
+
+                <div class="edit-level-row">
+                    <label><span>*</span> Level name</label>
+                    <input type="text" name="level_name" id="editLevelName" required>
+                </div>
+
+                <div class="edit-level-row">
+                    <label>Icon</label>
+                    <input type="file" name="icon">
+                </div>
+
+                <div class="edit-level-row">
+                    <label><span>*</span> Minimum amount</label>
+                    <input type="number" step="0.01" name="minimum_amount" id="editMinimumAmount" required>
+                </div>
+
+                <div class="edit-level-row">
+                    <label><span>*</span> Commission rate</label>
+                    <input type="number" step="0.0001" name="commission_rate" id="editCommissionRate" required>
+                </div>
+
+                <div class="edit-level-row">
+                    <label><span>*</span> Successive order commission</label>
+                    <input type="number" step="0.0001" name="successive_order_commission_rate" id="editSuccessiveRate" required>
+                </div>
+
+                <div class="edit-level-row">
+                    <label><span>*</span> Maximum task</label>
+                    <input type="number" name="maximum_task" id="editMaximumTask" required>
+                </div>
+
+            </div>
+
+            <div class="edit-description-box">
+                <label>Description / HTML Code</label>
+
+                <textarea
+                    name="description"
+                    id="editDescription"
+                    placeholder="Write VIP details or paste HTML code here..."
+                ></textarea>
+            </div>
+
+            <div class="edit-level-footer">
+                <button type="submit" class="edit-level-submit">
+                    Submit
+                </button>
+
+                <button type="button" class="edit-level-cancel" onclick="closeEditLevelModal()">
+                    Cancel
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function openEditLevelModal(id, levelName, minimumAmount, commissionRate, successiveRate, maximumTask, description){
+    document.getElementById('editLevelModal').style.display = 'block';
+
+    document.getElementById('editLevelForm').action = '/staff/vip-level/' + id + '/edit/';
+
+    document.getElementById('editLevelName').value = levelName;
+    document.getElementById('editMinimumAmount').value = minimumAmount;
+    document.getElementById('editCommissionRate').value = commissionRate;
+    document.getElementById('editSuccessiveRate').value = successiveRate;
+    document.getElementById('editMaximumTask').value = maximumTask;
+    document.getElementById('editDescription').value = description || '';
+}
+
+function closeEditLevelModal(){
+    document.getElementById('editLevelModal').style.display = 'none';
+}
+</script>

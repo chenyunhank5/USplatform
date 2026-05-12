@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:Arial, sans-serif;
+            background:#f3f4f6;
+        }
+
+        .mobile-page{
+            max-width:430px;
+            margin:0 auto;
+            min-height:100vh;
+            background:#f3f4f6;
+            position:relative;
+            overflow:hidden;
+        }
+
+        /* =========================
+           TOP BAR
+        ========================== */
+
+        .topbar{
+            height:56px;
+            background:#000;
+            color:#fff;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            position:relative;
+
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .back-btn{
+            position:absolute;
+            left:16px;
+
+            font-size:34px;
+            font-weight:300;
+            cursor:pointer;
+        }
+
+        /* =========================
+           LOGO
+        ========================== */
+
+        .logo-wrapper{
+            padding-top:28px;
+            padding-bottom:12px;
+        }
+
+        .logo-box{
+            width:190px;
+            height:105px;
+
+            background:#fff;
+
+            margin:auto;
+
+            border-radius:8px;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            box-shadow:0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo-circle{
+            width:58px;
+            height:58px;
+
+            border-radius:50%;
+
+            background:#7c3aed;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            color:#fff;
+            font-size:36px;
+            font-weight:bold;
+        }
+
+        .logo-text{
+            margin-left:10px;
+        }
+
+        .logo-title{
+            font-size:24px;
+            color:#555;
+            font-weight:bold;
+        }
+
+        .logo-sub{
+            font-size:12px;
+            color:#999;
+            margin-top:2px;
+        }
+
+        /* =========================
+           CARD
+        ========================== */
+
+        .form-card{
+            background:#fff;
+
+            margin:0 20px;
+
+            border-radius:8px;
+
+            padding:4px 18px 10px;
+
+            box-shadow:0 2px 10px rgba(0,0,0,0.04);
+        }
+
+        .form-group{
+            border-bottom:1px solid #ececec;
+            padding:16px 0 12px;
+        }
+
+        .form-group:last-child{
+            border-bottom:none;
+        }
+
+        .label{
+            font-size:15px;
+            font-weight:bold;
+            color:#111827;
+
+            margin-bottom:10px;
+        }
+
+        .invite-label{
+            color:#8ddf8d;
+        }
+
+        .input-row{
+            display:flex;
+            align-items:center;
+        }
+
+        .input-row input{
+            width:100%;
+            border:none;
+            outline:none;
+
+            background:transparent;
+
+            font-size:15px;
+            color:#111827;
+        }
+
+        .input-row input::placeholder{
+            color:#c4c7cf;
+        }
+
+        .right-input input{
+            text-align:right;
+        }
+
+        /* =========================
+           PASSWORD EYE
+        ========================== */
+
+        .eye-btn{
+            width:24px;
+            height:24px;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            cursor:pointer;
+
+            color:#666;
+
+            margin-left:8px;
+            user-select:none;
+        }
+
+        /* =========================
+           GENDER
+        ========================== */
+
+        .gender-row{
+            display:flex;
+            align-items:center;
+        }
+
+        .gender-options{
+            margin-left:auto;
+
+            display:flex;
+            align-items:center;
+            gap:14px;
+        }
+
+        .gender-options label{
+            display:flex;
+            align-items:center;
+            gap:5px;
+
+            color:#2f5af7;
+            font-size:15px;
+        }
+
+        .gender-options input{
+            width:18px;
+            height:18px;
+        }
+
+        /* =========================
+           AGREEMENT
+        ========================== */
+
+        .agree-box{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            gap:8px;
+
+            margin:18px 0 24px;
+
+            font-size:14px;
+            color:#2f5af7;
+            font-weight:bold;
+        }
+
+        .agree-box input{
+            width:18px;
+            height:18px;
+        }
+
+        /* =========================
+           BUTTON
+        ========================== */
+
+        .register-btn{
+            width:calc(100% - 40px);
+            margin:0 auto 30px;
+
+            height:56px;
+
+            border:none;
+            border-radius:6px;
+
+            background:#2f5af7;
+            color:#fff;
+
+            font-size:24px;
+            font-weight:500;
+
+            display:block;
+
+            cursor:pointer;
+
+            transition:0.2s;
+        }
+
+        .register-btn:active{
+            transform:scale(0.98);
+        }
+
+        /* =========================
+           TOAST MESSAGE
+        ========================== */
+
+        .toast-container{
+            position:fixed;
+            top:20px;
+            left:50%;
+            transform:translateX(-50%);
+            z-index:9999;
+        }
+
+        .toast{
+            min-width:220px;
+            max-width:300px;
+
+            background:#2c2c2c;
+            color:#fff;
+
+            padding:14px 18px;
+
+            border-radius:10px;
+
+            text-align:center;
+
+            font-size:14px;
+
+            box-shadow:0 10px 20px rgba(0,0,0,0.18);
+
+            animation:fadeIn 0.3s ease;
+        }
+
+        .toast.success{
+            background:#16a34a;
+        }
+
+        .toast.error{
+            background:#1f2937;
+        }
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(-10px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="mobile-page">
+
+    <!-- TOP BAR -->
+
+    <div class="topbar">
+
+        <div class="back-btn">
+            ‹
+        </div>
+
+        Register
+
+    </div>
+
+    <!-- LOGO -->
+
+    <div class="logo-wrapper">
+
+        <div class="logo-box">
+
+            <div class="logo-circle">
+                a
+            </div>
+
+            <div class="logo-text">
+
+                <div class="logo-title">
+                    annalect
+                </div>
+
+                <div class="logo-sub">
+                    Welcome Back
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TOAST MESSAGES -->
+
+    {% if messages %}
+
+    <div class="toast-container">
+
+        {% for message in messages %}
+
+            <div class="toast {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+
+    <!-- FORM -->
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <div class="form-card">
+
+            <!-- USERNAME -->
+
+            <div class="form-group right-input">
+
+                <div class="label">
+                    Username
+                </div>
+
+                <div class="input-row">
+
+                    <input
+                        type="text"
+                        name="username"
+                        placeholder="Username"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+            <!-- PHONE -->
+
+            <div class="form-group right-input">
+
+                <div class="label">
+                    Phone
+                </div>
+
+                <div class="input-row">
+
+                    <input
+                        type="text"
+                        name="phone_number"
+                        placeholder="Phone Number"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+            <!-- TRANSACTION PASSWORD -->
+
+            <div class="form-group">
+
+                <div class="label">
+                    Transaction Password
+                </div>
+
+                <div class="input-row">
+
+                    <input
+                        type="password"
+                        name="transaction_password"
+                        placeholder="Transaction Password"
+                        required
+                        class="password-input"
+                    >
+
+                    <div class="eye-btn">
+                        👁
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- PASSWORD -->
+
+            <div class="form-group">
+
+                <div class="label">
+                    Password
+                </div>
+
+                <div class="input-row">
+
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        required
+                        class="password-input"
+                    >
+
+                    <div class="eye-btn">
+                        👁
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- CONFIRM PASSWORD -->
+
+            <div class="form-group">
+
+                <div class="label">
+                    Confirm Password
+                </div>
+
+                <div class="input-row">
+
+                    <input
+                        type="password"
+                        name="confirm_password"
+                        placeholder="Confirm Password"
+                        required
+                        class="password-input"
+                    >
+
+                    <div class="eye-btn">
+                        👁
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- GENDER -->
+
+            <div class="form-group gender-row">
+
+                <div class="label">
+                    Gender
+                </div>
+
+                <div class="gender-options">
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="gender"
+                            value="male"
+                            required
+                        >
+
+                        Male
+
+                    </label>
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="gender"
+                            value="female"
+                            required
+                        >
+
+                        Female
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <!-- INVITE -->
+
+            <div class="form-group right-input">
+
+                <div class="label invite-label">
+                    Invite Code
+                </div>
+
+                <div class="input-row">
+
+                    <input
+                        type="text"
+                        name="invite_code"
+                        placeholder="Invite Code"
+                        maxlength="6"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- AGREEMENT -->
+
+        <label class="agree-box">
+
+            <input type="checkbox" required>
+
+            Agree To Use The Relevant Treaties
+
+        </label>
+
+        <!-- BUTTON -->
+
+        <button class="register-btn" type="submit">
+            Register
+        </button>
+
+    </form>
+
+</div>
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script>
+
+    // AUTO HIDE TOAST
+
+    setTimeout(() => {
+
+        const toasts = document.querySelectorAll('.toast');
+
+        toasts.forEach((toast) => {
+
+            toast.style.transition = '0.4s';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+
+            setTimeout(() => {
+                toast.remove();
+            }, 400);
+
+        });
+
+    }, 2500);
+
+    // PASSWORD SHOW/HIDE
+
+    const eyeButtons = document.querySelectorAll('.eye-btn');
+
+    eyeButtons.forEach((btn) => {
+
+        btn.addEventListener('click', function(){
+
+            const input = this.parentElement.querySelector('input');
+
+            if(input.type === 'password'){
+                input.type = 'text';
+            }else{
+                input.type = 'password';
+            }
+
+        });
+
+    });
+
+</script>
+
+</body>
+</html>

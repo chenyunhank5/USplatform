@@ -1,0 +1,193 @@
+<style>
+    .add-user-overlay{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.65);
+        z-index:9998;
+    }
+
+    .add-user-box{
+        width:900px;
+        max-width:95%;
+        background:#111;
+        border:1px solid #444;
+        margin:70px auto;
+        color:white;
+        border-radius:2px;
+    }
+
+    .add-user-header{
+        display:flex;
+        justify-content:space-between;
+        padding:14px;
+        border-bottom:1px solid #555;
+        font-size:16px;
+    }
+
+    .add-user-header button{
+        background:none;
+        border:0;
+        color:#aaa;
+        font-size:22px;
+        cursor:pointer;
+    }
+
+    .add-user-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:14px 20px;
+        padding:16px;
+    }
+
+    .add-user-row{
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+
+    .add-user-row label{
+        width:130px;
+        font-size:13px;
+        color:#ddd;
+        text-align:right;
+    }
+
+    .add-user-row label span{
+        color:#ff4d4f;
+    }
+
+    .add-user-row input,
+    .add-user-row select{
+        flex:1;
+        background:#111;
+        border:1px solid #444;
+        color:white;
+        padding:8px 10px;
+        outline:none;
+    }
+
+    .radio-group{
+        flex:1;
+        display:flex;
+        gap:18px;
+    }
+
+    .add-user-footer{
+        border-top:1px solid #555;
+        padding:14px;
+        text-align:right;
+    }
+
+    .add-submit{
+        background:#409eff;
+        color:white;
+        border:0;
+        padding:8px 18px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+
+    .add-cancel{
+        background:#222;
+        color:white;
+        border:1px solid #555;
+        padding:8px 18px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+</style>
+
+<div class="add-user-overlay" id="addUserModal">
+
+    <div class="add-user-box">
+
+        <div class="add-user-header">
+            <span>Add user</span>
+            <button type="button" onclick="closeAddUserModal()">×</button>
+        </div>
+
+        <form method="POST" action="/staff/user/add/">
+            {% csrf_token %}
+
+            <div class="add-user-grid">
+
+                <div class="add-user-row">
+                    <label><span>*</span> User name</label>
+                    <input type="text" name="username" placeholder="Please enter user name" required>
+                </div>
+
+                <div class="add-user-row">
+                    <label>Upper level ID</label>
+                    <input type="text" name="upper_level_id" placeholder="Please enter upper level">
+                </div>
+
+                <div class="add-user-row">
+                    <label><span>*</span> Mobile number</label>
+                    <input type="text" name="phone_number" placeholder="Please enter mobile phone" required>
+                </div>
+
+                <div class="add-user-row">
+                    <label>Mailbox</label>
+                    <input type="email" name="email" placeholder="Please enter mailbox">
+                </div>
+
+                <div class="add-user-row">
+                    <label><span>*</span> Password</label>
+                    <input type="password" name="password" placeholder="Please enter password" required>
+                </div>
+
+                <div class="add-user-row">
+                    <label><span>*</span> Trade password</label>
+                    <input type="password" name="transaction_password" placeholder="Please enter password" required>
+                </div>
+
+                <div class="add-user-row">
+                    <label><span>*</span> Member level</label>
+                    <select name="vip_level" required>
+                      {% for vip in vip_levels %}
+                          <option value="{{ vip.id }}">
+                              {{ vip.level_name }}
+                          </option>
+                      {% endfor %}
+                    </select>
+                </div>
+
+                <div class="add-user-row">
+                    <label><span>*</span> Status</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="account_status" value="active" checked> Enable</label>
+                        <label><input type="radio" name="account_status" value="disabled"> Disable</label>
+                    </div>
+                </div>
+
+                <div class="add-user-row">
+                    <label><span>*</span> Trade status</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="trade_status" value="enabled" checked> Enable</label>
+                        <label><input type="radio" name="trade_status" value="disabled"> Disable</label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="add-user-footer">
+                <button type="submit" class="add-submit">Submit</button>
+                <button type="button" class="add-cancel" onclick="closeAddUserModal()">Cancel</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function openAddUserModal(){
+    document.getElementById('addUserModal').style.display = 'block';
+}
+
+function closeAddUserModal(){
+    document.getElementById('addUserModal').style.display = 'none';
+}
+</script>
