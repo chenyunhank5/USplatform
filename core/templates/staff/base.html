@@ -129,6 +129,25 @@
             cursor:pointer;
         }
 
+        .top-actions .logout-btn{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            background:#dc2626;
+            color:white;
+            border:1px solid #ef4444;
+            padding:8px 18px;
+            border-radius:3px;
+            margin-left:8px;
+            cursor:pointer;
+            text-decoration:none;
+            transition:.2s;
+        }
+
+        .top-actions .logout-btn:hover{
+            background:#ef4444;
+        }
+
         .content{
             flex:1;
             min-height:0;
@@ -231,6 +250,10 @@
                 <button>Loan</button>
                 <button>Withdraw</button>
                 <button>Order</button>
+                <a href="{% url 'staff_logout' %}" class="logout-btn">
+                    Logout
+                </a>
+
             </div>
         </div>
 

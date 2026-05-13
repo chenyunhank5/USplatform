@@ -1,4 +1,5 @@
 from decimal import Decimal
+from datetime import timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
@@ -7,7 +8,6 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from datetime import timedelta
 
 from .models import UserProfile, VipLevel, Product, ProductEvaluation
 
@@ -23,10 +23,49 @@ def get_client_ip(request):
     return ip
 
 
-# STAFF
+def staff_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('staff_login')
 
+        if not request.user.is_staff:
+            return redirect('user_home')
+
+        return view_func(request, *args, **kwargs)
+
+    return wrapper
+
+
+# STAFF LOGIN
+
+def staff_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None and user.is_staff:
+            login(request, user)
+            return redirect('staff_home')
+
+        messages.error(request, 'Invalid staff username or password.')
+        return redirect('staff_login')
+
+    return render(request, 'staff/login.html')
+
+
+def staff_logout(request):
+    logout(request)
+    return redirect('staff_login')
+
+
+# STAFF HOME
+
+@staff_required
 def staff_home(request):
     today = timezone.localdate()
+    now = timezone.now()
 
     total_users = UserProfile.objects.count()
 
@@ -34,12 +73,33 @@ def staff_home(request):
         registration_time__date=today
     ).count()
 
+    online_users = UserProfile.objects.filter(
+        recent_login__gte=now - timedelta(seconds=30)
+    ).count()
+
+    vip_count = VipLevel.objects.count()
+    product_count = Product.objects.count()
+    evaluation_count = ProductEvaluation.objects.count()
+
+    recent_users = UserProfile.objects.select_related(
+        'user',
+        'vip_level'
+    ).all().order_by('-id')[:8]
+
     return render(request, 'staff/home.html', {
         'total_users': total_users,
         'total_register_today': total_register_today,
+        'online_users': online_users,
+        'vip_count': vip_count,
+        'product_count': product_count,
+        'evaluation_count': evaluation_count,
+        'recent_users': recent_users,
     })
 
 
+# USER MANAGEMENT
+
+@staff_required
 def staff_user_management(request):
     profiles = UserProfile.objects.select_related(
         'user',
@@ -53,13 +113,8 @@ def staff_user_management(request):
     now = timezone.now()
 
     for profile in profiles:
-
-        if (
-            profile.recent_login and
-            profile.recent_login >= now - timedelta(seconds=30)
-        ):
+        if profile.recent_login and profile.recent_login >= now - timedelta(seconds=30):
             profile.live_status = 'online'
-
         else:
             profile.live_status = 'offline'
 
@@ -68,6 +123,8 @@ def staff_user_management(request):
         'vip_levels': vip_levels,
     })
 
+
+@staff_required
 def staff_add_user(request):
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -75,13 +132,12 @@ def staff_add_user(request):
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '').strip()
         transaction_password = request.POST.get('transaction_password', '').strip()
-
         vip_level_id = request.POST.get('vip_level', '').strip()
-        vip_level = VipLevel.objects.filter(id=vip_level_id).first()
-
         account_status = request.POST.get('account_status', 'active').strip()
         trade_status = request.POST.get('trade_status', 'enabled').strip()
         upper_level_id = request.POST.get('upper_level_id', '').strip()
+
+        vip_level = VipLevel.objects.filter(id=vip_level_id).first()
 
         if not username or not phone_number or not password or not transaction_password or not vip_level:
             messages.error(request, 'Please fill all required fields.')
@@ -121,63 +177,22 @@ def staff_add_user(request):
     return redirect('staff_user_management')
 
 
-def staff_update_login_password(request, profile_id):
-    profile = get_object_or_404(UserProfile.objects.select_related('user'), id=profile_id)
-
-    if request.method == 'POST':
-        new_password = request.POST.get('new_password', '').strip()
-
-        if new_password:
-            profile.user.set_password(new_password)
-            profile.user.save()
-            messages.success(request, 'Login password updated successfully.')
-
-    return redirect('staff_user_management')
-
-
-def staff_update_withdrawal_password(request, profile_id):
-    profile = get_object_or_404(UserProfile, id=profile_id)
-
-    if request.method == 'POST':
-        new_password = request.POST.get('new_password', '').strip()
-
-        if new_password:
-            profile.transaction_password = make_password(new_password)
-            profile.save()
-            messages.success(request, 'Withdrawal password updated successfully.')
-
-    return redirect('staff_user_management')
-
-
-def staff_update_wallet_address(request, profile_id):
-    profile = get_object_or_404(UserProfile, id=profile_id)
-
-    if request.method == 'POST':
-        wallet_address = request.POST.get('wallet_address', '').strip()
-
-        profile.wallet_address = wallet_address
-        profile.save()
-
-        messages.success(request, 'Wallet address updated successfully.')
-
-    return redirect('staff_user_management')
-
-
+@staff_required
 def staff_edit_user(request, profile_id):
-    profile = get_object_or_404(UserProfile.objects.select_related('user'), id=profile_id)
+    profile = get_object_or_404(
+        UserProfile.objects.select_related('user'),
+        id=profile_id
+    )
 
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         phone_number = request.POST.get('phone_number', '').strip()
         email = request.POST.get('email', '').strip()
-
         vip_level_id = request.POST.get('vip_level', '').strip()
-
         balance = request.POST.get('balance', '0').strip()
         frozen_amount = request.POST.get('frozen_amount', '0').strip()
         credit_score = request.POST.get('credit_score', '100').strip()
         task_progress = request.POST.get('task_progress', '0').strip()
-
         need_authorization = request.POST.get('need_authorization', 'False')
         account_status = request.POST.get('account_status', 'active')
         trade_status = request.POST.get('trade_status', 'enabled')
@@ -203,7 +218,6 @@ def staff_edit_user(request, profile_id):
             vip_level = VipLevel.objects.filter(level_name__iexact='VIP1').first()
 
         profile.vip_level = vip_level
-
         profile.balance = Decimal(balance or '0')
         profile.frozen_amount = Decimal(frozen_amount or '0')
         profile.credit_score = int(credit_score or 100)
@@ -219,6 +233,7 @@ def staff_edit_user(request, profile_id):
     return redirect('staff_user_management')
 
 
+@staff_required
 def staff_score_modify(request, profile_id):
     profile = get_object_or_404(UserProfile, id=profile_id)
 
@@ -247,6 +262,59 @@ def staff_score_modify(request, profile_id):
     return redirect('staff_user_management')
 
 
+# USER SECURITY
+
+@staff_required
+def staff_update_login_password(request, profile_id):
+    profile = get_object_or_404(
+        UserProfile.objects.select_related('user'),
+        id=profile_id
+    )
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password', '').strip()
+
+        if new_password:
+            profile.user.set_password(new_password)
+            profile.user.save()
+            messages.success(request, 'Login password updated successfully.')
+
+    return redirect('staff_user_management')
+
+
+@staff_required
+def staff_update_withdrawal_password(request, profile_id):
+    profile = get_object_or_404(UserProfile, id=profile_id)
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password', '').strip()
+
+        if new_password:
+            profile.transaction_password = make_password(new_password)
+            profile.save()
+            messages.success(request, 'Withdrawal password updated successfully.')
+
+    return redirect('staff_user_management')
+
+
+@staff_required
+def staff_update_wallet_address(request, profile_id):
+    profile = get_object_or_404(UserProfile, id=profile_id)
+
+    if request.method == 'POST':
+        wallet_address = request.POST.get('wallet_address', '').strip()
+
+        profile.wallet_address = wallet_address
+        profile.save()
+
+        messages.success(request, 'Wallet address updated successfully.')
+
+    return redirect('staff_user_management')
+
+
+# VIP MANAGEMENT
+
+@staff_required
 def staff_vip_level_management(request):
     vip_levels = VipLevel.objects.all().order_by('id')
 
@@ -255,15 +323,13 @@ def staff_vip_level_management(request):
     })
 
 
+@staff_required
 def staff_add_vip_level(request):
     if request.method == 'POST':
         level_name = request.POST.get('level_name', '').strip()
         minimum_amount = request.POST.get('minimum_amount', '0').strip()
         commission_rate = request.POST.get('commission_rate', '0').strip()
-        successive_order_commission_rate = request.POST.get(
-            'successive_order_commission_rate',
-            '0'
-        ).strip()
+        successive_order_commission_rate = request.POST.get('successive_order_commission_rate', '0').strip()
         maximum_task = request.POST.get('maximum_task', '0').strip()
         description = request.POST.get('description', '').strip()
         icon = request.FILES.get('icon')
@@ -291,6 +357,7 @@ def staff_add_vip_level(request):
     return redirect('staff_vip_level_management')
 
 
+@staff_required
 def staff_edit_vip_level(request, vip_id):
     vip = get_object_or_404(VipLevel, id=vip_id)
 
@@ -311,6 +378,7 @@ def staff_edit_vip_level(request, vip_id):
         vip.description = request.POST.get('description', '').strip()
 
         icon = request.FILES.get('icon')
+
         if icon:
             vip.icon = icon
 
@@ -321,6 +389,7 @@ def staff_edit_vip_level(request, vip_id):
     return redirect('staff_vip_level_management')
 
 
+@staff_required
 def staff_delete_vip_level(request, vip_id):
     vip = VipLevel.objects.filter(id=vip_id).first()
 
@@ -333,6 +402,9 @@ def staff_delete_vip_level(request, vip_id):
     return redirect('staff_vip_level_management')
 
 
+# PRODUCT MANAGEMENT
+
+@staff_required
 def staff_product_list(request):
     products = Product.objects.all().order_by('-id')
 
@@ -341,6 +413,7 @@ def staff_product_list(request):
     })
 
 
+@staff_required
 def staff_add_product(request):
     if request.method == 'POST':
         Product.objects.create(
@@ -355,6 +428,7 @@ def staff_add_product(request):
     return redirect('staff_product_list')
 
 
+@staff_required
 def staff_edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
@@ -364,12 +438,10 @@ def staff_edit_product(request, product_id):
         product.price = Decimal(request.POST.get('price', '0') or '0')
         product.score = int(request.POST.get('score', '0') or 0)
         product.description = request.POST.get('description', '').strip()
-
         product.goods_album_1 = request.POST.get('goods_album_1', '').strip()
         product.goods_album_2 = request.POST.get('goods_album_2', '').strip()
         product.goods_album_3 = request.POST.get('goods_album_3', '').strip()
         product.goods_album_4 = request.POST.get('goods_album_4', '').strip()
-
         product.save()
 
         messages.success(request, 'Product updated successfully.')
@@ -377,6 +449,7 @@ def staff_edit_product(request, product_id):
     return redirect('staff_product_list')
 
 
+@staff_required
 def staff_delete_product(request, product_id):
     product = Product.objects.filter(id=product_id).first()
 
@@ -389,6 +462,9 @@ def staff_delete_product(request, product_id):
     return redirect('staff_product_list')
 
 
+# PRODUCT EVALUATION
+
+@staff_required
 def staff_product_evaluation(request):
     comments = ProductEvaluation.objects.all().order_by('-id')
 
@@ -397,6 +473,7 @@ def staff_product_evaluation(request):
     })
 
 
+@staff_required
 def staff_add_product_evaluation(request):
     if request.method == 'POST':
         star_level = request.POST.get('star_level', '5.0').strip()
@@ -413,6 +490,7 @@ def staff_add_product_evaluation(request):
     return redirect('staff_product_evaluation')
 
 
+@staff_required
 def staff_edit_product_evaluation(request, comment_id):
     comment = get_object_or_404(ProductEvaluation, id=comment_id)
 
@@ -426,6 +504,7 @@ def staff_edit_product_evaluation(request, comment_id):
     return redirect('staff_product_evaluation')
 
 
+@staff_required
 def staff_delete_product_evaluation(request, comment_id):
     comment = ProductEvaluation.objects.filter(id=comment_id).first()
 
@@ -489,9 +568,11 @@ def user_register(request):
         profile.vip_level = vip1
         profile.save()
 
+        login(request, user)
+
         messages.success(request, 'Registration successful.')
 
-        return redirect('user_register')
+        return redirect('user_home')
 
     return render(request, 'user/register.html')
 

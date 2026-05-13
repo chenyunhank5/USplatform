@@ -4,9 +4,8 @@
 
 {% block extra_css %}
 <style>
-
-    .top-logo{
-        height:44px;
+    .logo-area{
+        height:52px;
         display:flex;
         align-items:center;
         justify-content:center;
@@ -14,74 +13,72 @@
     }
 
     .logo-text{
-        font-size:12px;
-        color:#999;
+        color:#06aeca;
+        font-size:22px;
+        line-height:.85;
+        text-align:center;
+        letter-spacing:1px;
+        font-weight:500;
     }
 
-    .notice-bar{
-        height:34px;
-        background:#2f5af7;
+    .marquee-bar{
+        height:28px;
+        background:#000;
         color:white;
-        display:flex;
-        align-items:center;
         overflow:hidden;
-        white-space:nowrap;
-        font-size:14px;
-        padding:0 10px;
-        margin:0 -16px 14px;
-    }
-
-    .chart-box{
-        height:190px;
-        background:white;
         display:flex;
         align-items:center;
-        justify-content:center;
-        margin:12px 0 20px;
-        border-radius:12px;
+        font-size:13px;
+        white-space:nowrap;
     }
 
-    .chart-placeholder{
-        width:250px;
-        height:140px;
-        border-left:1px solid #ccc;
-        border-bottom:1px solid #ccc;
-        position:relative;
+    .marquee-bar span{
+        display:inline-block;
+        padding-left:100%;
+        animation:marquee 13s linear infinite;
     }
 
-    .dot{
-        width:3px;
-        height:3px;
-        background:#2f5af7;
-        border-radius:50%;
-        position:absolute;
+    @keyframes marquee{
+        0%{transform:translateX(0)}
+        100%{transform:translateX(-100%)}
+    }
+
+    .hero-img{
+        width:100%;
+        height:178px;
+        border-radius:8px;
+        object-fit:cover;
+        margin:16px 0 22px;
+        display:block;
     }
 
     .menu-grid{
         display:grid;
         grid-template-columns:repeat(4,1fr);
-        gap:22px 12px;
-        margin-bottom:22px;
+        gap:18px 12px;
+        margin-bottom:18px;
     }
 
     .menu-item{
         text-align:center;
-        font-size:13px;
-        color:#111;
-        font-weight:500;
+        font-size:12px;
+        color:#000;
+        line-height:1.25;
     }
 
     .menu-icon{
-        width:36px;
-        height:36px;
-        margin:0 auto 8px;
-        border-radius:10px;
-        background:#dbeafe;
-        color:#2f5af7;
+        width:42px;
+        height:42px;
         display:flex;
         align-items:center;
         justify-content:center;
-        font-size:18px;
+        margin:0 auto 8px;
+    }
+
+    .menu-icon img{
+        width:40px;
+        height:40px;
+        object-fit:contain;
     }
 
     .stats-grid{
@@ -91,146 +88,197 @@
         margin-bottom:18px;
     }
 
-    .stat-card{
-        border:1.5px solid #2f5af7;
-        border-radius:10px;
-        padding:10px 8px;
-        min-height:76px;
-        background:white;
+    .stats-left{
+        display:flex;
+        flex-direction:column;
+        gap:10px;
     }
 
-    .stat-title{
+    .stats-card{
+        border:1px solid #000;
+        border-radius:9px;
+        background:white;
+        padding:10px 8px;
+        min-height:84px;
+        overflow:hidden;
+        position:relative;
+    }
+
+    .stats-tall{
+        min-height:174px;
+    }
+
+    .stats-title{
         font-size:12px;
         margin-bottom:6px;
+        color:#000;
     }
 
-    .stat-value{
+    .stats-value{
         font-size:22px;
         font-weight:bold;
+        margin-bottom:3px;
+        color:#000;
     }
 
-    .stat-sub{
+    .stats-sub{
         font-size:10px;
-        color:#111;
+        color:#000;
+        line-height:1.2;
+    }
+
+    .percent-tag{
+        background:#000;
+        color:white;
+        border-radius:3px;
+        font-size:9px;
+        padding:1px 3px;
+        display:inline-block;
+        margin-right:2px;
+    }
+
+    .small-chart{
+        position:absolute;
+        right:0;
+        bottom:0;
+        width:100%;
+        height:48px;
+    }
+
+    .big-chart{
+        position:absolute;
+        right:0;
+        bottom:0;
+        width:100%;
+        height:95px;
     }
 
     .vip-title{
         font-weight:bold;
-        margin:14px 0 12px;
+        font-size:16px;
+        margin:8px 0 12px;
+        color:#000;
     }
 
     .vip-card{
-        height:66px;
+        height:64px;
+        background:#ff851c;
         border-radius:8px;
-        background:#2f5af7;
         color:white;
         display:flex;
         align-items:center;
         padding:0 12px;
+        font-weight:bold;
+        font-size:18px;
+        margin-bottom:18px;
+    }
+
+    .vip-icon{
+        width:36px;
+        height:36px;
+        border-radius:10px;
+        overflow:hidden;
+        background:#111827;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin-right:10px;
+        flex-shrink:0;
+
+        color:#facc15;
         font-size:18px;
         font-weight:bold;
     }
 
-    .vip-icon{
-        width:38px;
-        height:38px;
-        border-radius:8px;
-        background:black;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        margin-right:12px;
-        color:#facc15;
-        font-size:14px;
+    .vip-icon img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
     }
 
     .vip-enter{
         margin-left:auto;
         font-size:14px;
     }
-
 </style>
 {% endblock %}
 
 {% block content %}
 
-<div class="top-logo">
-    <span class="logo-text">
-        annalect
+<div class="logo-area">
+    <div class="logo-text">
+        MAJOR<br>TOM
+    </div>
+</div>
+
+<div class="marquee-bar">
+    <span>
+        belle HertyGet commission:3861USD&nbsp;&nbsp;&nbsp;&nbsp;
+        Xanthe CockerGet commission:486USD&nbsp;&nbsp;&nbsp;&nbsp;
+        Hedda completed 1 order
     </span>
 </div>
 
-<div class="notice-bar">
-
-    Welcome
-    {{ request.user.username }}
-
-    &nbsp;&nbsp;&nbsp;&nbsp;
-
-    Balance:
-    {{ request.user.userprofile.balance }} USD
-
-    &nbsp;&nbsp;&nbsp;&nbsp;
-
-    VIP:
-    {{ request.user.userprofile.vip_level }}
-
-</div>
-
-<div class="chart-box">
-
-    <div class="chart-placeholder">
-
-        <span class="dot" style="left:45px;top:30px;"></span>
-        <span class="dot" style="left:70px;top:60px;"></span>
-        <span class="dot" style="left:110px;top:40px;"></span>
-        <span class="dot" style="left:140px;top:75px;"></span>
-        <span class="dot" style="left:180px;top:50px;"></span>
-        <span class="dot" style="left:220px;top:80px;"></span>
-
-    </div>
-
-</div>
+<img
+    class="hero-img"
+    src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=80"
+>
 
 <div class="menu-grid">
 
     <div class="menu-item">
-        <div class="menu-icon">💳</div>
+        <div class="menu-icon">
+            <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312902/download_4_ijox13.png">
+        </div>
         Withdrawal
     </div>
 
     <div class="menu-item">
-        <div class="menu-icon">💰</div>
+        <div class="menu-icon">
+            <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312902/download_5_flfcf2.png">
+        </div>
         Deposit
     </div>
 
     <div class="menu-item">
-        <div class="menu-icon">👤</div>
-        Customer Service Center
+        <div class="menu-icon">
+            <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312901/download_6_x6blhw.png">
+        </div>
+        Customer Service<br>Center
     </div>
 
     <div class="menu-item">
-        <div class="menu-icon">💼</div>
-        Transaction Notice
+        <div class="menu-icon">
+            <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312901/download_7_exqqzc.png">
+        </div>
+        Transaction<br>Notice
     </div>
 
     <div class="menu-item">
-        <div class="menu-icon">%</div>
+        <div class="menu-icon">
+            <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312901/download_8_uczm9q.png">
+        </div>
         Campaign
     </div>
 
     <div class="menu-item">
-        <div class="menu-icon">📝</div>
+        <div class="menu-icon">
+            <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312901/download_9_yfakmr.png">
+        </div>
         Illustrate
     </div>
 
     <div class="menu-item">
-        <div class="menu-icon">🔍</div>
+        <div class="menu-icon">
+            <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312901/download_10_laivzw.png">
+        </div>
         FAQS
     </div>
 
     <div class="menu-item">
-        <div class="menu-icon">🏢</div>
+        <div class="menu-icon">
+            <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312901/download_11_nepxza.png">
+        </div>
         Company Profile
     </div>
 
@@ -238,50 +286,61 @@
 
 <div class="stats-grid">
 
-    <div class="stat-card">
-        <div class="stat-title">
-            Online Users
+    <div class="stats-left">
+
+        <div class="stats-card">
+            <div class="stats-title">Online Users</div>
+            <div class="stats-value">3.015k</div>
+            <div class="stats-sub">+ 29% From Last Month</div>
         </div>
 
-        <div class="stat-value">
-            4.34k
-        </div>
+        <div class="stats-card">
+            <div class="stats-title">Order Completion</div>
+            <div class="stats-value">5.016k</div>
+            <div class="stats-sub">
+                <span class="percent-tag">171%↟</span>
+            </div>
 
-        <div class="stat-sub">
-            + 126% From Last Month
-        </div>
-    </div>
-
-    <div class="stat-card">
-
-        <div class="stat-title">
-            Optimize Revenue
-        </div>
-
-        <div class="stat-value">
-            1.65k
-        </div>
-
-        <div class="stat-sub">
-            + 9% From Last Month
+            <svg class="small-chart" viewBox="0 0 120 50">
+                <path d="M0 32 C20 25, 35 42, 55 32 C75 20, 88 42, 120 32"
+                      fill="none"
+                      stroke="#ff851c"
+                      stroke-width="2"/>
+            </svg>
         </div>
 
     </div>
 
-    <div class="stat-card">
+    <div class="stats-card stats-tall">
+        <div class="stats-title">Optimize Demand</div>
+        <div class="stats-value">305k</div>
+        <div class="stats-sub">+ 160% From Last<br>Month</div>
 
-        <div class="stat-title">
-            Order Completion
+        <svg class="big-chart" viewBox="0 0 120 95">
+            <path d="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48 L120 95 L0 95 Z"
+                  fill="#ff851c33"/>
+            <path d="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48"
+                  fill="none"
+                  stroke="#ff851c"
+                  stroke-width="2"/>
+        </svg>
+    </div>
+
+    <div class="stats-card stats-tall">
+        <div class="stats-title">Order Quantity</div>
+        <div class="stats-value">5.164k</div>
+        <div class="stats-sub">
+            <span class="percent-tag">157%↟</span>
         </div>
 
-        <div class="stat-value">
-            6.529k
-        </div>
-
-        <div class="stat-sub">
-            118% ↑
-        </div>
-
+        <svg class="big-chart" viewBox="0 0 120 95">
+            <path d="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55 L120 95 L0 95 Z"
+                  fill="#ff851c33"/>
+            <path d="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55"
+                  fill="none"
+                  stroke="#ff851c"
+                  stroke-width="2"/>
+        </svg>
     </div>
 
 </div>
@@ -292,11 +351,28 @@
 
 <div class="vip-card">
 
-    <div class="vip-icon">
-        V1
-    </div>
+  <div class="vip-icon">
 
-    {{ request.user.userprofile.vip_level }}
+      {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
+          <img
+              src="{{ request.user.userprofile.vip_level.icon.url }}"
+              alt="VIP"
+          >
+      {% else %}
+          V{% if request.user.userprofile.vip_level %}
+              {{ request.user.userprofile.vip_level.level_name|slice:"3:" }}
+          {% else %}
+              1
+          {% endif %}
+      {% endif %}
+
+  </div>
+
+    {% if request.user.userprofile.vip_level %}
+        {{ request.user.userprofile.vip_level.level_name }}
+    {% else %}
+        VIP1
+    {% endif %}
 
     <div class="vip-enter">
         Enter ❯

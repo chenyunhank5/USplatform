@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
 
@@ -50,6 +49,11 @@
         .back-btn{
             position:absolute;
             left:16px;
+            top:50%;
+            transform:translateY(-50%);
+
+            color:white;
+            text-decoration:none;
 
             font-size:34px;
             font-weight:300;
@@ -66,53 +70,22 @@
         }
 
         .logo-box{
-            width:190px;
-            height:105px;
-
-            background:#fff;
-
+            width:230px;
             margin:auto;
 
-            border-radius:8px;
-
             display:flex;
             align-items:center;
             justify-content:center;
-
-            box-shadow:0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .logo-circle{
-            width:58px;
-            height:58px;
-
-            border-radius:50%;
-
-            background:#7c3aed;
-
-            display:flex;
-            align-items:center;
-            justify-content:center;
-
-            color:#fff;
-            font-size:36px;
-            font-weight:bold;
-        }
-
-        .logo-text{
-            margin-left:10px;
+            flex-direction:column;
         }
 
         .logo-title{
-            font-size:24px;
-            color:#555;
-            font-weight:bold;
-        }
-
-        .logo-sub{
-            font-size:12px;
-            color:#999;
-            margin-top:2px;
+            font-size:62px;
+            line-height:0.95;
+            color:#4b4b4b;
+            font-weight:300;
+            letter-spacing:2px;
+            text-align:center;
         }
 
         /* =========================
@@ -122,13 +95,11 @@
         .form-card{
             background:#fff;
 
-            margin:0 20px;
+            margin:0 22px;
 
-            border-radius:8px;
+            border-radius:2px;
 
             padding:4px 18px 10px;
-
-            box-shadow:0 2px 10px rgba(0,0,0,0.04);
         }
 
         .form-group{
@@ -149,7 +120,7 @@
         }
 
         .invite-label{
-            color:#8ddf8d;
+            color:#f78522;
         }
 
         .input-row{
@@ -190,10 +161,12 @@
 
             cursor:pointer;
 
-            color:#666;
+            color:#555;
 
             margin-left:8px;
             user-select:none;
+
+            font-size:24px;
         }
 
         /* =========================
@@ -218,7 +191,7 @@
             align-items:center;
             gap:5px;
 
-            color:#2f5af7;
+            color:#f78522;
             font-size:15px;
         }
 
@@ -241,7 +214,7 @@
             margin:18px 0 24px;
 
             font-size:14px;
-            color:#2f5af7;
+            color:#f78522;
             font-weight:bold;
         }
 
@@ -255,18 +228,18 @@
         ========================== */
 
         .register-btn{
-            width:calc(100% - 40px);
+            width:calc(100% - 44px);
             margin:0 auto 30px;
 
             height:56px;
 
             border:none;
-            border-radius:6px;
+            border-radius:4px;
 
-            background:#2f5af7;
+            background:#000;
             color:#fff;
 
-            font-size:24px;
+            font-size:28px;
             font-weight:500;
 
             display:block;
@@ -342,9 +315,9 @@
 
     <div class="topbar">
 
-        <div class="back-btn">
+        <a href="{% url 'user_login' %}" class="back-btn">
             ‹
-        </div>
+        </a>
 
         Register
 
@@ -356,20 +329,12 @@
 
         <div class="logo-box">
 
-            <div class="logo-circle">
-                a
+            <div class="logo-title">
+                MAJOR
             </div>
 
-            <div class="logo-text">
-
-                <div class="logo-title">
-                    annalect
-                </div>
-
-                <div class="logo-sub">
-                    Welcome Back
-                </div>
-
+            <div class="logo-title">
+                TOM
             </div>
 
         </div>
@@ -436,7 +401,7 @@
                     <input
                         type="text"
                         name="phone_number"
-                        placeholder="Phone Number"
+                        placeholder="Phone"
                         required
                     >
 
