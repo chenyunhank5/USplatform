@@ -203,9 +203,28 @@
                 VIP Level Management
             </a>
 
-            <a href="#">
-                Transaction management
-            </a>
+            <div class="dropdown" id="transactionDropdown">
+
+                <button type="button" class="dropdown-btn" onclick="toggleTransactionDropdown()">
+                    <span>Transaction management</span>
+                    <span class="arrow">⌄</span>
+                </button>
+
+                <div class="dropdown-menu">
+
+                    <a href="{% url 'staff_withdrawal_management' %}"
+                       class="{% if request.resolver_match.url_name == 'staff_withdrawal_management' %}active{% endif %}">
+                        Withdrawal management
+                    </a>
+
+                    <a href="#"
+                       class="{% if request.resolver_match.url_name == 'staff_order_management' %}active{% endif %}">
+                        Order management
+                    </a>
+
+                </div>
+
+            </div>
 
             <div class="dropdown" id="productDropdown">
 
@@ -287,6 +306,28 @@
             localStorage.setItem('productDropdownOpen', 'true');
         }else{
             localStorage.setItem('productDropdownOpen', 'false');
+        }
+    }
+
+    const transactionDropdown = document.getElementById('transactionDropdown');
+
+    const isTransactionPage =
+        currentPage === "staff_withdrawal_management" ||
+        currentPage === "staff_order_management";
+
+    const savedTransactionState = localStorage.getItem('transactionDropdownOpen');
+
+    if(savedTransactionState === 'true' || isTransactionPage){
+        transactionDropdown.classList.add('open');
+    }
+
+    function toggleTransactionDropdown(){
+        transactionDropdown.classList.toggle('open');
+
+        if(transactionDropdown.classList.contains('open')){
+            localStorage.setItem('transactionDropdownOpen', 'true');
+        }else{
+            localStorage.setItem('transactionDropdownOpen', 'false');
         }
     }
 </script>

@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-
         *{
             box-sizing:border-box;
         }
@@ -31,8 +30,6 @@
         .content{
             padding:14px 16px;
         }
-
-        /* BOTTOM NAV */
 
         .bottom-nav{
             position:fixed;
@@ -72,8 +69,6 @@
             display:block;
         }
 
-        /* ORDER CENTER */
-
         .order-center{
             margin-top:-38px;
         }
@@ -96,8 +91,32 @@
             object-fit:contain;
         }
 
-        {% block extra_css %}{% endblock %}
+        .custom-alert{
+            position:fixed;
+            left:50%;
+            top:50%;
+            transform:translate(-50%, -50%);
+            background:#4a4a4a;
+            color:white;
+            padding:14px 26px;
+            border-radius:8px;
+            font-size:14px;
+            z-index:99999;
+            opacity:0;
+            visibility:hidden;
+            transition:.25s ease;
+            box-shadow:0 8px 20px rgba(0,0,0,.18);
+            max-width:82%;
+            text-align:center;
+            line-height:1.4;
+        }
 
+        .custom-alert.show{
+            opacity:1;
+            visibility:visible;
+        }
+
+        {% block extra_css %}{% endblock %}
     </style>
 </head>
 
@@ -111,136 +130,100 @@
 
     <nav class="bottom-nav">
 
-        <!-- HOME -->
-
         <a href="{% url 'user_home' %}"
            class="nav-item {% if request.resolver_match.url_name == 'user_home' %}active{% endif %}">
 
             {% if request.resolver_match.url_name == 'user_home' %}
-
-                <img
-                    src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243935/download_o2t6x5.png"
-                    class="nav-icon-img"
-                >
-
+                <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243935/download_o2t6x5.png" class="nav-icon-img">
             {% else %}
-
-                <img
-                    src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243799/ohome.0cf9ec80_edaksd.png"
-                    class="nav-icon-img"
-                >
-
+                <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243799/ohome.0cf9ec80_edaksd.png" class="nav-icon-img">
             {% endif %}
 
             Home
-
         </a>
-
-        <!-- RECORDS -->
 
         <a href="{% url 'user_records' %}"
            class="nav-item {% if request.resolver_match.url_name == 'user_records' %}active{% endif %}">
 
             {% if request.resolver_match.url_name == 'user_records' %}
-
-                <img
-                    src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243935/download_1_gzqqjd.png"
-                    class="nav-icon-img"
-                >
-
+                <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243935/download_1_gzqqjd.png" class="nav-icon-img">
             {% else %}
-
-                <img
-                    src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243799/orecords.44d9036b_pjxc8m.png"
-                    class="nav-icon-img"
-                >
-
+                <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243799/orecords.44d9036b_pjxc8m.png" class="nav-icon-img">
             {% endif %}
 
             Records
-
         </a>
-
-        <!-- ORDER -->
 
         <a href="{% url 'user_order' %}"
            class="nav-item order-center {% if request.resolver_match.url_name == 'user_order' %}active{% endif %}">
 
             <div class="order-circle">
-
                 {% if request.resolver_match.url_name == 'user_order' %}
-
-                    <img
-                        src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243799/startingActive3.f51cf26f_dnesyh.png"
-                    >
-
+                    <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243799/startingActive3.f51cf26f_dnesyh.png">
                 {% else %}
-
-                    <img
-                        src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775245492/ostarting.8b1ceecf_ko8hha.png"
-                    >
-
+                    <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775245492/ostarting.8b1ceecf_ko8hha.png">
                 {% endif %}
-
             </div>
 
             Order
-
         </a>
-
-        <!-- MESSAGES -->
 
         <a href="{% url 'user_messages' %}"
            class="nav-item {% if request.resolver_match.url_name == 'user_messages' %}active{% endif %}">
 
             {% if request.resolver_match.url_name == 'user_messages' %}
-
-                <img
-                    src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243935/download_2_fjlpca.png"
-                    class="nav-icon-img"
-                >
-
+                <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243935/download_2_fjlpca.png" class="nav-icon-img">
             {% else %}
-
-                <img
-                    src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243799/omessages.7280e6e4_ht6fcx.png"
-                    class="nav-icon-img"
-                >
-
+                <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243799/omessages.7280e6e4_ht6fcx.png" class="nav-icon-img">
             {% endif %}
 
             Messages
-
         </a>
-
-        <!-- SETTINGS -->
 
         <a href="{% url 'user_settings' %}"
            class="nav-item {% if request.resolver_match.url_name == 'user_settings' %}active{% endif %}">
 
             {% if request.resolver_match.url_name == 'user_settings' %}
-
-                <img
-                    src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243934/download_3_gu3ks5.png"
-                    class="nav-icon-img"
-                >
-
+                <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243934/download_3_gu3ks5.png" class="nav-icon-img">
             {% else %}
-
-                <img
-                    src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243799/oprofile.e21aa036_bkgray.png"
-                    class="nav-icon-img"
-                >
-
+                <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243799/oprofile.e21aa036_bkgray.png" class="nav-icon-img">
             {% endif %}
 
             Settings
-
         </a>
 
     </nav>
 
 </div>
+
+<div class="custom-alert" id="customAlertBox"></div>
+
+{% include 'user/user_partials/withdrawal_password.html' %}
+
+<script>
+function showAlert(message){
+    const alertBox = document.getElementById('customAlertBox');
+
+    if(!alertBox){
+        return;
+    }
+
+    alertBox.innerText = message;
+    alertBox.classList.add('show');
+
+    setTimeout(() => {
+        alertBox.classList.remove('show');
+    }, 2200);
+}
+</script>
+
+{% if messages %}
+<script>
+    {% for message in messages %}
+        showAlert("{{ message|escapejs }}");
+    {% endfor %}
+</script>
+{% endif %}
 
 </body>
 </html>

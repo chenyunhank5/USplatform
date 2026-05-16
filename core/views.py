@@ -1,15 +1,17 @@
 from decimal import Decimal
 from datetime import timedelta
 
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
-from .models import UserProfile, VipLevel, Product, ProductEvaluation
+from .models import UserProfile, VipLevel, Product, ProductEvaluation, WithdrawalRequest
 
 
 def get_client_ip(request):
@@ -327,6 +329,8 @@ def staff_vip_level_management(request):
 def staff_add_vip_level(request):
     if request.method == 'POST':
         level_name = request.POST.get('level_name', '').strip()
+        minimum_withdrawal = request.POST.get('minimum_withdrawal', '50').strip()
+        maximum_withdrawal = request.POST.get('maximum_withdrawal', '99999999').strip()
         minimum_amount = request.POST.get('minimum_amount', '0').strip()
         commission_rate = request.POST.get('commission_rate', '0').strip()
         successive_order_commission_rate = request.POST.get('successive_order_commission_rate', '0').strip()
@@ -345,6 +349,8 @@ def staff_add_vip_level(request):
         VipLevel.objects.create(
             level_name=level_name,
             icon=icon,
+            minimum_withdrawal=Decimal(minimum_withdrawal or '50'),
+            maximum_withdrawal=Decimal(maximum_withdrawal or '99999999'),
             minimum_amount=Decimal(minimum_amount or '0'),
             commission_rate=Decimal(commission_rate or '0'),
             successive_order_commission_rate=Decimal(successive_order_commission_rate or '0'),
@@ -369,6 +375,8 @@ def staff_edit_vip_level(request, vip_id):
             return redirect('staff_vip_level_management')
 
         vip.level_name = level_name
+        vip.minimum_withdrawal = Decimal(request.POST.get('minimum_withdrawal', '50') or '50')
+        vip.maximum_withdrawal = Decimal(request.POST.get('maximum_withdrawal', '99999999') or '99999999')
         vip.minimum_amount = Decimal(request.POST.get('minimum_amount', '0') or '0')
         vip.commission_rate = Decimal(request.POST.get('commission_rate', '0') or '0')
         vip.successive_order_commission_rate = Decimal(
@@ -514,6 +522,58 @@ def staff_delete_product_evaluation(request, comment_id):
 
     return redirect('staff_product_evaluation')
 
+@staff_required
+def staff_withdrawal_management(request):
+    withdrawals = WithdrawalRequest.objects.select_related(
+        'user',
+        'user__userprofile'
+    ).all().order_by('-id')
+
+    return render(request, 'staff/withdrawal_management.html', {
+        'withdrawals': withdrawals
+    })
+
+
+@staff_required
+def staff_approve_withdrawal(request, withdrawal_id):
+    withdrawal = get_object_or_404(WithdrawalRequest, id=withdrawal_id)
+
+    if withdrawal.status != 'pending':
+        messages.error(request, 'This withdrawal was already handled.')
+        return redirect('staff_withdrawal_management')
+
+    withdrawal.status = 'approved'
+    withdrawal.handled_at = timezone.now()
+    withdrawal.save()
+
+    messages.success(request, 'Withdrawal approved successfully.')
+    return redirect('staff_withdrawal_management')
+
+
+@staff_required
+def staff_reject_withdrawal(request, withdrawal_id):
+    withdrawal = get_object_or_404(WithdrawalRequest, id=withdrawal_id)
+    profile = get_object_or_404(UserProfile, user=withdrawal.user)
+
+    if withdrawal.status != 'pending':
+        messages.error(request, 'This withdrawal was already handled.')
+        return redirect('staff_withdrawal_management')
+
+    if request.method == 'POST':
+        remark = request.POST.get('remark', '').strip()
+
+        profile.balance += withdrawal.amount
+        profile.save()
+
+        withdrawal.status = 'rejected'
+        withdrawal.remark = remark
+        withdrawal.handled_at = timezone.now()
+        withdrawal.save()
+
+        messages.success(request, 'Withdrawal rejected and balance returned.')
+
+    return redirect('staff_withdrawal_management')
+
 
 # USER
 
@@ -606,6 +666,21 @@ def user_login(request):
 
     return render(request, 'user/login.html')
 
+@login_required(login_url='user_login')
+def verify_withdrawal_password(request):
+    if request.method == 'POST':
+        password = request.POST.get('transaction_password', '').strip()
+        profile = UserProfile.objects.filter(user=request.user).first()
+
+        if profile and check_password(password, profile.transaction_password):
+            return JsonResponse({'success': True})
+
+        return JsonResponse({
+            'success': False,
+            'message': 'Incorrect transaction password.'
+        })
+
+    return JsonResponse({'success': False})
 
 def user_logout(request):
     if request.user.is_authenticated:
@@ -624,10 +699,71 @@ def user_logout(request):
 def user_home(request):
     return render(request, 'user/home.html')
 
+@login_required(login_url='user_login')
+def user_withdraw(request):
+    profile = get_object_or_404(UserProfile, user=request.user)
+
+    if request.method == 'POST':
+        amount = Decimal(request.POST.get('amount', '0') or '0')
+        wallet_address = request.POST.get('wallet_address', '').strip()
+        transaction_password = request.POST.get('transaction_password', '').strip()
+
+        if amount <= 0:
+            messages.error(request, 'Invalid withdrawal amount.')
+            return redirect('user_withdraw')
+
+        if amount > profile.balance:
+            messages.error(request, 'Insufficient balance.')
+            return redirect('user_withdraw')
+
+        if profile.vip_level:
+            if amount < profile.vip_level.minimum_withdrawal:
+                messages.error(request, f'Minimum withdrawal is {profile.vip_level.minimum_withdrawal} USD.')
+                return redirect('user_withdraw')
+
+            if amount > profile.vip_level.maximum_withdrawal:
+                messages.error(request, f'Maximum withdrawal is {profile.vip_level.maximum_withdrawal} USD.')
+                return redirect('user_withdraw')
+
+        if not wallet_address:
+            messages.error(request, 'Wallet address is required.')
+            return redirect('user_withdraw')
+
+        if not check_password(transaction_password, profile.transaction_password):
+            messages.error(request, 'Incorrect withdrawal password.')
+            return redirect('user_withdraw')
+
+        profile.balance -= amount
+        profile.wallet_address = wallet_address
+        profile.save()
+
+        WithdrawalRequest.objects.create(
+            user=request.user,
+            amount=amount,
+            wallet_address=wallet_address,
+            status='pending'
+        )
+
+        messages.success(request, 'Withdrawal request submitted successfully.')
+        return redirect('user_withdraw')
+
+    withdrawals = WithdrawalRequest.objects.filter(user=request.user).order_by('-id')[:10]
+
+    return render(request, 'user/user_partials/withdraw.html', {
+        'profile': profile,
+        'withdrawals': withdrawals,
+    })
+
 
 @login_required(login_url='user_login')
 def user_records(request):
-    return render(request, 'user/records.html')
+    withdrawals = WithdrawalRequest.objects.filter(
+        user=request.user
+    ).order_by('-created_at')
+
+    return render(request, 'user/records.html', {
+        'withdrawals': withdrawals
+    })
 
 
 @login_required(login_url='user_login')
@@ -643,3 +779,81 @@ def user_messages(request):
 @login_required(login_url='user_login')
 def user_settings(request):
     return render(request, 'user/settings.html')
+
+@login_required(login_url='user_login')
+def user_trading_account(request):
+    profile = get_object_or_404(UserProfile, user=request.user)
+
+    if request.method == 'POST':
+        wallet_address = request.POST.get('wallet_address', '').strip()
+
+        if not wallet_address:
+            messages.error(request, 'Wallet address is required.')
+            return redirect('user_trading_account')
+
+        profile.wallet_address = wallet_address
+        profile.save()
+
+        messages.success(request, 'Wallet address saved successfully.')
+        return redirect('user_trading_account')
+
+    return render(request, 'user/user_partials/trading_account.html', {
+        'profile': profile
+    })
+
+@login_required(login_url='user_login')
+def user_personal_information(request):
+    profile = request.user.userprofile
+    return render(request, 'user/user_partials/personal_information.html', {'profile': profile})
+
+@login_required(login_url='user_login')
+def user_update_email(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        request.user.email = email
+        request.user.save()
+        messages.success(request, 'Email updated successfully.')
+        return redirect('user_personal_information')
+
+    return render(request, 'user/user_partials/update_email.html')
+
+
+@login_required(login_url='user_login')
+def user_update_password(request):
+    if request.method == 'POST':
+        old_password = request.POST.get('old_password', '').strip()
+        new_password = request.POST.get('new_password', '').strip()
+
+        if not request.user.check_password(old_password):
+            messages.error(request, 'Old password is incorrect.')
+            return redirect('user_update_password')
+
+        request.user.set_password(new_password)
+        request.user.save()
+        update_session_auth_hash(request, request.user)
+
+        messages.success(request, 'Login password updated successfully.')
+        return redirect('user_personal_information')
+
+    return render(request, 'user/user_partials/update_password.html')
+
+
+@login_required(login_url='user_login')
+def user_update_transaction_password(request):
+    profile = request.user.userprofile
+
+    if request.method == 'POST':
+        old_password = request.POST.get('old_transaction_password', '').strip()
+        new_password = request.POST.get('new_transaction_password', '').strip()
+
+        if not check_password(old_password, profile.transaction_password):
+            messages.error(request, 'Old transaction password is incorrect.')
+            return redirect('user_update_transaction_password')
+
+        profile.transaction_password = make_password(new_password)
+        profile.save()
+
+        messages.success(request, 'Transaction password updated successfully.')
+        return redirect('user_personal_information')
+
+    return render(request, 'user/user_partials/update_transaction_password.html')

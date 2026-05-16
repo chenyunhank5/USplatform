@@ -1,0 +1,214 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Withdrawal Management{% endblock %}
+{% block page_title %}Transaction management{% endblock %}
+{% block page_subtitle %}Withdrawal management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .panel{
+        background:#111;
+        border:1px solid #2a2a2a;
+        padding:16px;
+    }
+
+    .table-scroll{
+        width:100%;
+        overflow:auto;
+        border:1px solid #333;
+        background:#111;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        font-size:13px;
+    }
+
+    th{
+        background:#171717;
+        color:#9ca3af;
+        padding:13px 12px;
+        text-align:center;
+        border:1px solid #333;
+        white-space:nowrap;
+    }
+
+    td{
+        padding:13px 12px;
+        border:1px solid #333;
+        color:#e5e7eb;
+        white-space:nowrap;
+        background:#151515;
+        text-align:center;
+    }
+
+    tr:nth-child(even) td{
+        background:#181818;
+    }
+
+    tr:hover td{
+        background:#242424;
+    }
+
+    .status{
+        padding:4px 10px;
+        border-radius:20px;
+        font-size:12px;
+        font-weight:bold;
+    }
+
+    .pending{
+        background:#78350f;
+        color:#fdba74;
+    }
+
+    .approved{
+        background:#14532d;
+        color:#86efac;
+    }
+
+    .rejected{
+        background:#7f1d1d;
+        color:#fca5a5;
+    }
+
+    .approve-btn{
+        background:#16a34a;
+        color:white;
+        border:0;
+        padding:7px 12px;
+        border-radius:3px;
+        cursor:pointer;
+        margin-right:6px;
+    }
+
+    .reject-btn{
+        background:#ef4444;
+        color:white;
+        border:0;
+        padding:7px 12px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+
+    .reject-input{
+        background:#111;
+        border:1px solid #444;
+        color:white;
+        padding:7px 10px;
+        outline:none;
+        width:170px;
+        margin-right:6px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="panel">
+
+    <div class="table-scroll">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Phone</th>
+                    <th>Amount</th>
+                    <th>Wallet Address</th>
+                    <th>Status</th>
+                    <th>Remark</th>
+                    <th>Created At</th>
+                    <th>Handled At</th>
+                    <th>Operate</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in withdrawals %}
+
+                <tr>
+                    <td>{{ item.transaction_id  }}</td>
+                    <td>{{ item.user.username }}</td>
+                    <td>{{ item.user.userprofile.phone_number }}</td>
+                    <td>{{ item.amount }}</td>
+                    <td>{{ item.wallet_address }}</td>
+
+                    <td>
+                        <span class="status {{ item.status }}">
+                            {{ item.status|title }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {% if item.remark %}
+                            {{ item.remark }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>{{ item.created_at|date:"Y-m-d H:i" }}</td>
+
+                    <td>
+                        {% if item.handled_at %}
+                            {{ item.handled_at|date:"Y-m-d H:i" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if item.status == 'pending' %}
+
+                            <form method="POST"
+                                  action="{% url 'staff_approve_withdrawal' item.id %}"
+                                  style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="approve-btn">
+                                    Approve
+                                </button>
+                            </form>
+
+                            <form method="POST"
+                                  action="{% url 'staff_reject_withdrawal' item.id %}"
+                                  style="display:inline;">
+                                {% csrf_token %}
+
+                                <input
+                                    type="text"
+                                    name="remark"
+                                    class="reject-input"
+                                    placeholder="Reject reason"
+                                >
+
+                                <button type="submit" class="reject-btn">
+                                    Reject
+                                </button>
+                            </form>
+
+                        {% else %}
+                            Done
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="10">No withdrawal requests found.</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

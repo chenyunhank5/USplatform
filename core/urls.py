@@ -36,6 +36,12 @@ urlpatterns = [
     path('staff/product/<int:product_id>/edit/', views.staff_edit_product, name='staff_edit_product'),
     path('staff/product/<int:product_id>/delete/', views.staff_delete_product, name='staff_delete_product'),
 
+    path('user/withdraw/', views.user_withdraw, name='user_withdraw'),
+
+    path('staff/withdrawals/', views.staff_withdrawal_management, name='staff_withdrawal_management'),
+    path('staff/withdrawal/<int:withdrawal_id>/approve/', views.staff_approve_withdrawal, name='staff_approve_withdrawal'),
+    path('staff/withdrawal/<int:withdrawal_id>/reject/', views.staff_reject_withdrawal, name='staff_reject_withdrawal'),
+
     # PRODUCT EVALUATION
     path('staff/product-evaluation/', views.staff_product_evaluation, name='staff_product_evaluation'),
     path('staff/product-evaluation/add/', views.staff_add_product_evaluation, name='staff_add_product_evaluation'),
@@ -44,15 +50,22 @@ urlpatterns = [
 
     # USER AUTH
     path('login/', views.user_login, name='user_login'),
+    path('user/verify-withdrawal-password/', views.verify_withdrawal_password, name='verify_withdrawal_password'),
     path('logout/', views.user_logout, name='user_logout'),
     path('register/', views.user_register, name='user_register'),
 
     # USER PAGES
     path('user/home/', views.user_home, name='user_home'),
+    path('user/withdraw/', views.user_withdraw, name='user_withdraw'),
     path('user/records/', views.user_records, name='user_records'),
     path('user/order/', views.user_order, name='user_order'),
     path('user/messages/', views.user_messages, name='user_messages'),
     path('user/settings/', views.user_settings, name='user_settings'),
+    path('user/trading-account/', views.user_trading_account, name='user_trading_account'),
+    path('user/personal-information/', views.user_personal_information, name='user_personal_information'),
+    path('user/update-email/', views.user_update_email, name='user_update_email'),
+    path('user/update-password/', views.user_update_password, name='user_update_password'),
+    path('user/update-transaction-password/', views.user_update_transaction_password, name='user_update_transaction_password'),
 ]
 
 

@@ -1,0 +1,253 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Trading Account{% endblock %}
+
+{% block extra_css %}
+<style>
+    .content{
+        padding:0 !important;
+        background:#f5f6f8;
+        min-height:100vh;
+    }
+
+    .topbar{
+        height:44px;
+        background:#000;
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        position:relative;
+        font-size:16px;
+        font-weight:bold;
+    }
+
+    .back-btn{
+        position:absolute;
+        left:14px;
+        color:white;
+        text-decoration:none;
+        font-size:30px;
+        line-height:1;
+    }
+
+    .page{
+        padding:32px 16px 90px;
+    }
+
+    .wallet-row{
+        background:#fff7d8;
+        border-radius:8px;
+        padding:18px 12px;
+        display:flex;
+        align-items:center;
+        gap:12px;
+    }
+
+    .wallet-icon{
+        width:58px;
+        height:58px;
+        background:white;
+        border-radius:2px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-shrink:0;
+    }
+
+    .wallet-icon img{
+        width:34px;
+        height:34px;
+        object-fit:contain;
+    }
+
+    .wallet-info{
+        flex:1;
+        min-width:0;
+    }
+
+    .wallet-title{
+        font-size:15px;
+        font-weight:bold;
+        color:#000;
+        margin-bottom:8px;
+    }
+
+    .wallet-address{
+        font-size:14px;
+        color:#000;
+        font-weight:bold;
+        word-break:break-all;
+    }
+
+    .edit-btn{
+        width:28px;
+        height:28px;
+        border-radius:7px;
+        background:#b8f15d;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#1f2937;
+        text-decoration:none;
+        font-size:17px;
+        flex-shrink:0;
+        border:0;
+        cursor:pointer;
+    }
+
+    .modal-overlay{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.65);
+        z-index:9999;
+        align-items:center;
+        justify-content:center;
+        padding:20px;
+    }
+
+    .modal-box{
+        width:320px;
+        background:white;
+        padding:26px 22px;
+        border-radius:6px;
+        position:relative;
+    }
+
+    .modal-close{
+        position:absolute;
+        right:12px;
+        top:8px;
+        border:0;
+        background:none;
+        font-size:26px;
+        cursor:pointer;
+    }
+
+    .modal-title{
+        font-size:16px;
+        font-weight:bold;
+        text-align:center;
+        margin-bottom:18px;
+    }
+
+    .modal-input{
+        width:100%;
+        min-height:48px;
+        border:1px solid #ddd;
+        padding:12px;
+        outline:none;
+        font-size:14px;
+    }
+
+    .save-btn{
+        width:100%;
+        height:46px;
+        border:0;
+        background:#ff851c;
+        color:white;
+        border-radius:4px;
+        margin-top:16px;
+        font-weight:bold;
+        font-size:15px;
+        cursor:pointer;
+    }
+
+    .message{
+        background:#fff4e8;
+        color:#c2410c;
+        border:1px solid #ffd6b0;
+        padding:10px;
+        border-radius:6px;
+        margin-bottom:12px;
+        text-align:center;
+        font-size:13px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="topbar">
+    <a href="{% url 'user_settings' %}" class="back-btn">‹</a>
+    Trading Account
+</div>
+
+<div class="page">
+
+    <div class="wallet-row">
+
+        <div class="wallet-icon">
+            <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1778880278/Wallet_evtebh.png">
+        </div>
+
+        <div class="wallet-info">
+
+            <div class="wallet-title">
+                Digital Currency Wallet Address
+            </div>
+
+            <div class="wallet-address">
+                {% if profile.wallet_address %}
+                    {{ profile.wallet_address|slice:":3" }}***{{ profile.wallet_address|slice:"-2:" }}
+                {% else %}
+                    Not set
+                {% endif %}
+            </div>
+
+        </div>
+
+        <button type="button" class="edit-btn" onclick="openWalletModal()">
+            ✎
+        </button>
+
+    </div>
+
+</div>
+
+<div class="modal-overlay" id="walletModal">
+
+    <div class="modal-box">
+
+        <button type="button" class="modal-close" onclick="closeWalletModal()">
+            ×
+        </button>
+
+        <div class="modal-title">
+            Edit Wallet Address
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <input
+                type="text"
+                name="wallet_address"
+                class="modal-input"
+                placeholder="Enter wallet address"
+                value="{{ profile.wallet_address|default:'' }}"
+                required
+            >
+
+            <button type="submit" class="save-btn">
+                Save
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function openWalletModal(){
+    document.getElementById('walletModal').style.display = 'flex';
+}
+
+function closeWalletModal(){
+    document.getElementById('walletModal').style.display = 'none';
+}
+</script>
+
+{% endblock %}

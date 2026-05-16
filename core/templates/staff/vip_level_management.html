@@ -130,6 +130,8 @@
                     <th>ID</th>
                     <th>Icon</th>
                     <th>Level name</th>
+                    <th>Min Withdrawal</th>
+                    <th>Max Withdrawal</th>
                     <th>Minimum amount</th>
                     <th>Commission rate</th>
                     <th>Successive order commission rate</th>
@@ -155,6 +157,10 @@
 
                     <td>{{ vip.level_name }}</td>
 
+                    <td>{{ vip.minimum_withdrawal }}</td>
+
+                    <td>{{ vip.maximum_withdrawal }}</td>
+
                     <td>{{ vip.minimum_amount }}</td>
 
                     <td>{{ vip.commission_rate }}</td>
@@ -169,6 +175,8 @@
                          onclick="openEditLevelModal(
                              '{{ vip.id }}',
                              '{{ vip.level_name|escapejs }}',
+                             '{{ vip.minimum_withdrawal }}',
+                             '{{ vip.maximum_withdrawal }}',
                              '{{ vip.minimum_amount }}',
                              '{{ vip.commission_rate }}',
                              '{{ vip.successive_order_commission_rate }}',

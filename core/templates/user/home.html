@@ -66,6 +66,12 @@
         line-height:1.25;
     }
 
+    .menu-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
     .menu-icon{
         width:42px;
         height:42px;
@@ -227,12 +233,17 @@
 <div class="menu-grid">
 
     <div class="menu-item">
-        <div class="menu-icon">
-            <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312902/download_4_ijox13.png">
-        </div>
-        Withdrawal
+        <a
+            href="javascript:void(0);"
+            class="menu-link"
+            onclick="openWithdrawPasswordModal('{% url 'user_withdraw' %}')"
+        >
+            <div class="menu-icon">
+                <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312902/download_4_ijox13.png">
+            </div>
+            Withdrawal
+        </a>
     </div>
-
     <div class="menu-item">
         <div class="menu-icon">
             <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775312902/download_5_flfcf2.png">

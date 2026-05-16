@@ -216,6 +216,8 @@
 
     .menu-card{
         height:86px;
+        text-decoration: none;
+        color: inherit;
         background:white;
         border-radius:14px;
         display:flex;
@@ -394,7 +396,7 @@
 
             {{ request.user.userprofile.invite_code }}
 
-            <button class="copy-btn">
+            <button type="button" class="copy-btn" onclick="copyInviteCode('{{ request.user.userprofile.invite_code }}')">
                 Copy
             </button>
 
@@ -426,21 +428,31 @@
 
     <div class="wallet-tabs">
 
-        <button class="active">
+        <button
+            type="button"
+            class="wallet-tab-btn active"
+            id="todayTabBtn"
+            onclick="showWalletTab('today')"
+        >
             Todays Earnings
         </button>
 
-        <button>
+        <button
+            type="button"
+            class="wallet-tab-btn"
+            id="totalTabBtn"
+            onclick="showWalletTab('total')"
+        >
             Total Earnings
         </button>
 
     </div>
 
-    <div class="wallet-stats">
+    <div class="wallet-stats" id="todayStats">
 
         <div class="wallet-stat">
             <small>Order Revenue</small>
-            <b>0</b>
+            <b>{{ request.user.userprofile.today_profit|default:"0" }}</b>
         </div>
 
         <div class="wallet-stat">
@@ -449,8 +461,31 @@
         </div>
 
         <div class="wallet-stat">
-            <small>Total Earnings</small>
+            <small>Today Earnings</small>
+            <b>{{ request.user.userprofile.today_profit|default:"0" }}</b>
+        </div>
+
+    </div>
+
+    <div
+        class="wallet-stats"
+        id="totalStats"
+        style="display:none;"
+    >
+
+        <div class="wallet-stat">
+            <small>Total Balance</small>
+            <b>{{ request.user.userprofile.balance }}</b>
+        </div>
+
+        <div class="wallet-stat">
+            <small>Total Team</small>
             <b>0</b>
+        </div>
+
+        <div class="wallet-stat">
+            <small>Total Earnings</small>
+            <b>{{ request.user.userprofile.balance }}</b>
         </div>
 
     </div>
@@ -470,26 +505,30 @@
         Deposit
     </div>
 
-    <div class="menu-card">
+    <a
+        href="javascript:void(0);"
+        class="menu-card"
+        onclick="openWithdrawPasswordModal('{% url 'user_withdraw' %}')"
+    >
         <div class="menu-icon">
             <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1778628585/withdraw_rrfcwq.png">
         </div>
         Withdraw
-    </div>
+    </a>
 
-    <div class="menu-card">
+    <a href="javascript:void(0);" class="menu-card" onclick="openWithdrawPasswordModal('{% url 'user_trading_account' %}')">
         <div class="menu-icon">
             <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1778628585/trading_account_lbpikk.png">
         </div>
         Trading Account
-    </div>
+    </a>
 
-    <div class="menu-card">
+    <a href="{% url 'user_personal_information' %}" class="menu-card">
         <div class="menu-icon">
             <img src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1778628585/personal_info_gjvexq.png">
         </div>
         Personal Information
-    </div>
+    </a>
 
 </div>
 
@@ -568,4 +607,46 @@
     majortom. All Rights Reserved.
 </div>
 
+<script>
+function copyInviteCode(code){
+
+    navigator.clipboard.writeText(code)
+    .then(() => {
+        showAlert("Invitation Code Copied Successfully");
+    })
+    .catch(() => {
+        showAlert("Failed To Copy Invitation Code");
+    });
+
+}
+
+function showWalletTab(type){
+
+    const todayStats = document.getElementById('todayStats');
+    const totalStats = document.getElementById('totalStats');
+
+    const todayBtn = document.getElementById('todayTabBtn');
+    const totalBtn = document.getElementById('totalTabBtn');
+
+    if(type === 'today'){
+
+        todayStats.style.display = 'flex';
+        totalStats.style.display = 'none';
+
+        todayBtn.classList.add('active');
+        totalBtn.classList.remove('active');
+
+    }else{
+
+        todayStats.style.display = 'flex';
+        totalStats.style.display = 'flex';
+
+        todayStats.style.display = 'none';
+
+        totalBtn.classList.add('active');
+        todayBtn.classList.remove('active');
+
+    }
+}
+</script>
 {% endblock %}

@@ -155,6 +155,16 @@
                 </div>
 
                 <div class="edit-level-row">
+                    <label>Minimum withdrawal</label>
+                    <input type="number" step="0.01" name="minimum_withdrawal" id="editMinimumWithdrawal">
+                </div>
+
+                <div class="edit-level-row">
+                    <label>Maximum withdrawal</label>
+                    <input type="number" step="0.01" name="maximum_withdrawal" id="editMaximumWithdrawal">
+                </div>
+
+                <div class="edit-level-row">
                     <label><span>*</span> Minimum amount</label>
                     <input type="number" step="0.01" name="minimum_amount" id="editMinimumAmount" required>
                 </div>
@@ -203,20 +213,49 @@
 </div>
 
 <script>
-function openEditLevelModal(id, levelName, minimumAmount, commissionRate, successiveRate, maximumTask, description){
-    document.getElementById('editLevelModal').style.display = 'block';
+  function openEditLevelModal(
+      id,
+      levelName,
+      minimumWithdrawal,
+      maximumWithdrawal,
+      minimumAmount,
+      commissionRate,
+      successiveRate,
+      maximumTask,
+      description
+  ){
 
-    document.getElementById('editLevelForm').action = '/staff/vip-level/' + id + '/edit/';
+      document.getElementById('editLevelModal').style.display = 'block';
 
-    document.getElementById('editLevelName').value = levelName;
-    document.getElementById('editMinimumAmount').value = minimumAmount;
-    document.getElementById('editCommissionRate').value = commissionRate;
-    document.getElementById('editSuccessiveRate').value = successiveRate;
-    document.getElementById('editMaximumTask').value = maximumTask;
-    document.getElementById('editDescription').value = description || '';
-}
+      document.getElementById('editLevelForm').action =
+          '/staff/vip-level/' + id + '/edit/';
 
-function closeEditLevelModal(){
-    document.getElementById('editLevelModal').style.display = 'none';
-}
+      document.getElementById('editLevelName').value =
+          levelName;
+
+      document.getElementById('editMinimumWithdrawal').value =
+          minimumWithdrawal;
+
+      document.getElementById('editMaximumWithdrawal').value =
+          maximumWithdrawal;
+
+      document.getElementById('editMinimumAmount').value =
+          minimumAmount;
+
+      document.getElementById('editCommissionRate').value =
+          commissionRate;
+
+      document.getElementById('editSuccessiveRate').value =
+          successiveRate;
+
+      document.getElementById('editMaximumTask').value =
+          maximumTask;
+
+      document.getElementById('editDescription').value =
+          description || '';
+  }
+
+  function closeEditLevelModal(){
+      document.getElementById('editLevelModal').style.display = 'none';
+  }
 </script>
