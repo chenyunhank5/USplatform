@@ -247,8 +247,9 @@
 
             </div>
 
-            <a href="#">
-                Agent management
+            <a href="{% url 'staff_support' %}"
+               class="{% if request.resolver_match.url_name == 'staff_support' %}active{% endif %}">
+                Customer Service Management
             </a>
 
         </div>

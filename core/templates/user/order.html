@@ -198,6 +198,7 @@
         font-weight:bold;
         font-size:13px;
         color:#000;
+        box-shadow:0 3px 10px rgba(0,0,0,.04);
     }
 
     .info-btn img{
@@ -213,6 +214,7 @@
         display:flex;
         align-items:center;
         margin-bottom:14px;
+        box-shadow:0 3px 10px rgba(0,0,0,.04);
     }
 
     .vip-row .left{
@@ -250,7 +252,7 @@
     }
 
     .animation-box{
-        height:202px;
+        min-height:202px;
         background:#06aeca;
         border-radius:12px;
         display:flex;
@@ -259,6 +261,7 @@
         margin-bottom:20px;
         overflow:hidden;
         border:0;
+        position:relative;
     }
 
     .center-logo-img{
@@ -267,7 +270,8 @@
         object-fit:contain;
     }
 
-    .start-btn{
+    .start-btn,
+    .continue-btn{
         width:100%;
         height:44px;
         border:0;
@@ -276,11 +280,94 @@
         color:white;
         font-size:15px;
         font-weight:bold;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        text-decoration:none;
     }
 
-    .start-btn:active{
+    .start-btn:active,
+    .continue-btn:active{
         transform:scale(.99);
     }
+
+    .matched-card{
+        width:100%;
+        background:white;
+        border-radius:14px;
+        padding:14px;
+        box-shadow:0 8px 22px rgba(0,0,0,.12);
+    }
+
+    .matched-title{
+        font-size:17px;
+        font-weight:bold;
+        color:#111827;
+        margin-bottom:10px;
+        text-align:center;
+    }
+
+    .product-img{
+        width:100%;
+        height:120px;
+        object-fit:cover;
+        border-radius:10px;
+        background:#f3f4f6;
+        margin-bottom:10px;
+    }
+
+    .product-name{
+        font-size:15px;
+        font-weight:bold;
+        color:#111827;
+        margin-bottom:8px;
+    }
+
+    .product-row{
+        display:flex;
+        justify-content:space-between;
+        font-size:13px;
+        margin-bottom:6px;
+        color:#374151;
+    }
+
+    .product-row b{
+        color:#f78522;
+    }
+
+    .history-section{
+        margin-top:22px;
+        padding-bottom:20px;
+    }
+
+    .history-title{
+        font-size:16px;
+        font-weight:bold;
+        margin-bottom:10px;
+    }
+
+    .history-card{
+        background:white;
+        border-radius:10px;
+        padding:12px;
+        margin-bottom:10px;
+        box-shadow:0 3px 10px rgba(0,0,0,.04);
+    }
+
+    .history-product{
+        font-weight:bold;
+        font-size:14px;
+        margin-bottom:6px;
+    }
+
+    .history-row{
+        display:flex;
+        justify-content:space-between;
+        font-size:12px;
+        color:#6b7280;
+        margin-bottom:4px;
+    }
+
 </style>
 {% endblock %}
 
@@ -292,22 +379,20 @@
     </div>
 
     <div>
-      <div class="username">
+        <div class="username">
+            {{ request.user.username }}
 
-          {{ request.user.username }}
-
-          {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
-              <img
-                  src="{{ request.user.userprofile.vip_level.icon.url }}"
-                  class="username-vip-img"
-              >
-          {% else %}
-              <span class="vip-badge">
-                  {{ request.user.userprofile.vip_level }}
-              </span>
-          {% endif %}
-
-      </div>
+            {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
+                <img
+                    src="{{ request.user.userprofile.vip_level.icon.url }}"
+                    class="username-vip-img"
+                >
+            {% else %}
+                <span class="vip-badge">
+                    {{ request.user.userprofile.vip_level }}
+                </span>
+            {% endif %}
+        </div>
 
         <div class="credit-row">
             <span class="label-gray">Credit Score :</span>
@@ -347,7 +432,13 @@
     <div class="wallet-stats">
         <div class="wallet-stat">
             <small>Order Revenue</small>
-            <b>0</b>
+            <b>
+                {% if active_order %}
+                    {{ active_order.commission }}
+                {% else %}
+                    0
+                {% endif %}
+            </b>
         </div>
 
         <div class="wallet-stat">
@@ -399,21 +490,101 @@
 </div>
 
 <div class="animation-box">
-    <img
-        src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243934/download_3_gu3ks5.png"
-        class="center-logo-img"
-    >
+
+    {% if active_order %}
+
+        <div class="matched-card">
+            <div class="matched-title">
+                Order Matched!
+            </div>
+
+            {% if active_order.product.cover %}
+                <img src="{{ active_order.product.cover }}" class="product-img">
+            {% endif %}
+
+            <div class="product-name">
+                {{ active_order.product.name }}
+            </div>
+
+            <div class="product-row">
+                <span>Order Price</span>
+                <b>{{ active_order.order_price }} USD</b>
+            </div>
+
+            <div class="product-row">
+                <span>Commission</span>
+                <b>{{ active_order.commission }} USD</b>
+            </div>
+
+            <div class="product-row">
+                <span>Status</span>
+                <b>{{ active_order.status }}</b>
+            </div>
+        </div>
+
+    {% else %}
+
+        <img
+            src="https://res.cloudinary.com/dkwg2x7qd/image/upload/v1775243934/download_3_gu3ks5.png"
+            class="center-logo-img"
+        >
+
+    {% endif %}
+
 </div>
 
-<button class="start-btn">
-    Start (
-    {{ request.user.userprofile.task_progress }}/
-    {% if request.user.userprofile.vip_level %}
-        {{ request.user.userprofile.vip_level.maximum_task }}
-    {% else %}
-        40
-    {% endif %}
-    )
-</button>
+{% if active_order %}
+
+    <a href="{% url 'user_order_detail' active_order.id %}" class="continue-btn">
+        Continue Order
+    </a>
+
+{% else %}
+
+    <a href="{% url 'start_order' %}" class="start-btn">
+        Start (
+        {{ request.user.userprofile.task_progress }}/
+        {% if request.user.userprofile.vip_level %}
+            {{ request.user.userprofile.vip_level.maximum_task }}
+        {% else %}
+            40
+        {% endif %}
+        )
+    </a>
+
+{% endif %}
+
+<div class="history-section">
+    <div class="history-title">
+        Completed Orders
+    </div>
+
+    {% for order in completed_orders %}
+        <div class="history-card">
+            <div class="history-product">
+                {{ order.product.name }}
+            </div>
+
+            <div class="history-row">
+                <span>Price</span>
+                <b>{{ order.order_price }} USD</b>
+            </div>
+
+            <div class="history-row">
+                <span>Commission</span>
+                <b>{{ order.commission }} USD</b>
+            </div>
+
+            <div class="history-row">
+                <span>Rating</span>
+                <b>{{ order.rating }} Stars</b>
+            </div>
+        </div>
+    {% empty %}
+        <div class="history-card">
+            No completed orders yet.
+        </div>
+    {% endfor %}
+</div>
 
 {% endblock %}

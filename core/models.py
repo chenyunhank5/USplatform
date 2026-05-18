@@ -124,7 +124,39 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+class UserOrder(models.Model):
 
+    STATUS_CHOICES = (
+        ('matched', 'Matched'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_orders')
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    order_price = models.DecimalField(max_digits=12, decimal_places=2)
+
+    commission = models.DecimalField(max_digits=12, decimal_places=2)
+
+    rating = models.IntegerField(blank=True, null=True)
+
+    comment = models.TextField(blank=True)
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='matched'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    completed_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.product.name}'
+        
 class ProductEvaluation(models.Model):
     star_level = models.DecimalField(max_digits=2, decimal_places=1, default=5.0)
     content = models.TextField()
@@ -132,6 +164,36 @@ class ProductEvaluation(models.Model):
 
     def __str__(self):
         return f'{self.star_level} - {self.content[:30]}'
+
+class SupportMessage(models.Model):
+
+    MESSAGE_TYPES = (
+        ('text', 'Text'),
+        ('image', 'Image'),
+        ('system', 'System'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='support_messages')
+
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_support_messages')
+
+    message = models.TextField(blank=True)
+
+    image = models.ImageField(upload_to='support_images/', blank=True, null=True)
+
+    message_type = models.CharField(max_length=20, choices=MESSAGE_TYPES, default='text')
+
+    is_read_by_staff = models.BooleanField(default=False)
+
+    is_read_by_user = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'{self.sender.username}: {self.message[:30]}'
 
 
 @receiver(post_save, sender=User)

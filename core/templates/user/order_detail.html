@@ -1,0 +1,551 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Order{% endblock %}
+
+{% block extra_css %}
+<style>
+
+    .order-page{
+        background:#f5f5f5;
+        min-height:100vh;
+        padding-bottom:180px;
+    }
+
+    .topbar{
+        height:46px;
+        background:#000;
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        position:sticky;
+        top:0;
+        z-index:100;
+        font-weight:bold;
+        font-size:17px;
+    }
+
+    .back-btn{
+        position:absolute;
+        left:14px;
+        color:white;
+        text-decoration:none;
+        font-size:28px;
+        font-weight:300;
+    }
+
+    .product-name{
+        background:white;
+        padding:14px 16px;
+        font-size:15px;
+        line-height:1.6;
+        border-bottom:1px solid #eee;
+    }
+
+    /* IMAGE SLIDER */
+
+    .image-slider{
+        width:100%;
+        height:360px;
+        background:white;
+        overflow:hidden;
+        position:relative;
+    }
+
+    .slide-img{
+        display:none;
+        width:100%;
+        height:100%;
+        object-fit:contain;
+        padding:12px;
+    }
+
+    .slide-img.active{
+        display:block;
+    }
+
+    .slider-dots{
+        text-align:center;
+        padding:10px 0;
+        background:white;
+        border-bottom:1px solid #e5e5e5;
+    }
+
+    .slider-dot{
+        display:inline-block;
+        width:8px;
+        height:8px;
+        border-radius:50%;
+        background:#cfcfcf;
+        margin:0 4px;
+        transition:.2s;
+    }
+
+    .slider-dot.active{
+        background:#111;
+        transform:scale(1.15);
+    }
+
+    /* PRICE */
+
+    .price-box{
+        background:white;
+        margin-top:10px;
+        padding:16px;
+    }
+
+    .currency{
+        font-size:13px;
+        vertical-align:top;
+    }
+
+    .price{
+        font-size:42px;
+        font-weight:500;
+        line-height:1;
+    }
+
+    .stock{
+        color:#0f7a00;
+        font-size:20px;
+        margin-top:18px;
+        font-weight:bold;
+    }
+
+    /* DESCRIPTION */
+
+    .description-box{
+        background:white;
+        margin-top:10px;
+        padding:16px;
+        overflow:hidden;
+        color:#111;
+        line-height:1.7;
+    }
+
+    .description-box img{
+        max-width:100% !important;
+        height:auto !important;
+        border-radius:10px;
+    }
+
+    .description-box iframe{
+        max-width:100%;
+    }
+
+    .description-box table{
+        max-width:100%;
+    }
+
+    .description-box h3{
+        margin:0 0 14px;
+        font-size:19px;
+    }
+
+    .description-box ul{
+        padding-left:20px;
+    }
+
+    .description-box li{
+        margin-bottom:12px;
+    }
+
+    /* REVIEW */
+
+    .review-card{
+        padding:18px 0;
+        border-top:1px solid #e5e5e5;
+    }
+
+    .review-user{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-bottom:6px;
+    }
+
+    .review-avatar{
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        background:#b6c2c2;
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:bold;
+    }
+
+    .review-stars{
+        color:#ff8a00;
+        font-size:16px;
+        font-weight:bold;
+    }
+
+    .verified{
+        color:#c45500;
+        font-size:12px;
+        font-weight:bold;
+    }
+
+    .review-title{
+        font-weight:bold;
+        font-size:15px;
+        margin:4px 0;
+    }
+
+    .review-meta{
+        font-size:13px;
+        color:#555;
+        line-height:1.4;
+    }
+
+    .review-text{
+        margin-top:8px;
+        font-size:15px;
+        line-height:1.45;
+    }
+
+    /* BOTTOM */
+
+    .bottom-box{
+        position:fixed;
+        left:50%;
+        transform:translateX(-50%);
+        bottom:0;
+        width:100%;
+        max-width:430px;
+        background:#f3f4f6;
+        padding:10px 14px 14px;
+        box-shadow:0 -4px 16px rgba(0,0,0,.08);
+        z-index:200;
+    }
+
+    .vip-box{
+        background:#fff0b8;
+        border-radius:7px;
+        height:42px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:0 14px;
+        margin-bottom:10px;
+    }
+
+    .vip-left{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        font-weight:bold;
+    }
+
+    .vip-icon{
+        width:28px;
+        height:28px;
+        border-radius:5px;
+        background:#000;
+        color:#ffd700;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:bold;
+    }
+
+    .qty{
+        background:#000;
+        color:white;
+        border-radius:6px;
+        padding:6px 12px;
+        font-size:12px;
+        font-weight:bold;
+    }
+
+    .summary-box{
+        background:white;
+        border-radius:7px;
+        padding:12px;
+        display:grid;
+        grid-template-columns:1fr 1fr 1fr;
+        gap:8px;
+        margin-bottom:10px;
+    }
+
+    .summary-item{
+        text-align:center;
+        font-size:12px;
+        font-weight:bold;
+        color:#111;
+    }
+
+    .summary-item b{
+        display:block;
+        margin-top:4px;
+        font-size:16px;
+    }
+
+    .order-btn{
+        width:100%;
+        height:48px;
+        border:none;
+        border-radius:9px;
+        background:#f78522;
+        color:white;
+        font-size:16px;
+        cursor:pointer;
+    }
+
+    .submit-form textarea,
+    .submit-form select{
+        display:none;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="order-page">
+
+    <div class="topbar">
+
+        <a href="{% url 'user_order' %}" class="back-btn">
+            ‹
+        </a>
+
+        Order
+
+    </div>
+
+    <div class="product-name">
+        {{ order.product.name }}
+    </div>
+
+    <!-- IMAGE SLIDER -->
+
+    <div class="image-slider" id="imageSlider">
+
+        {% if order.product.cover %}
+            <img src="{{ order.product.cover }}" class="slide-img active">
+        {% endif %}
+
+        {% if order.product.goods_album_1 %}
+            <img src="{{ order.product.goods_album_1 }}" class="slide-img">
+        {% endif %}
+
+        {% if order.product.goods_album_2 %}
+            <img src="{{ order.product.goods_album_2 }}" class="slide-img">
+        {% endif %}
+
+        {% if order.product.goods_album_3 %}
+            <img src="{{ order.product.goods_album_3 }}" class="slide-img">
+        {% endif %}
+
+        {% if order.product.goods_album_4 %}
+            <img src="{{ order.product.goods_album_4 }}" class="slide-img">
+        {% endif %}
+
+    </div>
+
+    <div class="slider-dots" id="sliderDots"></div>
+
+    <!-- PRICE -->
+
+    <div class="price-box">
+
+        <span class="currency">
+            USD
+        </span>
+
+        <span class="price">
+            {{ order.product.price }}
+        </span>
+
+        <div class="stock">
+            We Have Stock Now
+        </div>
+
+    </div>
+
+    <!-- DESCRIPTION -->
+
+    <div class="description-box">
+
+        {{ order.product.description|safe }}
+
+    </div>
+
+</div>
+
+<!-- BOTTOM -->
+
+<div class="bottom-box">
+
+    <div class="vip-box">
+
+        <div class="vip-left">
+
+            <div class="vip-icon">
+                V
+            </div>
+
+            {% if request.user.userprofile.vip_level %}
+                {{ request.user.userprofile.vip_level.level_name }}
+            {% else %}
+                VIP
+            {% endif %}
+
+        </div>
+
+        <div class="qty">
+            Order Quantity : 9
+        </div>
+
+    </div>
+
+    <div class="summary-box">
+
+        <div class="summary-item">
+            Total Amount(USD)
+
+            <b>
+                {{ order.order_price }}
+            </b>
+        </div>
+
+        <div class="summary-item">
+            Commission
+
+            <b>
+                {% if request.user.userprofile.vip_level %}
+                    {{ request.user.userprofile.vip_level.commission_rate|floatformat:"-1" }}%
+                {% else %}
+                    0%
+                {% endif %}
+            </b>
+        </div>
+
+        <div class="summary-item">
+            Revenue(USD)
+
+            <b>
+                {{ order.commission }}
+            </b>
+        </div>
+
+    </div>
+
+    {% if order.status == 'matched' %}
+
+        <form method="POST"
+              action="{% url 'submit_order' order.id %}"
+              class="submit-form">
+
+            {% csrf_token %}
+
+            <select name="rating">
+                <option value="5" selected>
+                    5
+                </option>
+            </select>
+
+            <textarea name="comment">
+Automatic Review
+            </textarea>
+
+            <button type="submit" class="order-btn">
+                Start Order
+            </button>
+
+        </form>
+
+    {% else %}
+
+        <a href="{% url 'user_order' %}"
+           class="order-btn"
+           style="display:flex;align-items:center;justify-content:center;text-decoration:none;">
+
+            Back To Orders
+
+        </a>
+
+    {% endif %}
+
+</div>
+
+<script>
+
+    let currentSlide = 0;
+
+    const slides = document.querySelectorAll(".slide-img");
+
+    const dotsBox = document.getElementById("sliderDots");
+
+    slides.forEach(function(slide, index){
+
+        const dot = document.createElement("span");
+
+        dot.className = "slider-dot";
+
+        if(index === 0){
+            dot.classList.add("active");
+        }
+
+        dot.onclick = function(){
+            showSlide(index);
+        };
+
+        dotsBox.appendChild(dot);
+
+    });
+
+    const dots = document.querySelectorAll(".slider-dot");
+
+    function showSlide(index){
+
+        slides[currentSlide].classList.remove("active");
+
+        dots[currentSlide].classList.remove("active");
+
+        currentSlide = index;
+
+        slides[currentSlide].classList.add("active");
+
+        dots[currentSlide].classList.add("active");
+
+    }
+
+    let startX = 0;
+
+    const slider = document.getElementById("imageSlider");
+
+    slider.addEventListener("touchstart", function(e){
+
+        startX = e.touches[0].clientX;
+
+    });
+
+    slider.addEventListener("touchend", function(e){
+
+        let endX = e.changedTouches[0].clientX;
+
+        if(startX - endX > 40){
+
+            if(currentSlide < slides.length - 1){
+                showSlide(currentSlide + 1);
+            }
+
+        }
+
+        if(endX - startX > 40){
+
+            if(currentSlide > 0){
+                showSlide(currentSlide - 1);
+            }
+
+        }
+
+    });
+
+</script>
+
+{% endblock %}

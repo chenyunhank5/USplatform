@@ -10,8 +10,9 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.db.models import Count, Q, Max
 
-from .models import UserProfile, VipLevel, Product, ProductEvaluation, WithdrawalRequest
+from .models import UserProfile, VipLevel, Product, ProductEvaluation, WithdrawalRequest, SupportMessage, UserOrder
 
 
 def get_client_ip(request):
@@ -574,6 +575,61 @@ def staff_reject_withdrawal(request, withdrawal_id):
 
     return redirect('staff_withdrawal_management')
 
+@staff_required
+def staff_support(request):
+
+    users = User.objects.filter(
+        support_messages__isnull=False
+    ).annotate(
+        unread_count=Count(
+            'support_messages',
+            filter=Q(
+                support_messages__sender__is_staff=False,
+                support_messages__is_read_by_staff=False
+            )
+        ),
+        last_message_time=Max('support_messages__created_at')
+    ).distinct().order_by('-last_message_time')
+
+    selected_user_id = request.GET.get('user_id')
+    selected_user = None
+    messages_list = []
+
+    if selected_user_id:
+        selected_user = get_object_or_404(User, id=selected_user_id)
+
+        if request.method == 'POST':
+            message = request.POST.get('message', '').strip()
+            image = request.FILES.get('image')
+
+            if message or image:
+                SupportMessage.objects.create(
+                    user=selected_user,
+                    sender=request.user,
+                    message=message,
+                    image=image,
+                    message_type='image' if image else 'text',
+                    is_read_by_staff=True,
+                    is_read_by_user=False
+                )
+
+            return redirect(f'/staff/support/?user_id={selected_user.id}')
+
+        SupportMessage.objects.filter(
+            user=selected_user,
+            sender__is_staff=False,
+            is_read_by_staff=False
+        ).update(is_read_by_staff=True)
+
+        messages_list = SupportMessage.objects.filter(
+            user=selected_user
+        ).order_by('created_at')
+
+    return render(request, 'staff/support.html', {
+        'users': users,
+        'selected_user': selected_user,
+        'messages_list': messages_list
+    })
 
 # USER
 
@@ -768,8 +824,98 @@ def user_records(request):
 
 @login_required(login_url='user_login')
 def user_order(request):
-    return render(request, 'user/order.html')
+    active_order = UserOrder.objects.filter(
+        user=request.user,
+        status='matched'
+    ).select_related('product').first()
 
+    completed_orders = UserOrder.objects.filter(
+        user=request.user,
+        status='completed'
+    ).select_related('product').order_by('-completed_at')[:20]
+
+    return render(request, 'user/order.html', {
+        'active_order': active_order,
+        'completed_orders': completed_orders
+    })
+
+
+@login_required(login_url='user_login')
+def start_order(request):
+    profile = get_object_or_404(UserProfile, user=request.user)
+
+    active_order = UserOrder.objects.filter(
+        user=request.user,
+        status='matched'
+    ).first()
+
+    if active_order:
+        return redirect('user_order_detail', order_id=active_order.id)
+
+    product = Product.objects.filter(
+        price__lte=profile.balance
+    ).order_by('-price').first()
+
+    if not product:
+        messages.error(request, 'No suitable order found for your current balance.')
+        return redirect('user_order')
+
+    commission_rate = profile.vip_level.commission_rate if profile.vip_level else Decimal('0')
+    commission = product.price * commission_rate / Decimal('100')
+
+    order = UserOrder.objects.create(
+        user=request.user,
+        product=product,
+        order_price=product.price,
+        commission=commission,
+        status='matched'
+    )
+
+    return redirect('user_order_detail', order_id=order.id)
+
+
+@login_required(login_url='user_login')
+def user_order_detail(request, order_id):
+    order = get_object_or_404(
+        UserOrder.objects.select_related('product'),
+        id=order_id,
+        user=request.user
+    )
+
+    return render(request, 'user/order_detail.html', {
+        'order': order
+    })
+
+
+@login_required(login_url='user_login')
+def submit_order(request, order_id):
+    order = get_object_or_404(
+        UserOrder,
+        id=order_id,
+        user=request.user,
+        status='matched'
+    )
+
+    profile = get_object_or_404(UserProfile, user=request.user)
+
+    if request.method == 'POST':
+        rating = int(request.POST.get('rating', 5))
+        comment = request.POST.get('comment', '').strip()
+
+        order.rating = rating
+        order.comment = comment
+        order.status = 'completed'
+        order.completed_at = timezone.now()
+        order.save()
+
+        profile.balance += order.commission
+        profile.task_progress += 1
+        profile.save()
+
+        messages.success(request, 'Order submitted successfully.')
+        return redirect('user_order')
+
+    return redirect('user_order_detail', order_id=order.id)
 
 @login_required(login_url='user_login')
 def user_messages(request):
@@ -857,3 +1003,37 @@ def user_update_transaction_password(request):
         return redirect('user_personal_information')
 
     return render(request, 'user/user_partials/update_transaction_password.html')
+
+@login_required(login_url='user_login')
+def customer_service(request):
+
+    if request.method == 'POST':
+        message = request.POST.get('message', '').strip()
+        image = request.FILES.get('image')
+
+        if message or image:
+            SupportMessage.objects.create(
+                user=request.user,
+                sender=request.user,
+                message=message,
+                image=image,
+                message_type='image' if image else 'text',
+                is_read_by_user=True,
+                is_read_by_staff=False
+            )
+
+        return redirect('customer_service')
+
+    messages_list = SupportMessage.objects.filter(
+        user=request.user
+    ).order_by('created_at')
+
+    SupportMessage.objects.filter(
+        user=request.user,
+        sender__is_staff=True,
+        is_read_by_user=False
+    ).update(is_read_by_user=True)
+
+    return render(request, 'user/customer_service.html', {
+        'messages_list': messages_list
+    })

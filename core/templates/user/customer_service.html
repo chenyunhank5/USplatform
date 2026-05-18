@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Service</title>
+
+    <style>
+        *{
+            box-sizing:border-box;
+            -webkit-tap-highlight-color:transparent;
+        }
+
+        body{
+            margin:0;
+            font-family:Arial, sans-serif;
+            background:#f5f5f5;
+            overflow:hidden;
+        }
+
+        .page{
+            max-width:430px;
+            margin:0 auto;
+            height:100vh;
+            background:#f5f5f5;
+            display:flex;
+            flex-direction:column;
+            position:relative;
+            overflow:hidden;
+        }
+
+        .topbar{
+            position:fixed;
+            top:0;
+            left:50%;
+            transform:translateX(-50%);
+            width:100%;
+            max-width:430px;
+            height:58px;
+            background:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            box-shadow:0 2px 14px rgba(0,0,0,.05);
+            z-index:1000;
+        }
+
+        .back-btn{
+            position:absolute;
+            left:16px;
+            top:50%;
+            transform:translateY(-50%);
+            text-decoration:none;
+            color:#222;
+            font-size:28px;
+            font-weight:300;
+        }
+
+        .title{
+            font-size:17px;
+            font-weight:700;
+            color:#222;
+        }
+
+        .support-card{
+            position:fixed;
+            top:68px;
+            left:50%;
+            transform:translateX(-50%);
+            width:calc(100% - 24px);
+            max-width:406px;
+            background:linear-gradient(135deg,#f78522,#ff9d42);
+            border-radius:18px;
+            padding:16px;
+            color:white;
+            box-shadow:0 10px 24px rgba(247,133,34,.25);
+            z-index:999;
+            transition:.25s;
+        }
+
+        .support-card.hide{
+            opacity:0;
+            transform:translateX(-50%) translateY(-12px);
+            pointer-events:none;
+        }
+
+        .support-close{
+            position:absolute;
+            top:10px;
+            right:12px;
+            width:26px;
+            height:26px;
+            border-radius:50%;
+            background:rgba(255,255,255,.18);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:18px;
+            cursor:pointer;
+        }
+
+        .support-row{
+            display:flex;
+            gap:12px;
+            align-items:flex-start;
+        }
+
+        .support-icon{
+            width:46px;
+            height:46px;
+            border-radius:14px;
+            background:rgba(255,255,255,.2);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:22px;
+            flex-shrink:0;
+        }
+
+        .support-title{
+            font-size:16px;
+            font-weight:bold;
+            margin-bottom:8px;
+            padding-right:28px;
+        }
+
+        .support-subtitle{
+            font-size:12px;
+            line-height:1.45;
+            opacity:.96;
+            padding-right:8px;
+        }
+
+        .welcome-text{
+            font-size:13px;
+            font-weight:bold;
+            margin-bottom:8px;
+        }
+
+        .support-desc{
+            margin-bottom:10px;
+        }
+
+        .service-list{
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+            margin:10px 0;
+        }
+
+        .service-item{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            background:rgba(255,255,255,.13);
+            border-radius:10px;
+            padding:7px 9px;
+        }
+
+        .service-number{
+            width:21px;
+            height:21px;
+            border-radius:50%;
+            background:white;
+            color:#f78522;
+            font-size:11px;
+            font-weight:bold;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex-shrink:0;
+        }
+
+        .service-name{
+            font-size:12px;
+            font-weight:500;
+        }
+
+        .working-hours{
+            margin-top:10px;
+            font-size:12px;
+            line-height:1.45;
+        }
+
+        .chat-body{
+            flex:1;
+            overflow-y:auto;
+            padding:258px 14px 90px;
+        }
+
+        .date-chip{
+            width:max-content;
+            margin:0 auto 16px;
+            background:#e9e9e9;
+            color:#777;
+            font-size:11px;
+            padding:5px 10px;
+            border-radius:999px;
+        }
+
+        .message-row{
+            display:flex;
+            margin-bottom:12px;
+        }
+
+        .message-row.user{
+            justify-content:flex-end;
+        }
+
+        .message-row.staff{
+            justify-content:flex-start;
+        }
+
+        .message-bubble{
+            max-width:78%;
+            padding:12px 12px 8px;
+            border-radius:18px;
+            font-size:14px;
+            line-height:1.5;
+            word-break:break-word;
+            position:relative;
+        }
+
+        .message-row.user .message-bubble{
+            background:#f78522;
+            color:white;
+            border-bottom-right-radius:5px;
+            box-shadow:0 6px 14px rgba(247,133,34,.18);
+        }
+
+        .message-row.staff .message-bubble{
+            background:white;
+            color:#222;
+            border:1px solid #eee;
+            border-bottom-left-radius:5px;
+            box-shadow:0 4px 12px rgba(0,0,0,.04);
+        }
+
+        .message-image{
+            display:block;
+            width:220px;
+            max-width:100%;
+            border-radius:12px;
+            margin-bottom:7px;
+            cursor:pointer;
+        }
+
+        .message-time{
+            margin-top:5px;
+            text-align:right;
+            font-size:10px;
+            opacity:.65;
+        }
+
+        .copy-text{
+            padding-right:18px;
+        }
+
+        .message-menu-btn{
+            position:absolute;
+            top:4px;
+            right:5px;
+            width:20px;
+            height:20px;
+            border:none;
+            background:transparent;
+            color:inherit;
+            font-size:13px;
+            cursor:pointer;
+            opacity:.8;
+        }
+
+        .chat-form{
+            position:fixed;
+            bottom:0;
+            left:50%;
+            transform:translateX(-50%);
+            width:100%;
+            max-width:430px;
+            background:white;
+            border-top:1px solid #eee;
+            padding:10px 12px;
+            z-index:1000;
+            box-shadow:0 -4px 16px rgba(0,0,0,.04);
+        }
+
+        .chat-form-inner{
+            display:flex;
+            align-items:center;
+            gap:9px;
+        }
+
+        .upload-btn{
+            width:42px;
+            height:42px;
+            border-radius:50%;
+            background:#fff3e9;
+            border:1px solid #ffd8b8;
+            color:#f78522;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:25px;
+            cursor:pointer;
+            flex-shrink:0;
+        }
+
+        .file-input{
+            display:none;
+        }
+
+        .chat-input{
+            flex:1;
+            height:44px;
+            border:none;
+            outline:none;
+            background:#f2f2f2;
+            border-radius:999px;
+            padding:0 15px;
+            color:#222;
+            font-size:14px;
+        }
+
+        .send-btn{
+            height:44px;
+            min-width:68px;
+            border:none;
+            border-radius:999px;
+            background:#f78522;
+            color:white;
+            font-size:14px;
+            font-weight:bold;
+            cursor:pointer;
+            box-shadow:0 6px 14px rgba(247,133,34,.24);
+        }
+
+        .image-modal{
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,.92);
+            display:none;
+            align-items:center;
+            justify-content:center;
+            z-index:5000;
+            padding:16px;
+        }
+
+        .image-modal.show{
+            display:flex;
+        }
+
+        .image-modal img{
+            max-width:100%;
+            max-height:82vh;
+            border-radius:12px;
+        }
+
+        .modal-close{
+            position:absolute;
+            top:18px;
+            right:18px;
+            width:40px;
+            height:40px;
+            border-radius:50%;
+            background:rgba(255,255,255,.14);
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:26px;
+            cursor:pointer;
+        }
+
+        .message-actions{
+            position:fixed;
+            background:white;
+            border-radius:14px;
+            min-width:120px;
+            display:none;
+            z-index:6000;
+            overflow:hidden;
+            box-shadow:0 10px 24px rgba(0,0,0,.2);
+        }
+
+        .message-actions.show{
+            display:block;
+        }
+
+        .message-actions button{
+            width:100%;
+            border:none;
+            background:none;
+            padding:13px 16px;
+            text-align:left;
+            font-size:14px;
+            cursor:pointer;
+            color:#222;
+        }
+
+        .message-actions button:hover{
+            background:#f5f5f5;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <div class="topbar">
+        <a href="{% url 'user_messages' %}" class="back-btn">‹</a>
+        <div class="title">Customer Service</div>
+    </div>
+
+    <div class="support-card" id="supportCard">
+
+        <div class="support-close" onclick="closeSupportCard()">
+            ×
+        </div>
+
+        <div class="support-row">
+
+            <div class="support-icon">
+                🎧
+            </div>
+
+            <div>
+
+                <div class="support-title">
+                    Dear user, welcome!
+                </div>
+
+                <div class="support-subtitle">
+
+                    <div class="support-desc">
+                        This is the Customer Service Department, responsible for handling all affairs related to the platform.
+                    </div>
+
+                    <div>
+                        Please select from the following services:
+                    </div>
+
+                    <div class="service-list">
+
+                        <div class="service-item">
+                            <span class="service-name">1. Deposit</span>
+                        </div>
+
+                        <div class="service-item">
+                            <span class="service-name">2. Withdrawal</span>
+                        </div>
+
+                        <div class="service-item">
+                            <span class="service-name">3. Reset Task</span>
+                        </div>
+
+                        <div class="service-item">
+                            <span class="service-name">4. Sign in working day</span>
+                        </div>
+
+                        <div class="service-item">
+                            <span class="service-name">5. Other Assistance</span>
+                        </div>
+
+                    </div>
+
+                    <div class="working-hours">
+                        Customer service working hours:<br>
+                        10:00 AM – 11:00 PM
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="chat-body" id="messagesArea">
+
+        <div class="date-chip">
+            Today
+        </div>
+
+        {% for msg in messages_list %}
+
+            <div class="message-row {% if msg.sender == request.user %}user{% else %}staff{% endif %}">
+
+                <div class="message-bubble">
+
+                    <button type="button"
+                            class="message-menu-btn"
+                            onclick="showMessageMenu(event, this)">
+                        ⌄
+                    </button>
+
+                    {% if msg.image %}
+                        <img src="{{ msg.image.url }}"
+                             class="message-image"
+                             onclick="openImageModal('{{ msg.image.url }}')">
+                    {% endif %}
+
+                    {% if msg.message %}
+                        <div class="copy-text">
+                            {{ msg.message }}
+                        </div>
+                    {% endif %}
+
+                    <div class="message-time">
+                        {{ msg.created_at|date:"H:i" }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<form method="POST"
+      enctype="multipart/form-data"
+      class="chat-form"
+      id="chatForm">
+
+    {% csrf_token %}
+
+    <div class="chat-form-inner">
+
+        <label class="upload-btn">
+            +
+            <input type="file"
+                   name="image"
+                   class="file-input"
+                   accept="image/*">
+        </label>
+
+        <input type="text"
+               name="message"
+               id="messageInput"
+               class="chat-input"
+               placeholder="Type your message...">
+
+        <button type="submit" class="send-btn">
+            Send
+        </button>
+
+    </div>
+
+</form>
+
+<div class="image-modal" id="imageModal" onclick="closeImageModal()">
+    <div class="modal-close">×</div>
+    <img id="modalImage" src="">
+</div>
+
+<div class="message-actions" id="messageActions">
+    <button type="button" onclick="copySelectedMessage()">
+        Copy
+    </button>
+</div>
+
+<script>
+    const selectedUserId = "{{ request.user.id }}";
+
+    const protocol =
+        window.location.protocol === "https:"
+        ? "wss://"
+        : "ws://";
+
+    const chatSocket = new WebSocket(
+        protocol + window.location.host + "/ws/support/" + selectedUserId + "/"
+    );
+
+    const chatForm = document.getElementById("chatForm");
+    const messageInput = document.getElementById("messageInput");
+    const messagesArea = document.getElementById("messagesArea");
+
+    function scrollBottom(){
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    function escapeHtml(text){
+        const div = document.createElement("div");
+        div.innerText = text;
+        return div.innerHTML;
+    }
+
+    function openImageModal(src){
+        document.getElementById("modalImage").src = src;
+        document.getElementById("imageModal").classList.add("show");
+    }
+
+    function closeImageModal(){
+        document.getElementById("imageModal").classList.remove("show");
+    }
+
+    function closeSupportCard(){
+        const card = document.getElementById("supportCard");
+
+        card.classList.add("hide");
+
+        setTimeout(function(){
+            card.style.display = "none";
+            messagesArea.style.paddingTop = "78px";
+        }, 250);
+    }
+
+    scrollBottom();
+
+    chatSocket.onmessage = function(e){
+        const data = JSON.parse(e.data);
+
+        const row = document.createElement("div");
+
+        row.className =
+            data.sender_is_staff
+            ? "message-row staff"
+            : "message-row user";
+
+        row.innerHTML = `
+            <div class="message-bubble">
+                <button type="button"
+                        class="message-menu-btn"
+                        onclick="showMessageMenu(event, this)">
+                    ⌄
+                </button>
+
+                <div class="copy-text">
+                    ${escapeHtml(data.message)}
+                </div>
+
+                <div class="message-time">
+                    ${data.created_at}
+                </div>
+            </div>
+        `;
+
+        messagesArea.appendChild(row);
+        scrollBottom();
+    };
+
+    chatForm.addEventListener("submit", function(e){
+        const hasFile =
+            chatForm.querySelector('input[type="file"]').files.length > 0;
+
+        if(hasFile){
+            return;
+        }
+
+        e.preventDefault();
+
+        const message = messageInput.value.trim();
+
+        if(message){
+            if(chatSocket.readyState === WebSocket.OPEN){
+                chatSocket.send(JSON.stringify({
+                    message:message
+                }));
+
+                messageInput.value = "";
+            }else{
+                chatForm.submit();
+            }
+        }
+    });
+
+    let selectedMessageText = "";
+
+    function showMessageMenu(event, btn){
+        event.stopPropagation();
+
+        const bubble = btn.closest(".message-bubble");
+        const textBox = bubble.querySelector(".copy-text");
+
+        selectedMessageText = textBox ? textBox.innerText : "";
+
+        const menu = document.getElementById("messageActions");
+
+        menu.classList.add("show");
+
+        const menuWidth = 120;
+        const menuHeight = 48;
+
+        let left = event.clientX - 95;
+        let top = event.clientY + 20;
+
+        if(left < 10){
+            left = 10;
+        }
+
+        if(left + menuWidth > window.innerWidth - 10){
+            left = window.innerWidth - menuWidth - 10;
+        }
+
+        if(top + menuHeight > window.innerHeight - 10){
+            top = event.clientY - menuHeight - 10;
+        }
+
+        if(top < 10){
+            top = 10;
+        }
+
+        menu.style.left = left + "px";
+        menu.style.top = top + "px";
+    }
+
+    function copySelectedMessage(){
+        if(selectedMessageText){
+            navigator.clipboard.writeText(selectedMessageText);
+        }
+
+        document.getElementById("messageActions").classList.remove("show");
+    }
+
+    document.addEventListener("click", function(e){
+        if(
+            !e.target.closest("#messageActions")
+            &&
+            !e.target.closest(".message-menu-btn")
+        ){
+            document.getElementById("messageActions").classList.remove("show");
+        }
+    });
+</script>
+
+</body>
+</html>
