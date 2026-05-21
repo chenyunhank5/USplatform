@@ -1,34 +1,29 @@
-import os
 from pathlib import Path
+import os
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ========================
 # SECURITY
 # ========================
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "django-insecure-change-this-in-production"
-)
-
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 DEBUG = os.getenv("DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = ["*"]
 
 # ========================
-# APPLICATIONS
+# APPS
 # ========================
 INSTALLED_APPS = [
     "daphne",
     "channels",
-
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "core",
 ]
 
@@ -72,17 +67,10 @@ ASGI_APPLICATION = "us_platform.asgi.application"
 # DATABASE (NEON / POSTGRES)
 # ========================
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DATABASE"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("POSTGRES_HOST"),
-        "PORT": os.getenv("POSTGRES_PORT", "5432"),
-        "OPTIONS": {
-            "sslmode": "require",
-        },
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
+        conn_max_age=600,
+    )
 }
 
 # ========================
@@ -96,7 +84,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ========================
-# CHANNELS
+# CHANNELS (simple dev setup)
 # ========================
 CHANNEL_LAYERS = {
     "default": {
@@ -113,15 +101,21 @@ USE_I18N = True
 USE_TZ = True
 
 # ========================
-# STATIC / MEDIA
+# STATIC FILES
 # ========================
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
+# ========================
+# MEDIA (IMPORTANT FIX FOR VERCEL)
+# ========================
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = "/tmp/media"
+
+# DO NOT create folders on Vercel (read-only fix)
+os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 # ========================
-# IMPORTANT (Vercel fix)
+# DEFAULT AUTO FIELD
 # ========================
-if not os.path.exists(MEDIA_ROOT):
-    os.makedirs(MEDIA_ROOT, exist_ok=True)
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
