@@ -4,3 +4,4 @@ whitenoise
 asgiref
 sqlparse
 tzdata
+daphne
