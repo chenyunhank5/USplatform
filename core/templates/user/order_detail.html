@@ -1,551 +1,815 @@
-{% extends 'user/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block title %}Order{% endblock %}
+<title>Order Detail</title>
 
-{% block extra_css %}
 <style>
 
-    .order-page{
-        background:#f5f5f5;
-        min-height:100vh;
-        padding-bottom:180px;
+body{
+    background:#f5f5f5;
+    margin:0;
+    font-family:Arial,sans-serif;
+    max-width:430px;
+    margin:auto;
+}
+
+/* TOPBAR */
+
+.topbar{
+    height:50px;
+    background:#000;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:sticky;
+    top:0;
+    z-index:1000;
+    font-size:17px;
+    font-weight:bold;
+}
+
+.back-btn{
+    position:absolute;
+    left:14px;
+    color:white;
+    text-decoration:none;
+    font-size:28px;
+}
+
+/* PRODUCT */
+
+.product-box{
+    background:white;
+    margin-bottom:10px;
+}
+
+.product-name{
+    padding:14px 16px;
+    font-size:15px;
+    line-height:1.5;
+    border-bottom:1px solid #eee;
+}
+
+/* IMAGE */
+
+.image-slider{
+    width:100%;
+    height:340px;
+    background:white;
+    overflow:hidden;
+    position:relative;
+}
+
+.slide-img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:none;
+    padding:10px;
+    box-sizing:border-box;
+}
+
+.slide-img.active{
+    display:block;
+}
+
+.slider-dots{
+    text-align:center;
+    padding:10px 0;
+    border-top:1px solid #eee;
+}
+
+.slider-dot{
+    width:8px;
+    height:8px;
+    background:#ccc;
+    border-radius:50%;
+    display:inline-block;
+    margin:0 4px;
+    cursor:pointer;
+}
+
+.slider-dot.active{
+    background:#111;
+}
+
+/* PRICE */
+
+.price-box{
+    background:white;
+    padding:16px;
+    margin-bottom:10px;
+}
+
+.currency{
+    font-size:14px;
+    vertical-align:top;
+}
+
+.price{
+    font-size:38px;
+    font-weight:bold;
+}
+
+.stock{
+    color:#008a00;
+    margin-top:10px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+/* DESCRIPTION */
+
+.description-box{
+    background:white;
+    padding:16px;
+    margin-bottom:10px;
+    line-height:1.7;
+    color:#111;
+}
+
+/* REVIEWS */
+
+.review-title-main{
+    padding:16px 16px 0;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.review-card{
+    background:white;
+    padding:16px;
+    border-bottom:1px solid #eee;
+}
+
+.review-user{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:6px;
+}
+
+.review-avatar{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background:#bbb;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.review-stars{
+    color:#ff9500;
+    font-size:16px;
+}
+
+.review-date{
+    font-size:13px;
+    color:#666;
+    margin-top:4px;
+}
+
+.review-text{
+    margin-top:8px;
+    font-size:14px;
+    line-height:1.5;
+}
+
+/* BOTTOM FIXED */
+
+.bottom-box{
+    position:fixed;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:0;
+    width:100%;
+    max-width:430px;
+    background:#f5f5f5;
+    padding:12px;
+    box-sizing:border-box;
+    box-shadow:0 -4px 12px rgba(0,0,0,.08);
+}
+
+/* SUMMARY */
+
+.summary-box{
+    background:white;
+    border-radius:12px;
+    padding:12px;
+    cursor:pointer;
+}
+
+/* VIP */
+
+.vip-box{
+    background:#f5e4a5;
+    border-radius:10px;
+    padding:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+}
+
+.vip-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:bold;
+    font-size:14px;
+}
+
+.vip-icon{
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    background:black;
+    color:#ffd700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.qty{
+    background:black;
+    color:white;
+    border-radius:20px;
+    padding:6px 12px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+/* SUMMARY GRID */
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:6px;
+}
+
+.summary-item{
+    text-align:center;
+}
+
+.summary-label{
+    font-size:11px;
+    font-weight:700;
+    color:#333;
+    line-height:1.3;
+    min-height:28px;
+}
+
+.summary-value{
+    margin-top:6px;
+    font-size:16px;
+    font-weight:800;
+    color:#000;
+}
+
+/* COLLAPSE */
+
+.order-details-box{
+    display:none;
+    margin-top:10px;
+    animation:fadeIn .2s ease;
+}
+
+.order-details-box.show{
+    display:block;
+}
+
+@keyframes fadeIn{
+
+    from{
+        opacity:0;
+        transform:translateY(5px);
     }
 
-    .topbar{
-        height:46px;
-        background:#000;
-        color:white;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        position:sticky;
-        top:0;
-        z-index:100;
-        font-weight:bold;
-        font-size:17px;
+    to{
+        opacity:1;
+        transform:translateY(0);
     }
 
-    .back-btn{
-        position:absolute;
-        left:14px;
-        color:white;
-        text-decoration:none;
-        font-size:28px;
-        font-weight:300;
-    }
+}
 
-    .product-name{
-        background:white;
-        padding:14px 16px;
-        font-size:15px;
-        line-height:1.6;
-        border-bottom:1px solid #eee;
-    }
+/* REVIEW BOX */
 
-    /* IMAGE SLIDER */
+.review-submit-box{
+    background:#efefef;
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:10px;
+}
 
-    .image-slider{
-        width:100%;
-        height:360px;
-        background:white;
-        overflow:hidden;
-        position:relative;
-    }
+.review-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+}
 
-    .slide-img{
-        display:none;
-        width:100%;
-        height:100%;
-        object-fit:contain;
-        padding:12px;
-    }
+.review-label{
+    font-size:14px;
+    font-weight:bold;
+}
 
-    .slide-img.active{
-        display:block;
-    }
+.stars{
+    display:flex;
+    gap:4px;
+}
 
-    .slider-dots{
-        text-align:center;
-        padding:10px 0;
-        background:white;
-        border-bottom:1px solid #e5e5e5;
-    }
+.star{
+    font-size:28px;
+    color:#ccc;
+    cursor:pointer;
+}
 
-    .slider-dot{
-        display:inline-block;
-        width:8px;
-        height:8px;
-        border-radius:50%;
-        background:#cfcfcf;
-        margin:0 4px;
-        transition:.2s;
-    }
+.star.active{
+    color:#ffc400;
+}
 
-    .slider-dot.active{
-        background:#111;
-        transform:scale(1.15);
-    }
+.review-input-wrap{
+    position:relative;
+}
 
-    /* PRICE */
+.review-textarea{
+    width:100%;
+    height:110px;
+    border:none;
+    border-radius:8px;
+    padding:14px;
+    resize:none;
+    box-sizing:border-box;
+    font-size:14px;
+}
 
-    .price-box{
-        background:white;
-        margin-top:10px;
-        padding:16px;
-    }
+.auto-review-btn{
+    position:absolute;
+    right:10px;
+    bottom:10px;
+    border:none;
+    background:#111;
+    color:white;
+    height:30px;
+    border-radius:6px;
+    padding:0 12px;
+    font-size:12px;
+    cursor:pointer;
+}
 
-    .currency{
-        font-size:13px;
-        vertical-align:top;
-    }
+/* EXTRA */
 
-    .price{
-        font-size:42px;
-        font-weight:500;
-        line-height:1;
-    }
+.extra-info-box{
+    background:white;
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:10px;
+}
 
-    .stock{
-        color:#0f7a00;
-        font-size:20px;
-        margin-top:18px;
-        font-weight:bold;
-    }
+.extra-row{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:12px;
+    font-size:14px;
+    font-weight:bold;
+    gap:10px;
+}
 
-    /* DESCRIPTION */
+.extra-row:last-child{
+    margin-bottom:0;
+}
 
-    .description-box{
-        background:white;
-        margin-top:10px;
-        padding:16px;
-        overflow:hidden;
-        color:#111;
-        line-height:1.7;
-    }
+.extra-row b{
+    text-align:right;
+    word-break:break-all;
+}
 
-    .description-box img{
-        max-width:100% !important;
-        height:auto !important;
-        border-radius:10px;
-    }
+/* BUTTON */
 
-    .description-box iframe{
-        max-width:100%;
-    }
-
-    .description-box table{
-        max-width:100%;
-    }
-
-    .description-box h3{
-        margin:0 0 14px;
-        font-size:19px;
-    }
-
-    .description-box ul{
-        padding-left:20px;
-    }
-
-    .description-box li{
-        margin-bottom:12px;
-    }
-
-    /* REVIEW */
-
-    .review-card{
-        padding:18px 0;
-        border-top:1px solid #e5e5e5;
-    }
-
-    .review-user{
-        display:flex;
-        align-items:center;
-        gap:10px;
-        margin-bottom:6px;
-    }
-
-    .review-avatar{
-        width:34px;
-        height:34px;
-        border-radius:50%;
-        background:#b6c2c2;
-        color:white;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-weight:bold;
-    }
-
-    .review-stars{
-        color:#ff8a00;
-        font-size:16px;
-        font-weight:bold;
-    }
-
-    .verified{
-        color:#c45500;
-        font-size:12px;
-        font-weight:bold;
-    }
-
-    .review-title{
-        font-weight:bold;
-        font-size:15px;
-        margin:4px 0;
-    }
-
-    .review-meta{
-        font-size:13px;
-        color:#555;
-        line-height:1.4;
-    }
-
-    .review-text{
-        margin-top:8px;
-        font-size:15px;
-        line-height:1.45;
-    }
-
-    /* BOTTOM */
-
-    .bottom-box{
-        position:fixed;
-        left:50%;
-        transform:translateX(-50%);
-        bottom:0;
-        width:100%;
-        max-width:430px;
-        background:#f3f4f6;
-        padding:10px 14px 14px;
-        box-shadow:0 -4px 16px rgba(0,0,0,.08);
-        z-index:200;
-    }
-
-    .vip-box{
-        background:#fff0b8;
-        border-radius:7px;
-        height:42px;
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        padding:0 14px;
-        margin-bottom:10px;
-    }
-
-    .vip-left{
-        display:flex;
-        align-items:center;
-        gap:8px;
-        font-weight:bold;
-    }
-
-    .vip-icon{
-        width:28px;
-        height:28px;
-        border-radius:5px;
-        background:#000;
-        color:#ffd700;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-weight:bold;
-    }
-
-    .qty{
-        background:#000;
-        color:white;
-        border-radius:6px;
-        padding:6px 12px;
-        font-size:12px;
-        font-weight:bold;
-    }
-
-    .summary-box{
-        background:white;
-        border-radius:7px;
-        padding:12px;
-        display:grid;
-        grid-template-columns:1fr 1fr 1fr;
-        gap:8px;
-        margin-bottom:10px;
-    }
-
-    .summary-item{
-        text-align:center;
-        font-size:12px;
-        font-weight:bold;
-        color:#111;
-    }
-
-    .summary-item b{
-        display:block;
-        margin-top:4px;
-        font-size:16px;
-    }
-
-    .order-btn{
-        width:100%;
-        height:48px;
-        border:none;
-        border-radius:9px;
-        background:#f78522;
-        color:white;
-        font-size:16px;
-        cursor:pointer;
-    }
-
-    .submit-form textarea,
-    .submit-form select{
-        display:none;
-    }
+.order-btn{
+    width:100%;
+    height:50px;
+    border:none;
+    background:#ff8a00;
+    color:white;
+    border-radius:10px;
+    font-size:20px;
+    font-weight:bold;
+    cursor:pointer;
+}
 
 </style>
-{% endblock %}
+</head>
 
-{% block content %}
+<body>
 
-<div class="order-page">
+<!-- TOP -->
 
-    <div class="topbar">
+<div class="topbar">
 
-        <a href="{% url 'user_order' %}" class="back-btn">
-            ‹
-        </a>
+    <a href="/user/order/" class="back-btn">
+        ‹
+    </a>
 
-        Order
+    Order
 
-    </div>
+</div>
+
+<!-- PRODUCT -->
+
+<div class="product-box">
 
     <div class="product-name">
         {{ order.product.name }}
     </div>
 
-    <!-- IMAGE SLIDER -->
-
     <div class="image-slider" id="imageSlider">
 
         {% if order.product.cover %}
-            <img src="{{ order.product.cover }}" class="slide-img active">
+        <img src="{{ order.product.cover }}" class="slide-img active">
         {% endif %}
 
         {% if order.product.goods_album_1 %}
-            <img src="{{ order.product.goods_album_1 }}" class="slide-img">
+        <img src="{{ order.product.goods_album_1 }}" class="slide-img">
         {% endif %}
 
         {% if order.product.goods_album_2 %}
-            <img src="{{ order.product.goods_album_2 }}" class="slide-img">
-        {% endif %}
-
-        {% if order.product.goods_album_3 %}
-            <img src="{{ order.product.goods_album_3 }}" class="slide-img">
-        {% endif %}
-
-        {% if order.product.goods_album_4 %}
-            <img src="{{ order.product.goods_album_4 }}" class="slide-img">
+        <img src="{{ order.product.goods_album_2 }}" class="slide-img">
         {% endif %}
 
     </div>
 
     <div class="slider-dots" id="sliderDots"></div>
 
-    <!-- PRICE -->
+</div>
 
-    <div class="price-box">
+<!-- PRICE -->
 
-        <span class="currency">
-            USD
-        </span>
+<div class="price-box">
 
-        <span class="price">
-            {{ order.product.price }}
-        </span>
+    <span class="currency">USD</span>
 
-        <div class="stock">
-            We Have Stock Now
+    <span class="price">
+        {{ order.order_price }}
+    </span>
+
+    <div class="stock">
+        In Stock
+    </div>
+
+</div>
+
+<!-- DESCRIPTION -->
+
+<div class="description-box">
+    {{ order.product.description|safe }}
+</div>
+
+<!-- REVIEWS -->
+
+<div class="review-title-main">
+    Customer Reviews
+</div>
+
+{% for review in reviews %}
+
+<div class="review-card">
+
+    <div class="review-user">
+
+        <div class="review-avatar">
+            {{ review.content|first|upper }}
+        </div>
+
+        <div>
+
+            <div class="review-stars">
+                ★★★★★
+            </div>
+
+            <div class="review-date">
+                {{ review.created_at|date:"M d, Y" }}
+            </div>
+
         </div>
 
     </div>
 
-    <!-- DESCRIPTION -->
-
-    <div class="description-box">
-
-        {{ order.product.description|safe }}
-
+    <div class="review-text">
+        {{ review.content }}
     </div>
 
 </div>
+
+{% endfor %}
+
+<div style="height:450px;"></div>
 
 <!-- BOTTOM -->
 
 <div class="bottom-box">
 
-    <div class="vip-box">
+    <!-- SUMMARY -->
 
-        <div class="vip-left">
+    <div class="summary-box" onclick="toggleOrderDetails()">
 
-            <div class="vip-icon">
-                V
+        <!-- VIP -->
+
+        <div class="vip-box">
+
+            <div class="vip-left">
+
+                <div class="vip-icon">
+                    V2
+                </div>
+
+                <span>
+                    {{ request.user.userprofile.vip_level.level_name }}
+                </span>
+
             </div>
 
-            {% if request.user.userprofile.vip_level %}
-                {{ request.user.userprofile.vip_level.level_name }}
-            {% else %}
-                VIP
-            {% endif %}
+            <div class="qty">
+
+                Order Quantity :
+                {{ request.user.userprofile.vip_level.maximum_task }}
+
+            </div>
 
         </div>
 
-        <div class="qty">
-            Order Quantity : 9
+        <!-- GRID -->
+
+        <div class="summary-grid">
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    Total Amount(USD)
+                </div>
+
+                <div class="summary-value">
+                    {{ order.order_price }}
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    Commission
+                </div>
+
+                <div class="summary-value">
+                    {{ request.user.userprofile.vip_level.commission_rate }}%
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    commission Revenues(USD)
+                </div>
+
+                <div class="summary-value">
+                    {{ order.commission }}
+                </div>
+
+            </div>
+
         </div>
 
     </div>
 
-    <div class="summary-box">
+    <!-- COLLAPSE -->
 
-        <div class="summary-item">
-            Total Amount(USD)
+    <div class="order-details-box" id="orderDetailsBox">
 
-            <b>
-                {{ order.order_price }}
-            </b>
+        <!-- EXTRA -->
+
+        <div class="extra-info-box">
+
+            <div class="extra-row">
+
+                <span>Created At</span>
+
+                <b>
+                    {{ order.created_at|date:"m-d-Y h:i:s a" }}
+                </b>
+
+            </div>
+
+            <div class="extra-row">
+
+                <span>NO :</span>
+
+                <b>
+                    {{ order.order_number }}
+                </b>
+
+            </div>
+
         </div>
 
-        <div class="summary-item">
-            Commission
+        <!-- REVIEW -->
 
-            <b>
-                {% if request.user.userprofile.vip_level %}
-                    {{ request.user.userprofile.vip_level.commission_rate|floatformat:"-1" }}%
-                {% else %}
-                    0%
-                {% endif %}
-            </b>
-        </div>
+        <div class="review-submit-box">
 
-        <div class="summary-item">
-            Revenue(USD)
+            <div class="review-top">
 
-            <b>
-                {{ order.commission }}
-            </b>
+                <div class="review-label">
+                    Click To Comment :
+                </div>
+
+                <div class="stars">
+
+                    <span class="star active" data-value="1">★</span>
+                    <span class="star active" data-value="2">★</span>
+                    <span class="star active" data-value="3">★</span>
+                    <span class="star active" data-value="4">★</span>
+                    <span class="star active" data-value="5">★</span>
+
+                </div>
+
+            </div>
+
+            <div class="review-input-wrap">
+
+                <textarea
+                    id="reviewTextarea"
+                    class="review-textarea"
+                    placeholder="Write a Review"></textarea>
+
+                <button type="button"
+                        class="auto-review-btn"
+                        onclick="fillRandomReview()">
+
+                    Automatic Review
+
+                </button>
+
+            </div>
+
         </div>
 
     </div>
 
-    {% if order.status == 'matched' %}
+    <!-- FORM -->
 
-        <form method="POST"
-              action="{% url 'submit_order' order.id %}"
-              class="submit-form">
+    <form method="POST"
+          action="{% url 'submit_order' order.id %}"
+          class="submit-form">
 
-            {% csrf_token %}
+        {% csrf_token %}
 
-            <select name="rating">
-                <option value="5" selected>
-                    5
-                </option>
-            </select>
+        <input type="hidden"
+               name="rating"
+               id="hiddenRating"
+               value="5">
 
-            <textarea name="comment">
-Automatic Review
-            </textarea>
+        <textarea name="comment"
+                  id="hiddenComment"
+                  hidden></textarea>
 
-            <button type="submit" class="order-btn">
-                Start Order
-            </button>
+        <button type="submit" class="order-btn">
+            Start Order
+        </button>
 
-        </form>
-
-    {% else %}
-
-        <a href="{% url 'user_order' %}"
-           class="order-btn"
-           style="display:flex;align-items:center;justify-content:center;text-decoration:none;">
-
-            Back To Orders
-
-        </a>
-
-    {% endif %}
+    </form>
 
 </div>
 
 <script>
 
-    let currentSlide = 0;
+/* COLLAPSE */
 
-    const slides = document.querySelectorAll(".slide-img");
+function toggleOrderDetails(){
 
-    const dotsBox = document.getElementById("sliderDots");
+    document
+        .getElementById("orderDetailsBox")
+        .classList
+        .toggle("show");
 
-    slides.forEach(function(slide, index){
+}
 
-        const dot = document.createElement("span");
+/* STARS */
 
-        dot.className = "slider-dot";
+const stars = document.querySelectorAll(".star");
 
-        if(index === 0){
-            dot.classList.add("active");
+let selectedRating = 5;
+
+stars.forEach(function(star){
+
+    star.addEventListener("click", function(){
+
+        selectedRating = parseInt(this.dataset.value);
+
+        stars.forEach(function(s){
+
+            s.classList.remove("active");
+
+        });
+
+        for(let i = 0; i < selectedRating; i++){
+
+            stars[i].classList.add("active");
+
         }
-
-        dot.onclick = function(){
-            showSlide(index);
-        };
-
-        dotsBox.appendChild(dot);
 
     });
 
-    const dots = document.querySelectorAll(".slider-dot");
+});
 
-    function showSlide(index){
+/* AUTO REVIEW */
 
-        slides[currentSlide].classList.remove("active");
+const reviews = [
 
-        dots[currentSlide].classList.remove("active");
+    "Amazing quality and works perfectly.",
+    "Very satisfied with this product.",
+    "Fast shipping and excellent packaging.",
+    "Looks premium and high quality.",
+    "Worth the price and highly recommended.",
+    "Very comfortable and easy to use.",
+    "Exceeded my expectations."
 
-        currentSlide = index;
+];
 
-        slides[currentSlide].classList.add("active");
+function fillRandomReview(){
 
-        dots[currentSlide].classList.add("active");
+    const randomReview =
+        reviews[Math.floor(Math.random() * reviews.length)];
 
+    document.getElementById("reviewTextarea").value =
+        randomReview;
+
+}
+
+/* SUBMIT */
+
+const submitForm = document.querySelector(".submit-form");
+
+submitForm.addEventListener("submit", function(){
+
+    document.getElementById("hiddenComment").value =
+        document.getElementById("reviewTextarea").value;
+
+    document.getElementById("hiddenRating").value =
+        selectedRating;
+
+});
+
+/* SLIDER */
+
+let currentSlide = 0;
+
+const slides = document.querySelectorAll(".slide-img");
+
+const dotsBox = document.getElementById("sliderDots");
+
+slides.forEach(function(slide, index){
+
+    const dot = document.createElement("span");
+
+    dot.className = "slider-dot";
+
+    if(index === 0){
+        dot.classList.add("active");
     }
 
-    let startX = 0;
+    dot.onclick = function(){
+        showSlide(index);
+    };
 
-    const slider = document.getElementById("imageSlider");
+    dotsBox.appendChild(dot);
 
-    slider.addEventListener("touchstart", function(e){
+});
 
-        startX = e.touches[0].clientX;
+const dots = document.querySelectorAll(".slider-dot");
 
-    });
+function showSlide(index){
 
-    slider.addEventListener("touchend", function(e){
+    slides[currentSlide].classList.remove("active");
 
-        let endX = e.changedTouches[0].clientX;
+    dots[currentSlide].classList.remove("active");
 
-        if(startX - endX > 40){
+    currentSlide = index;
 
-            if(currentSlide < slides.length - 1){
-                showSlide(currentSlide + 1);
-            }
+    slides[currentSlide].classList.add("active");
 
-        }
+    dots[currentSlide].classList.add("active");
 
-        if(endX - startX > 40){
-
-            if(currentSlide > 0){
-                showSlide(currentSlide - 1);
-            }
-
-        }
-
-    });
+}
 
 </script>
 
-{% endblock %}
+</body>
+</html>
