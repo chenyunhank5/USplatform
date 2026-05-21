@@ -1,33 +1,29 @@
-"""
-Django settings for us_platform project.
-"""
-
-from pathlib import Path
 import os
+from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# =====================
-# ENV SWITCH
-# =====================
-USE_POSTGRES = os.getenv("USE_POSTGRES", "0") == "1"
-
-# =====================
+# =========================
 # SECURITY
-# =====================
+# =========================
+
 SECRET_KEY = os.getenv(
     "SECRET_KEY",
-    "django-insecure-change-me-in-production"
+    "django-insecure-change-this-in-production"
 )
 
 DEBUG = os.getenv("DEBUG", "1") == "1"
 
 ALLOWED_HOSTS = ["*"]
 
-# =====================
-# APPS
-# =====================
+# =========================
+# APP CONFIG
+# =========================
+
 INSTALLED_APPS = [
+    "daphne",
+    "channels",
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -35,13 +31,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # your apps
     "core",
 ]
 
-# =====================
-# MIDDLEWARE
-# =====================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -54,9 +46,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "us_platform.urls"
 
-# =====================
-# TEMPLATES
-# =====================
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -75,21 +64,31 @@ TEMPLATES = [
 WSGI_APPLICATION = "us_platform.wsgi.application"
 ASGI_APPLICATION = "us_platform.asgi.application"
 
-# =====================
-# DATABASE
-# =====================
+# =========================
+# DATABASE (LOCAL + PROD)
+# =========================
+
+USE_POSTGRES = os.getenv("USE_POSTGRES", "0") == "1"
+
 if USE_POSTGRES:
+    # =========================
+    # PRODUCTION (Vercel / Neon / Supabase)
+    # =========================
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.getenv("POSTGRES_DATABASE", ""),
-            "USER": os.getenv("POSTGRES_USER", ""),
-            "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-            "HOST": os.getenv("POSTGRES_HOST", ""),
-            "PORT": os.getenv("POSTGRES_PORT", "5432"),
+            "NAME": os.environ.get("POSTGRES_DATABASE"),
+            "USER": os.environ.get("POSTGRES_USER"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+            "HOST": os.environ.get("POSTGRES_HOST"),
+            "PORT": os.environ.get("POSTGRES_PORT", "5432"),
         }
     }
+
 else:
+    # =========================
+    # LOCAL DEVELOPMENT (SQLite)
+    # =========================
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -97,9 +96,10 @@ else:
         }
     }
 
-# =====================
+# =========================
 # PASSWORD VALIDATION
-# =====================
+# =========================
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -107,33 +107,35 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# =====================
-# CHANNELS (SAFE FOR DEV ONLY)
-# =====================
-# NOTE: InMemoryChannelLayer does NOT scale on Vercel
+# =========================
+# CHANNELS (chat support)
+# =========================
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer",
-    }
+    },
 }
 
-# =====================
+# =========================
 # INTERNATIONALIZATION
-# =====================
+# =========================
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Bangkok"
 USE_I18N = True
 USE_TZ = True
 
-# =====================
+# =========================
 # STATIC / MEDIA
-# =====================
-STATIC_URL = "/static/"
+# =========================
 
+STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# =====================
-# DEFAULT AUTO FIELD
-# =====================
+# =========================
+# DEFAULT PRIMARY KEY
+# =========================
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
