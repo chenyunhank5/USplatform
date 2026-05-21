@@ -4,24 +4,21 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================
-# SECURITY
+# CORE SETTINGS
 # =========================
 
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "django-insecure-change-this-in-production"
-)
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 
-DEBUG = os.getenv("DEBUG", "1") == "1"
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = ["*"]
 
 # =========================
-# APP CONFIG
+# APPLICATIONS
 # =========================
 
 INSTALLED_APPS = [
-    "daphne",
+    "daphne",  # for ASGI
     "channels",
 
     "django.contrib.admin",
@@ -34,6 +31,10 @@ INSTALLED_APPS = [
     "core",
 ]
 
+# =========================
+# MIDDLEWARE
+# =========================
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -45,6 +46,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "us_platform.urls"
+
+# =========================
+# TEMPLATES
+# =========================
 
 TEMPLATES = [
     {
@@ -65,30 +70,24 @@ WSGI_APPLICATION = "us_platform.wsgi.application"
 ASGI_APPLICATION = "us_platform.asgi.application"
 
 # =========================
-# DATABASE (LOCAL + PROD)
+# DATABASE (LOCAL + VERCEL)
 # =========================
 
 USE_POSTGRES = os.getenv("USE_POSTGRES", "0") == "1"
 
 if USE_POSTGRES:
-    # =========================
-    # PRODUCTION (Vercel / Neon / Supabase)
-    # =========================
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("POSTGRES_DATABASE"),
-            "USER": os.environ.get("POSTGRES_USER"),
-            "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-            "HOST": os.environ.get("POSTGRES_HOST"),
-            "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+            "NAME": os.getenv("POSTGRES_DATABASE"),
+            "USER": os.getenv("POSTGRES_USER"),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+            "HOST": os.getenv("POSTGRES_HOST"),
+            "PORT": os.getenv("POSTGRES_PORT", "5432"),
         }
     }
-
 else:
-    # =========================
-    # LOCAL DEVELOPMENT (SQLite)
-    # =========================
+    # Local development only
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -108,13 +107,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # =========================
-# CHANNELS (chat support)
+# CHANNELS (CHAT SUPPORT)
 # =========================
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer",
-    },
+    }
 }
 
 # =========================
@@ -122,20 +121,24 @@ CHANNEL_LAYERS = {
 # =========================
 
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "Asia/Bangkok"
+
+TIME_ZONE = "America/New_York"
+
 USE_I18N = True
+
 USE_TZ = True
 
 # =========================
 # STATIC / MEDIA
 # =========================
 
-STATIC_URL = "/static/"
+STATIC_URL = "static/"
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # =========================
-# DEFAULT PRIMARY KEY
+# DEFAULT AUTO FIELD
 # =========================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
