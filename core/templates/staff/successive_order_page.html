@@ -1,0 +1,389 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Successive Order{% endblock %}
+{% block page_title %}Successive Order{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.successive-wrapper{
+    background:#111;
+    border:1px solid #2a2a2a;
+    padding:14px;
+    color:#ddd;
+}
+
+.successive-top{
+    display:flex;
+    gap:30px;
+    flex-wrap:wrap;
+    margin-bottom:8px;
+    font-size:13px;
+}
+
+.successive-login{
+    margin-bottom:14px;
+    color:#aaa;
+    font-size:13px;
+}
+
+.successive-btns{
+    display:flex;
+    gap:10px;
+    margin-bottom:14px;
+}
+
+.successive-btn{
+    border:0;
+    color:white;
+    padding:8px 14px;
+    border-radius:3px;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.successive-blue{
+    background:#409eff;
+}
+
+.successive-red{
+    background:#ef4444;
+}
+
+.successive-table-scroll{
+    width:100%;
+    overflow:auto;
+    border:1px solid #333;
+    background:#111;
+}
+
+.successive-table{
+    width:100%;
+    min-width:1500px;
+    border-collapse:collapse;
+    font-size:13px;
+}
+
+.successive-table th{
+    background:#171717;
+    color:#6b7280;
+    padding:15px 12px;
+    text-align:left;
+    border:1px solid #333;
+    white-space:nowrap;
+}
+
+.successive-table td{
+    padding:14px 12px;
+    border:1px solid #333;
+    color:#e5e7eb;
+    background:#151515;
+    vertical-align:top;
+}
+
+.successive-table tr:nth-child(even) td{
+    background:#202020;
+}
+
+.successive-table tr:hover td{
+    background:#262626;
+}
+
+.product-info-grid{
+    display:grid;
+    grid-template-columns:
+        220px
+        120px
+        120px
+        120px
+        120px;
+    gap:16px;
+    align-items:start;
+}
+
+.product-name{
+    line-height:1.8;
+    font-weight:600;
+    word-break:break-word;
+}
+
+.successive-green-tag{
+    display:inline-block;
+    background:#15350f;
+    color:#5cff4a;
+    padding:5px 12px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.successive-blue-tag{
+    display:inline-block;
+    background:#0b3a66;
+    color:#60a5fa;
+    padding:5px 12px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.successive-orange-tag{
+    display:inline-block;
+    background:#422006;
+    color:#fbbf24;
+    padding:5px 12px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.successive-frozen-box{
+    margin-top:6px;
+    background:#202020;
+    border:1px solid #333;
+    color:#60a5fa;
+    padding:4px 8px;
+    display:inline-block;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.successive-delete-link{
+    background:none;
+    border:0;
+    color:#ff4d4f;
+    cursor:pointer;
+    font-size:12px;
+    padding:0;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="successive-wrapper">
+
+    <div class="successive-top">
+
+        <span>
+            User name:
+            {{ profile.user.username }}
+        </span>
+
+        <span>
+            Mobile number:
+            {{ profile.phone_number }}
+        </span>
+
+        <span>
+            Wallet balance:
+            {{ profile.balance }}
+        </span>
+
+        <span>
+            Current order number:
+            {{ profile.task_progress }}
+        </span>
+
+        <span>
+            Total order number:
+
+            {% if profile.vip_level %}
+                {{ profile.vip_level.maximum_task }}
+            {% else %}
+                0
+            {% endif %}
+        </span>
+
+    </div>
+
+    <div class="successive-login">
+
+        Last login time:
+
+        {% if profile.recent_login %}
+            {{ profile.recent_login|date:"Y-m-d H:i:s" }}
+        {% else %}
+            -
+        {% endif %}
+
+    </div>
+
+    <div class="successive-btns">
+
+        <button
+            type="button"
+            class="successive-btn successive-blue"
+            onclick="openSuccessiveOrderModal()"
+        >
+            ＋ Add successive order
+        </button>
+
+        <button
+            onclick="location.reload()"
+            class="successive-btn successive-blue"
+        >
+            ⟳ Refresh data
+        </button>
+
+    </div>
+
+    <div class="successive-table-scroll">
+
+        <table class="successive-table">
+
+            <thead>
+
+                <tr>
+                    <th>ID</th>
+                    <th>The N order</th>
+                    <th>Product information</th>
+                    <th>Frozen Amount</th>
+                    <th>Created by</th>
+                    <th>Creation time</th>
+                    <th>Status</th>
+                    <th>Operate</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for order in orders %}
+
+                <tr>
+
+                    <td>
+                        {{ order.id }}
+                    </td>
+
+                    <td>
+                        {{ order.successive_order_number }}
+                    </td>
+
+                    <td>
+
+                        <div class="product-info-grid">
+
+                            <div class="product-name">
+                                {{ order.product.name }}
+                            </div>
+
+                            <div>
+                                <b>Order Price:</b><br>
+                                {{ order.order_price }}
+                            </div>
+
+                            <div>
+                                <b>Commission:</b><br>
+                                {{ order.commission }}
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                    <td>
+                        {% if order.status == 'waiting' %}
+                            <button
+                                type="button"
+                                class="successive-frozen-box"
+                                style="cursor:pointer;"
+                                onclick="openEditFrozenModal('{{ order.id }}', '{{ order.negative_amount }}')"
+                            >
+                                {{ order.negative_amount|floatformat:2|cut:"-" }}
+                            </button>
+                        {% else %}
+                            <span title="Only waiting orders can be edited">
+                                {{ order.negative_amount|floatformat:2|cut:"-" }}
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        Admin
+                    </td>
+
+                    <td>
+                        {{ order.created_at|date:"Y-m-d H:i:s" }}
+                    </td>
+
+                    <td>
+
+                        {% if order.status == 'completed' %}
+
+                            <span class="successive-green-tag">
+                                Completed
+                            </span>
+
+                        {% elif order.status == 'waiting' %}
+
+                            <span class="successive-blue-tag">
+                                Waiting
+                            </span>
+
+                        {% elif order.status == 'matched' %}
+
+                            <span class="successive-orange-tag">
+                                Matched
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            class="successive-delete-link"
+                            onclick="openDeleteSuccessiveOrderModal('{{ order.id }}')"
+                        >
+                            🗑 Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="8" style="text-align:center;padding:28px;">
+                        No Data
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% include 'staff/user_management_partials/add_successive_order.html' %}
+{% include 'staff/user_management_partials/delete_successive_order.html' %}
+{% include 'staff/user_management_partials/edit_successive_order_frozen.html' %}
+
+<script>
+
+function openSuccessiveOrderModal(){
+
+    document.getElementById(
+        'successiveOrderOverlay'
+    ).style.display = 'block';
+}
+
+function closeSuccessiveOrderModal(){
+
+    document.getElementById(
+        'successiveOrderOverlay'
+    ).style.display = 'none';
+}
+
+</script>
+
+{% endblock %}

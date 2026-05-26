@@ -1,0 +1,129 @@
+<div
+    id="deleteSuccessiveOrderOverlay"
+    class="delete-successive-overlay"
+    style="display:none;"
+>
+
+    <div class="delete-successive-box">
+
+        <div class="delete-successive-header">
+            Delete successive order
+        </div>
+
+        <div class="delete-successive-body">
+            Are you sure you want to delete this successive order?
+        </div>
+
+        <form
+            method="POST"
+            id="deleteSuccessiveOrderForm"
+        >
+            {% csrf_token %}
+
+            <div class="delete-successive-footer">
+
+                <button
+                    type="submit"
+                    class="delete-successive-confirm"
+                >
+                    Delete
+                </button>
+
+                <button
+                    type="button"
+                    class="delete-successive-cancel"
+                    onclick="closeDeleteSuccessiveOrderModal()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<style>
+.delete-successive-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.70);
+    z-index:999999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+}
+
+.delete-successive-box{
+    width:360px;
+    max-width:92%;
+    background:#111;
+    border:1px solid #444;
+    color:white;
+}
+
+.delete-successive-header{
+    padding:16px 18px;
+    border-bottom:1px solid #333;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.delete-successive-body{
+    padding:22px 18px;
+    color:#ddd;
+    font-size:14px;
+}
+
+.delete-successive-footer{
+    padding:14px 18px;
+    border-top:1px solid #333;
+    text-align:right;
+}
+
+.delete-successive-confirm{
+    background:#ef4444;
+    color:white;
+    border:0;
+    padding:8px 18px;
+    border-radius:3px;
+    cursor:pointer;
+    margin-right:8px;
+}
+
+.delete-successive-cancel{
+    background:#222;
+    color:white;
+    border:1px solid #555;
+    padding:8px 18px;
+    border-radius:3px;
+    cursor:pointer;
+}
+</style>
+
+<script>
+function openDeleteSuccessiveOrderModal(orderId){
+
+    const overlay = document.getElementById(
+        "deleteSuccessiveOrderOverlay"
+    );
+
+    const form = document.getElementById(
+        "deleteSuccessiveOrderForm"
+    );
+
+    form.action =
+        "/staff/delete-successive-order/" + orderId + "/";
+
+    overlay.style.display = "flex";
+}
+
+function closeDeleteSuccessiveOrderModal(){
+
+    document.getElementById(
+        "deleteSuccessiveOrderOverlay"
+    ).style.display = "none";
+}
+</script>

@@ -18,6 +18,51 @@ urlpatterns = [
     path('staff/user/add/', views.staff_add_user, name='staff_add_user'),
     path('staff/user/<int:profile_id>/edit/', views.staff_edit_user, name='staff_edit_user'),
     path('staff/user/<int:profile_id>/score/', views.staff_score_modify, name='staff_score_modify'),
+    path("staff/user/<int:profile_id>/successive-order/", views.staff_successive_order_page, name="staff_successive_order_page"),
+    path("staff/add-successive-order/", views.staff_add_successive_order, name="staff_add_successive_order"),
+    path("staff/edit-successive-order-frozen/<int:order_id>/", views.staff_edit_successive_order_frozen, name="staff_edit_successive_order_frozen"),
+    path("staff/delete-successive-order/<int:order_id>/", views.staff_delete_successive_order, name="staff_delete_successive_order"),
+
+    path(
+        "staff/lucky-reward/<int:profile_id>/",
+        views.lucky_reward_page,
+        name="lucky_reward_page"
+    ),
+
+    path(
+        "staff/add-lucky-reward/",
+        views.staff_add_lucky_reward,
+        name="staff_add_lucky_reward"
+    ),
+
+    path(
+        "staff/confirm-lucky-reward/<int:reward_id>/",
+        views.confirm_lucky_reward,
+        name="confirm_lucky_reward"
+    ),
+
+    path(
+        "staff/delete-lucky-reward/<int:reward_id>/",
+        views.delete_lucky_reward,
+        name="delete_lucky_reward"
+    ),
+
+    path(
+        "user/lucky-reward/<int:reward_id>/",
+        views.lucky_reward_animation,
+        name="lucky_reward_animation"
+    ),
+
+    path(
+        "user/lucky-reward/<int:reward_id>/claim/",
+        views.claim_lucky_reward,
+        name="claim_lucky_reward"
+    ),
+    path(
+        "user/lucky-reward/<int:reward_id>/failed/",
+        views.lucky_reward_animation_failed,
+        name="lucky_reward_animation_failed"
+    ),
 
     # STAFF USER SECURITY
     path('staff/user/<int:profile_id>/login-password/', views.staff_update_login_password, name='staff_update_login_password'),
@@ -75,7 +120,7 @@ urlpatterns = [
     path('user/start-order/', views.start_order, name='start_order'),
     path('user/order/<int:order_id>/', views.user_order_detail, name='user_order_detail'),
     path('user/order/<int:order_id>/submit/', views.submit_order, name='submit_order'),
-    
+
 ]
 
 

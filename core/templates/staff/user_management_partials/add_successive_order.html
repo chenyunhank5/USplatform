@@ -1,0 +1,515 @@
+<style>
+
+.security-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.70);
+    z-index:999999;
+    overflow:auto;
+    padding-top:40px;
+}
+
+.security-box{
+    width:900px;
+    max-width:96%;
+    background:#111;
+    border:1px solid #333;
+    margin:0 auto 40px;
+    color:white;
+}
+
+.security-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:16px 20px;
+    border-bottom:1px solid #444;
+    font-size:17px;
+    font-weight:bold;
+}
+
+.security-header button{
+    background:none;
+    border:0;
+    color:#aaa;
+    font-size:24px;
+    cursor:pointer;
+}
+
+.security-body{
+    padding:20px;
+}
+
+.form-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    margin-bottom:16px;
+}
+
+.form-line{
+    display:grid;
+    grid-template-columns:140px 1fr;
+    align-items:center;
+    gap:10px;
+}
+
+.form-line label{
+    color:#ddd;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.form-line input{
+    width:100%;
+    background:#151515;
+    border:1px solid #555;
+    color:white;
+    padding:10px 12px;
+    outline:none;
+    border-radius:3px;
+}
+
+.step-box{
+    display:flex;
+    align-items:center;
+}
+
+.step-box button{
+    width:36px;
+    height:36px;
+    background:#222;
+    border:1px solid #444;
+    color:#aaa;
+    cursor:pointer;
+}
+
+.step-box input{
+    width:120px;
+    text-align:center;
+    border-left:0;
+    border-right:0;
+}
+
+.selected-area{
+    margin-top:12px;
+    margin-bottom:20px;
+}
+
+.no-selection{
+    display:inline-block;
+    background:#3a1212;
+    color:#ff6b6b;
+    padding:7px 14px;
+    border-radius:4px;
+    font-size:13px;
+}
+
+.selected-tag{
+    display:none;
+    background:#123d12;
+    color:#5cff4a;
+    padding:7px 14px;
+    border-radius:4px;
+    font-size:13px;
+}
+
+.goods-table-scroll{
+    width:100%;
+    overflow:auto;
+    border:1px solid #333;
+    background:#111;
+    max-height:360px;
+}
+
+.goods-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+}
+
+.goods-table th{
+    background:#171717;
+    color:#666;
+    padding:13px 12px;
+    text-align:left;
+    border:1px solid #333;
+}
+
+.goods-table td{
+    padding:13px 12px;
+    border:1px solid #333;
+    background:#151515;
+    color:#ddd;
+}
+
+.goods-table tr:nth-child(even) td{
+    background:#1a1a1a;
+}
+
+.select-goods-btn{
+    background:none;
+    border:0;
+    color:#5cff4a;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.select-goods-btn.remove{
+    color:#ff4d4f;
+}
+
+.security-footer{
+    border-top:1px solid #333;
+    padding:16px 20px;
+    text-align:right;
+}
+
+.security-submit{
+    background:#409eff;
+    color:white;
+    border:0;
+    padding:9px 22px;
+    border-radius:3px;
+    cursor:pointer;
+    margin-right:8px;
+}
+
+.security-cancel{
+    background:#222;
+    color:white;
+    border:1px solid #555;
+    padding:9px 22px;
+    border-radius:3px;
+    cursor:pointer;
+}
+
+</style>
+
+<div
+    id="successiveOrderOverlay"
+    class="security-overlay"
+>
+
+    <div class="security-box">
+
+        <div class="security-header">
+
+            <span>
+                Add successive order
+            </span>
+
+            <button
+                type="button"
+                onclick="closeSuccessiveOrderModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <form
+            method="POST"
+            action="{% url 'staff_add_successive_order' %}"
+        >
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="profile_id"
+                value="{{ profile.id }}"
+            >
+
+            <input
+                type="hidden"
+                name="mission_id"
+                id="selectedMissionId"
+            >
+
+            <div class="security-body">
+
+                <div class="form-row">
+
+                    <div class="form-line">
+
+                        <label>
+                            Current balance
+                        </label>
+
+                        <input
+                            type="text"
+                            value="{{ profile.balance }}"
+                            readonly
+                        >
+
+                    </div>
+
+                    <div class="form-line">
+
+                        <label>
+                            Current task number
+                        </label>
+
+                        <input
+                            type="text"
+                            value="{{ profile.task_progress }}"
+                            readonly
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-line">
+
+                        <label>
+                            The N order
+                        </label>
+
+                        <div class="step-box">
+
+                            <button
+                                type="button"
+                                onclick="stepInput('targetTurnInput', -1)"
+                            >
+                                −
+                            </button>
+
+                            <input
+                                id="targetTurnInput"
+                                type="number"
+                                name="target_turn"
+                                value="{{ profile.task_progress|add:1 }}"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                onclick="stepInput('targetTurnInput', 1)"
+                            >
+                                ＋
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-line">
+
+                        <label>
+                            Frozen Amount
+                        </label>
+
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="negative_amount"
+                            value="-100"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+                <label>
+                    Selected goods
+                </label>
+
+                <div class="selected-area">
+
+                    <span
+                        id="noSelectionTag"
+                        class="no-selection"
+                    >
+                        No selection
+                    </span>
+
+                    <span
+                        id="selectedGoodsTag"
+                        class="selected-tag"
+                    ></span>
+
+                </div>
+
+                <div class="goods-table-scroll">
+
+                    <table class="goods-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Operate</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for mission in missions %}
+
+                            <tr>
+
+                                <td>
+                                    {{ mission.product_id }}
+                                </td>
+
+                                <td>
+                                    {{ mission.name }}
+                                </td>
+
+                                <td>
+                                    {{ mission.price }}
+                                </td>
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="select-goods-btn"
+                                        data-id="{{ mission.id }}"
+                                        data-name="{{ mission.name|escapejs }}"
+                                        onclick="selectGoods(this)"
+                                    >
+                                        ◎Select
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="security-footer">
+
+                <button
+                    type="submit"
+                    class="security-submit"
+                >
+                    Submit
+                </button>
+
+                <button
+                    type="button"
+                    class="security-cancel"
+                    onclick="closeSuccessiveOrderModal()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+let currentSelectedButton = null;
+
+function stepInput(inputId, amount){
+
+    const input = document.getElementById(inputId);
+
+    let value = parseInt(input.value || '0');
+
+    value = value + amount;
+
+    if(value < 1){
+        value = 1;
+    }
+
+    input.value = value;
+}
+
+function selectGoods(button){
+
+    const missionId = button.dataset.id;
+
+    const missionName = button.dataset.name;
+
+    if(currentSelectedButton === button){
+
+        removeSelectedGoods();
+
+        return;
+    }
+
+    if(currentSelectedButton){
+
+        currentSelectedButton.innerText = '◎Select';
+
+        currentSelectedButton.classList.remove('remove');
+    }
+
+    currentSelectedButton = button;
+
+    document.getElementById(
+        'selectedMissionId'
+    ).value = missionId;
+
+    document.getElementById(
+        'noSelectionTag'
+    ).style.display = 'none';
+
+    const selectedTag = document.getElementById(
+        'selectedGoodsTag'
+    );
+
+    selectedTag.style.display = 'inline-block';
+
+    selectedTag.innerHTML =
+        missionName +
+        ' <span style="cursor:pointer;margin-left:8px;" onclick="removeSelectedGoods()">×</span>';
+
+    button.innerText = '◎Remove';
+
+    button.classList.add('remove');
+}
+
+function removeSelectedGoods(){
+
+    document.getElementById(
+        'selectedMissionId'
+    ).value = '';
+
+    document.getElementById(
+        'selectedGoodsTag'
+    ).style.display = 'none';
+
+    document.getElementById(
+        'selectedGoodsTag'
+    ).innerHTML = '';
+
+    document.getElementById(
+        'noSelectionTag'
+    ).style.display = 'inline-block';
+
+    if(currentSelectedButton){
+
+        currentSelectedButton.innerText = '◎Select';
+
+        currentSelectedButton.classList.remove('remove');
+
+        currentSelectedButton = null;
+    }
+}
+
+</script>

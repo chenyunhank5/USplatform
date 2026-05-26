@@ -7,7 +7,6 @@
 <title>Order Detail</title>
 
 <style>
-
 body{
     background:#f5f5f5;
     margin:0;
@@ -16,7 +15,30 @@ body{
     margin:auto;
 }
 
-/* TOPBAR */
+.custom-alert{
+    position:fixed;
+    left:50%;
+    top:50%;
+    transform:translate(-50%, -50%);
+    background:#4a4a4a;
+    color:white;
+    padding:14px 26px;
+    border-radius:8px;
+    font-size:14px;
+    z-index:99999999;
+    opacity:0;
+    visibility:hidden;
+    transition:.25s ease;
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+    max-width:82%;
+    text-align:center;
+    line-height:1.4;
+}
+
+.custom-alert.show{
+    opacity:1;
+    visibility:visible;
+}
 
 .topbar{
     height:50px;
@@ -40,8 +62,6 @@ body{
     font-size:28px;
 }
 
-/* PRODUCT */
-
 .product-box{
     background:white;
     margin-bottom:10px;
@@ -53,8 +73,6 @@ body{
     line-height:1.5;
     border-bottom:1px solid #eee;
 }
-
-/* IMAGE */
 
 .image-slider{
     width:100%;
@@ -97,8 +115,6 @@ body{
     background:#111;
 }
 
-/* PRICE */
-
 .price-box{
     background:white;
     padding:16px;
@@ -122,8 +138,6 @@ body{
     font-weight:bold;
 }
 
-/* DESCRIPTION */
-
 .description-box{
     background:white;
     padding:16px;
@@ -131,8 +145,6 @@ body{
     line-height:1.7;
     color:#111;
 }
-
-/* REVIEWS */
 
 .review-title-main{
     padding:16px 16px 0;
@@ -182,8 +194,6 @@ body{
     line-height:1.5;
 }
 
-/* BOTTOM FIXED */
-
 .bottom-box{
     position:fixed;
     left:50%;
@@ -197,16 +207,12 @@ body{
     box-shadow:0 -4px 12px rgba(0,0,0,.08);
 }
 
-/* SUMMARY */
-
 .summary-box{
     background:white;
     border-radius:12px;
     padding:12px;
     cursor:pointer;
 }
-
-/* VIP */
 
 .vip-box{
     background:#f5e4a5;
@@ -247,8 +253,6 @@ body{
     font-weight:bold;
 }
 
-/* SUMMARY GRID */
-
 .summary-grid{
     display:grid;
     grid-template-columns:1fr 1fr 1fr;
@@ -274,8 +278,6 @@ body{
     color:#000;
 }
 
-/* COLLAPSE */
-
 .order-details-box{
     display:none;
     margin-top:10px;
@@ -287,7 +289,6 @@ body{
 }
 
 @keyframes fadeIn{
-
     from{
         opacity:0;
         transform:translateY(5px);
@@ -297,10 +298,7 @@ body{
         opacity:1;
         transform:translateY(0);
     }
-
 }
-
-/* REVIEW BOX */
 
 .review-submit-box{
     background:#efefef;
@@ -365,8 +363,6 @@ body{
     cursor:pointer;
 }
 
-/* EXTRA */
-
 .extra-info-box{
     background:white;
     border-radius:10px;
@@ -392,8 +388,6 @@ body{
     word-break:break-all;
 }
 
-/* BUTTON */
-
 .order-btn{
     width:100%;
     height:50px;
@@ -405,56 +399,41 @@ body{
     font-weight:bold;
     cursor:pointer;
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- TOP -->
+<div class="custom-alert" id="customAlertBox"></div>
 
 <div class="topbar">
-
-    <a href="/user/order/" class="back-btn">
-        ‹
-    </a>
-
+    <a href="/user/order/" class="back-btn">‹</a>
     Order
-
 </div>
 
-<!-- PRODUCT -->
-
 <div class="product-box">
-
     <div class="product-name">
         {{ order.product.name }}
     </div>
 
     <div class="image-slider" id="imageSlider">
-
         {% if order.product.cover %}
-        <img src="{{ order.product.cover }}" class="slide-img active">
+            <img src="{{ order.product.cover }}" class="slide-img active">
         {% endif %}
 
         {% if order.product.goods_album_1 %}
-        <img src="{{ order.product.goods_album_1 }}" class="slide-img">
+            <img src="{{ order.product.goods_album_1 }}" class="slide-img">
         {% endif %}
 
         {% if order.product.goods_album_2 %}
-        <img src="{{ order.product.goods_album_2 }}" class="slide-img">
+            <img src="{{ order.product.goods_album_2 }}" class="slide-img">
         {% endif %}
-
     </div>
 
     <div class="slider-dots" id="sliderDots"></div>
-
 </div>
 
-<!-- PRICE -->
-
 <div class="price-box">
-
     <span class="currency">USD</span>
 
     <span class="price">
@@ -464,33 +443,24 @@ body{
     <div class="stock">
         In Stock
     </div>
-
 </div>
-
-<!-- DESCRIPTION -->
 
 <div class="description-box">
     {{ order.product.description|safe }}
 </div>
-
-<!-- REVIEWS -->
 
 <div class="review-title-main">
     Customer Reviews
 </div>
 
 {% for review in reviews %}
-
 <div class="review-card">
-
     <div class="review-user">
-
         <div class="review-avatar">
             {{ review.content|first|upper }}
         </div>
 
         <div>
-
             <div class="review-stars">
                 ★★★★★
             </div>
@@ -498,35 +468,23 @@ body{
             <div class="review-date">
                 {{ review.created_at|date:"M d, Y" }}
             </div>
-
         </div>
-
     </div>
 
     <div class="review-text">
         {{ review.content }}
     </div>
-
 </div>
-
 {% endfor %}
 
 <div style="height:450px;"></div>
 
-<!-- BOTTOM -->
-
 <div class="bottom-box">
-
-    <!-- SUMMARY -->
 
     <div class="summary-box" onclick="toggleOrderDetails()">
 
-        <!-- VIP -->
-
         <div class="vip-box">
-
             <div class="vip-left">
-
                 <div class="vip-icon">
                     V2
                 </div>
@@ -534,24 +492,16 @@ body{
                 <span>
                     {{ request.user.userprofile.vip_level.level_name }}
                 </span>
-
             </div>
 
             <div class="qty">
-
                 Order Quantity :
                 {{ request.user.userprofile.vip_level.maximum_task }}
-
             </div>
-
         </div>
 
-        <!-- GRID -->
-
         <div class="summary-grid">
-
             <div class="summary-item">
-
                 <div class="summary-label">
                     Total Amount(USD)
                 </div>
@@ -559,126 +509,108 @@ body{
                 <div class="summary-value">
                     {{ order.order_price }}
                 </div>
-
             </div>
 
             <div class="summary-item">
-
                 <div class="summary-label">
                     Commission
                 </div>
 
                 <div class="summary-value">
-                    {{ request.user.userprofile.vip_level.commission_rate }}%
+                    {% if order.is_successive_order %}
+                        {{ request.user.userprofile.vip_level.successive_order_commission_rate }}%
+                    {% else %}
+                        {{ request.user.userprofile.vip_level.commission_rate }}%
+                    {% endif %}
                 </div>
-
             </div>
 
             <div class="summary-item">
-
                 <div class="summary-label">
-                    commission Revenues(USD)
+                    Commission Revenues(USD)
                 </div>
 
                 <div class="summary-value">
                     {{ order.commission }}
                 </div>
-
             </div>
-
         </div>
 
     </div>
 
-    <!-- COLLAPSE -->
-
     <div class="order-details-box" id="orderDetailsBox">
 
-        <!-- EXTRA -->
-
         <div class="extra-info-box">
-
             <div class="extra-row">
-
                 <span>Created At</span>
 
                 <b>
                     {{ order.created_at|date:"m-d-Y h:i:s a" }}
                 </b>
-
             </div>
 
             <div class="extra-row">
-
                 <span>NO :</span>
 
                 <b>
-                    {{ order.order_number }}
+                    {% if order.order_number %}
+                        {{ order.order_number }}
+                    {% else %}
+                        {{ order.id }}
+                    {% endif %}
                 </b>
-
             </div>
-
         </div>
 
-        <!-- REVIEW -->
-
         <div class="review-submit-box">
-
             <div class="review-top">
-
                 <div class="review-label">
                     Click To Comment :
                 </div>
 
                 <div class="stars">
-
                     <span class="star active" data-value="1">★</span>
                     <span class="star active" data-value="2">★</span>
                     <span class="star active" data-value="3">★</span>
                     <span class="star active" data-value="4">★</span>
                     <span class="star active" data-value="5">★</span>
-
                 </div>
-
             </div>
 
             <div class="review-input-wrap">
-
                 <textarea
                     id="reviewTextarea"
                     class="review-textarea"
                     placeholder="Write a Review"></textarea>
 
-                <button type="button"
-                        class="auto-review-btn"
-                        onclick="fillRandomReview()">
-
+                <button
+                    type="button"
+                    class="auto-review-btn"
+                    onclick="fillRandomReview()">
                     Automatic Review
-
                 </button>
-
             </div>
-
         </div>
 
     </div>
 
-    <!-- FORM -->
-
-    <form method="POST"
-          action="{% url 'submit_order' order.id %}"
-          class="submit-form">
+    <form
+        method="POST"
+        action="{% url 'submit_order' order.id %}"
+        class="submit-form">
 
         {% csrf_token %}
 
-        <input type="hidden"
-               name="rating"
-               id="hiddenRating"
-               value="5">
+        <input
+            type="hidden"
+            name="rating"
+            id="hiddenRating"
+            value="5">
 
-        <textarea name="comment"
-                  id="hiddenComment"
-                  hidden></textarea>
+        <textarea
+            name="comment"
+            id="hiddenComment"
+            hidden></textarea>
 
         <button type="submit" class="order-btn">
             Start Order
@@ -689,50 +621,46 @@ body{
 </div>
 
 <script>
+function showAlert(message){
+    const alertBox = document.getElementById('customAlertBox');
 
-/* COLLAPSE */
+    if(!alertBox){
+        return;
+    }
+
+    alertBox.innerText = message;
+    alertBox.classList.add('show');
+
+    setTimeout(function(){
+        alertBox.classList.remove('show');
+    }, 2200);
+}
 
 function toggleOrderDetails(){
-
     document
         .getElementById("orderDetailsBox")
         .classList
         .toggle("show");
-
 }
 
-/* STARS */
-
 const stars = document.querySelectorAll(".star");
-
 let selectedRating = 5;
 
 stars.forEach(function(star){
-
     star.addEventListener("click", function(){
-
         selectedRating = parseInt(this.dataset.value);
 
         stars.forEach(function(s){
-
             s.classList.remove("active");
-
         });
 
         for(let i = 0; i < selectedRating; i++){
-
             stars[i].classList.add("active");
-
         }
-
     });
-
 });
 
-/* AUTO REVIEW */
-
 const reviews = [
-
     "Amazing quality and works perfectly.",
     "Very satisfied with this product.",
     "Fast shipping and excellent packaging.",
@@ -740,43 +668,44 @@ const reviews = [
     "Worth the price and highly recommended.",
     "Very comfortable and easy to use.",
     "Exceeded my expectations."
-
 ];
 
 function fillRandomReview(){
-
     const randomReview =
         reviews[Math.floor(Math.random() * reviews.length)];
 
-    document.getElementById("reviewTextarea").value =
-        randomReview;
-
+    document.getElementById("reviewTextarea").value = randomReview;
 }
-
-/* SUBMIT */
 
 const submitForm = document.querySelector(".submit-form");
 
-submitForm.addEventListener("submit", function(){
+submitForm.addEventListener("submit", function(event){
+    const commentText =
+        document.getElementById("reviewTextarea").value.trim();
 
-    document.getElementById("hiddenComment").value =
-        document.getElementById("reviewTextarea").value;
+    if(!commentText){
+        event.preventDefault();
 
-    document.getElementById("hiddenRating").value =
-        selectedRating;
+        document
+            .getElementById("orderDetailsBox")
+            .classList
+            .add("show");
 
+        showAlert("Please write a review before starting the order.");
+
+        return;
+    }
+
+    document.getElementById("hiddenComment").value = commentText;
+    document.getElementById("hiddenRating").value = selectedRating;
 });
-
-/* SLIDER */
 
 let currentSlide = 0;
 
 const slides = document.querySelectorAll(".slide-img");
-
 const dotsBox = document.getElementById("sliderDots");
 
 slides.forEach(function(slide, index){
-
     const dot = document.createElement("span");
 
     dot.className = "slider-dot";
@@ -790,26 +719,34 @@ slides.forEach(function(slide, index){
     };
 
     dotsBox.appendChild(dot);
-
 });
 
 const dots = document.querySelectorAll(".slider-dot");
 
 function showSlide(index){
+    if(slides.length === 0){
+        return;
+    }
 
     slides[currentSlide].classList.remove("active");
-
     dots[currentSlide].classList.remove("active");
 
     currentSlide = index;
 
     slides[currentSlide].classList.add("active");
-
     dots[currentSlide].classList.add("active");
-
 }
-
 </script>
+
+{% if messages %}
+<script>
+window.addEventListener("load", function(){
+    {% for message in messages %}
+        showAlert("{{ message|escapejs }}");
+    {% endfor %}
+});
+</script>
+{% endif %}
 
 </body>
 </html>

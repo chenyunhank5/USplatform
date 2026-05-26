@@ -410,14 +410,54 @@
 </div>
 
 <div class="wallet-card">
-    <div class="wallet-title">Wallet Account</div>
 
-    <div class="wallet-amount">
-        {{ request.user.userprofile.balance }}
-        <span>USD</span>
+    {% if active_order and active_order.is_successive_order %}
+
+        <div class="wallet-title">
+            Wallet Account
+        </div>
+
+        <div class="wallet-amount">
+
+            {% if remaining_frozen > 0 %}
+
+                -{{ remaining_frozen|floatformat:2 }}
+
+            {% else %}
+
+                0.00
+
+            {% endif %}
+
+            <span>USD</span>
+
+        </div>
+
+        <div class="wallet-title">
+            Frozen Amount
+        </div>
+
+        <div class="wallet-amount">
+            {{ request.user.userprofile.balance|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% else %}
+
+        <div class="wallet-title">
+            Wallet Account
+        </div>
+
+        <div class="wallet-amount">
+            {{ request.user.userprofile.balance|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% endif %}
+
+    <div class="wallet-title">
+        Special Lucky Bonus
     </div>
-
-    <div class="wallet-title">Special Lucky Bonus</div>
 
     <div class="wallet-amount">
         37.00
@@ -425,32 +465,59 @@
     </div>
 
     <div class="wallet-tabs">
-        <button class="active">Todays Earnings</button>
-        <button>Total Earnings</button>
+        <button class="active">
+            Todays Earnings
+        </button>
+
+        <button>
+            Total Earnings
+        </button>
     </div>
 
     <div class="wallet-stats">
+
         <div class="wallet-stat">
-            <small>Order Revenue</small>
+
+            <small>
+                Order Revenue
+            </small>
+
             <b>
                 {% if active_order %}
-                    {{ active_order.commission }}
+                    {{ active_order.commission|floatformat:2 }}
                 {% else %}
-                    0
+                    0.00
                 {% endif %}
             </b>
+
         </div>
 
         <div class="wallet-stat">
-            <small>Team</small>
-            <b>0</b>
+
+            <small>
+                Team
+            </small>
+
+            <b>
+                0
+            </b>
+
         </div>
 
         <div class="wallet-stat">
-            <small>Total Earnings</small>
-            <b>0</b>
+
+            <small>
+                Total Earnings
+            </small>
+
+            <b>
+                0
+            </b>
+
         </div>
+
     </div>
+
 </div>
 
 <div class="info-buttons">

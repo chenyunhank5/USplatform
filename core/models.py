@@ -14,11 +14,7 @@ def generate_invite_code():
 
 def generate_withdrawal_id():
     now = timezone.now()
-
-    random_part = ''.join(
-        random.choices(string.ascii_uppercase + string.digits, k=4)
-    )
-
+    random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
     return f"WD{now.strftime('%Y%m%d%H%M%S')}{random_part}"
 
 
@@ -83,11 +79,7 @@ class UserProfile(models.Model):
 
 
 class WithdrawalRequest(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-    ]
+    STATUS_CHOICES = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
@@ -124,39 +116,71 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-class UserOrder(models.Model):
 
+class LuckyReward(models.Model):
     STATUS_CHOICES = (
+        ("waiting", "Waiting"),
+        ("processing", "Processing"),
+        ("pending", "Pending CS Confirm"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
+    )
+
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="lucky_rewards")
+    target_order_number = models.IntegerField(default=0)
+    payout_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    payout_jump_time = models.IntegerField(default=10)
+    freeze_reward = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="waiting")
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="created_lucky_rewards")
+    claimed_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self):
+        return f"{self.profile.user.username} - Order {self.target_order_number} - {self.payout_amount}"
+
+
+class UserOrder(models.Model):
+    STATUS_CHOICES = (
+        ('waiting', 'Waiting'),
         ('matched', 'Matched'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     )
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_orders')
-
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-
-    order_price = models.DecimalField(max_digits=12, decimal_places=2)
-
-    commission = models.DecimalField(max_digits=12, decimal_places=2)
-
-    rating = models.IntegerField(blank=True, null=True)
-
-    comment = models.TextField(blank=True)
-
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='matched'
+    ORDER_TYPE_CHOICES = (
+        ("normal", "Normal"),
+        ("successive", "Successive"),
+        ("lucky_reward", "Lucky Reward"),
     )
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_orders')
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    order_price = models.DecimalField(max_digits=12, decimal_places=2)
+    commission = models.DecimalField(max_digits=12, decimal_places=2)
+    rating = models.IntegerField(blank=True, null=True)
+    comment = models.TextField(blank=True)
+    successive_order_number = models.IntegerField(blank=True, null=True)
+    is_successive_order = models.BooleanField(default=False)
+    negative_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='matched')
     created_at = models.DateTimeField(auto_now_add=True)
-
     completed_at = models.DateTimeField(blank=True, null=True)
+    order_type = models.CharField(max_length=30, choices=ORDER_TYPE_CHOICES, default="normal")
+    lucky_reward = models.ForeignKey(LuckyReward, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f'{self.user.username} - {self.product.name}'
-        
+        if self.product:
+            return f'{self.user.username} - {self.product.name}'
+
+        return f'{self.user.username} - {self.order_type}'
+
+
 class ProductEvaluation(models.Model):
     star_level = models.DecimalField(max_digits=2, decimal_places=1, default=5.0)
     content = models.TextField()
@@ -165,8 +189,8 @@ class ProductEvaluation(models.Model):
     def __str__(self):
         return f'{self.star_level} - {self.content[:30]}'
 
-class SupportMessage(models.Model):
 
+class SupportMessage(models.Model):
     MESSAGE_TYPES = (
         ('text', 'Text'),
         ('image', 'Image'),
@@ -174,19 +198,12 @@ class SupportMessage(models.Model):
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='support_messages')
-
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_support_messages')
-
     message = models.TextField(blank=True)
-
     image = models.ImageField(upload_to='support_images/', blank=True, null=True)
-
     message_type = models.CharField(max_length=20, choices=MESSAGE_TYPES, default='text')
-
     is_read_by_staff = models.BooleanField(default=False)
-
     is_read_by_user = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
