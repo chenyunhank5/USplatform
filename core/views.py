@@ -1134,6 +1134,15 @@ def user_order(request):
         status="matched"
     ).select_related("product").first()
 
+    latest_lucky_reward = LuckyReward.objects.filter(
+        profile=profile,
+        status="completed"
+    ).order_by(
+        "-target_order_number",
+        "-completed_at",
+        "-id"
+    ).first()
+
     completed_orders = UserOrder.objects.filter(
         user=request.user,
         status="completed"
@@ -1151,13 +1160,48 @@ def user_order(request):
         "active_order": active_order,
         "completed_orders": completed_orders,
         "remaining_frozen": remaining_frozen,
+        "latest_lucky_reward": latest_lucky_reward,
     })
 
+@staff_required
+def staff_reset_user_tasks(request, profile_id):
+    profile = get_object_or_404(
+        UserProfile,
+        id=profile_id
+    )
 
+    if request.method == "POST":
+        UserOrder.objects.filter(
+            user=profile.user,
+            status="matched"
+        ).update(status="cancelled")
+
+        profile.task_progress = 0
+        profile.save()
+
+        messages.success(
+            request,
+            "User tasks reset successfully."
+        )
+
+    return redirect("staff_user_management")
+    
 
 @login_required(login_url="user_login")
 def start_order(request):
     profile = request.user.userprofile
+
+    max_tasks = 0
+
+    if profile.vip_level:
+        max_tasks = profile.vip_level.maximum_task
+
+    if max_tasks and profile.task_progress >= max_tasks:
+        messages.error(
+            request,
+            "You have reached your daily task limit."
+        )
+        return redirect("user_order")
 
     pending_reward = LuckyReward.objects.filter(
         profile=profile,

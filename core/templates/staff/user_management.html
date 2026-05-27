@@ -478,6 +478,27 @@ tr:hover .action-column{
                         <button
                             type="button"
                             class="btn purple"
+                            onclick="openEditUserModal(
+                                '{{ profile.id }}',
+                                '{{ profile.user.username|escapejs }}',
+                                '{{ profile.phone_number|default:''|escapejs }}',
+                                '{{ profile.user.email|default:''|escapejs }}',
+
+                                {% if profile.vip_level %}
+                                    '{{ profile.vip_level.id }}',
+                                {% else %}
+                                    '',
+                                {% endif %}
+
+                                '{{ profile.balance }}',
+                                '{{ profile.frozen_amount }}',
+                                '{{ profile.credit_score }}',
+                                '{{ profile.task_progress }}',
+                                '{{ profile.need_authorization }}',
+                                '{{ profile.account_status }}',
+                                '{{ profile.trade_status }}',
+                                '{{ profile.withdrawal_status }}'
+                            )"
                         >
                             View details
                         </button>
@@ -490,8 +511,16 @@ tr:hover .action-column{
                             Successive order
                         </a>
 
-                        <button class="btn red">
-                            Reset order
+                        <button
+                            type="button"
+                            onclick="openResetTasksModal(
+                                '{{ profile.id }}',
+                                '{{ profile.user.username }}',
+                                '{{ profile.task_progress }}'
+                            )"
+                            class="btn red"
+                        >
+                            Reset Order
                         </button>
 
                         <button
@@ -571,6 +600,7 @@ tr:hover .action-column{
 {% include 'staff/user_management_partials/login_password.html' %}
 {% include 'staff/user_management_partials/withdrawal_password.html' %}
 {% include 'staff/user_management_partials/wallet_address.html' %}
+{% include 'staff/user_management_partials/reset_tasks_modal.html' %}
 
 <script>
 

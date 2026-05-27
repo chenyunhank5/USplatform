@@ -455,14 +455,18 @@
 
     {% endif %}
 
-    <div class="wallet-title">
-        Special Lucky Bonus
-    </div>
+    {% if latest_lucky_reward %}
 
-    <div class="wallet-amount">
-        37.00
-        <span>USD</span>
-    </div>
+        <div class="wallet-title">
+            Special Lucky Bonus
+        </div>
+
+        <div class="wallet-amount">
+            {{ latest_lucky_reward.payout_amount|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% endif %}
 
     <div class="wallet-tabs">
         <button class="active">
