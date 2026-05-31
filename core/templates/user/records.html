@@ -4,331 +4,262 @@
 
 {% block extra_css %}
 <style>
+body{
+    background:#f2f3f5;
+}
 
-    .tabs{
-        display:flex;
-        background:white;
-        position:sticky;
-        top:0;
-        z-index:10;
-    }
+.tabs{
+    display:flex;
+    gap:6px;
+    padding:18px 14px 12px;
+    background:#f2f3f5;
+    position:sticky;
+    top:0;
+    z-index:10;
+}
 
-    .tab-btn{
-        flex:1;
-        height:36px;
+.tab-btn{
+    flex:1;
+    height:30px;
+    background:#fff;
+    color:#000;
+    border:0;
+    border-radius:2px;
+    font-size:13px;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
 
-        border:0;
-        background:#f3f4f6;
+.tab-btn.active{
+    background:#000;
+    color:#fff;
+    font-weight:bold;
+}
 
-        font-size:16px;
-        cursor:pointer;
-    }
+.records-list{
+    padding:0 14px 90px;
+}
 
-    .tab-btn.active{
-        background:black;
-        color:white;
-        border-radius:2px;
-    }
+.record-time{
+    font-size:14px;
+    font-weight:bold;
+    color:#000;
+    margin:14px 0 8px;
+}
 
-    .records-list{
-        padding:10px 0 20px;
-    }
+.record-card{
+    background:#fff;
+    padding:16px 12px 20px;
+    border-radius:2px;
+    position:relative;
+    margin-bottom:20px;
+    border:1px solid #f0f0f0;
+}
 
-    .record-time{
-        font-size:14px;
-        font-weight:bold;
-        margin:14px 0 8px;
-    }
+.status{
+    position:absolute;
+    top:-31px;
+    right:12px;
+    background:#000;
+    color:#fff;
+    font-size:12px;
+    font-weight:bold;
+    padding:5px 12px;
+    border-radius:2px;
+}
 
-    .record-card{
-        background:white;
-        padding:12px;
-        border-radius:2px;
-        position:relative;
-    }
+.record-top{
+    display:flex;
+    gap:14px;
+}
 
-    .status{
-        position:absolute;
-        top:10px;
-        right:12px;
+.product-image{
+    width:60px;
+    height:60px;
+    border-radius:8px;
+    object-fit:cover;
+    background:#f1f1f1;
+    flex-shrink:0;
+}
 
-        background:#9df18c;
-        color:black;
+.product-info{
+    flex:1;
+}
 
-        font-size:14px;
-        padding:4px 10px;
-    }
+.product-title{
+    font-size:16px;
+    font-weight:800;
+    color:#000;
+    line-height:1.55;
+}
 
-    .record-top{
-        display:flex;
-        gap:12px;
-    }
+.stars{
+    margin-top:6px;
+    color:#facc15;
+    font-size:18px;
+    letter-spacing:1px;
+}
 
-    .product-image{
-        width:62px;
-        height:62px;
-        border-radius:8px;
-        background:#ddd;
-        object-fit:cover;
-        flex-shrink:0;
-    }
+.empty-star{
+    color:#d1d5db;
+}
 
-    .product-title{
-        font-size:17px;
-        font-weight:bold;
-        line-height:1.55;
-    }
+.bottom-info{
+    display:flex;
+    align-items:flex-end;
+    margin-top:12px;
+}
 
-    .stars{
-        margin-top:8px;
-        color:#facc15;
-        font-size:18px;
-    }
+.info-box{
+    flex:1;
+}
 
-    .empty-star{
-        color:#d1d5db;
-    }
+.info-label{
+    font-size:13px;
+    font-weight:bold;
+    color:#000;
+    margin-bottom:8px;
+}
 
-    .bottom-info{
-        display:flex;
-        margin-top:14px;
-    }
+.info-value{
+    font-size:14px;
+    font-weight:bold;
+    color:#000;
+}
 
-    .info-box{
-        flex:1;
-    }
+.submit-btn{
+    background:#000;
+    color:#fff;
+    border:0;
+    padding:7px 16px;
+    border-radius:4px;
+    font-size:13px;
+    font-weight:bold;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
 
-    .info-label{
-        font-size:14px;
-        font-weight:bold;
-        margin-bottom:8px;
-    }
-
-    .info-value{
-        font-size:18px;
-        font-weight:bold;
-    }
-
+.no-more{
+    text-align:center;
+    color:#9ca3af;
+    font-size:14px;
+    margin-top:32px;
+}
 </style>
 {% endblock %}
 
 {% block content %}
 
 <div class="tabs">
-
-    <button class="tab-btn active">
+    <a href="{% url 'user_records' %}?status=all"
+       class="tab-btn {% if current_status == 'all' or not current_status %}active{% endif %}">
         All
-    </button>
+    </a>
 
-    <button class="tab-btn">
+    <a href="{% url 'user_records' %}?status=pending"
+       class="tab-btn {% if current_status == 'pending' %}active{% endif %}">
         Pending
-    </button>
+    </a>
 
-    <button class="tab-btn">
+    <a href="{% url 'user_records' %}?status=completed"
+       class="tab-btn {% if current_status == 'completed' %}active{% endif %}">
         Completed
-    </button>
-
+    </a>
 </div>
 
 <div class="records-list">
 
-    <!-- CARD 1 -->
+    {% for order in orders %}
 
-    <div class="record-time">
-        05-04-2026 10:27:32 pm
-    </div>
-
-    <div class="record-card">
-
-        <div class="status">
-            Completed
+        <div class="record-time">
+            {{ order.created_at|date:"m-d-Y h:i:s a" }}
         </div>
 
-        <div class="record-top">
+        <div class="record-card">
 
-            <img
-                src="https://m.media-amazon.com/images/I/71l6wot9KkL._AC_SL1500_.jpg"
-                class="product-image"
-            >
+            <div class="status">
+                {% if order.status == "completed" %}
+                    Completed
+                {% elif order.status == "matched" or order.status == "waiting" %}
+                    Pending
+                {% else %}
+                    {{ order.status|title }}
+                {% endif %}
+            </div>
 
-            <div>
+            <div class="record-top">
 
-                <div class="product-title">
-                    YQkoop Kids Arts and Crafts Set - DIY Plaster Making and Painting Kit, Paint Your Own Figurines, Creative Activity DIY Toys Boys Girls
+                {% if order.product and order.product.cover %}
+                    <img src="{{ order.product.cover }}" class="product-image">
+                {% else %}
+                    <div class="product-image"></div>
+                {% endif %}
+
+                <div class="product-info">
+
+                    <div class="product-title">
+                        {% if order.order_type == "lucky_reward" and order.lucky_reward %}
+                            Lucky Reward #{{ order.lucky_reward.id }}
+                        {% elif order.product %}
+                            {{ order.product.name }}
+                        {% else %}
+                            Order Record
+                        {% endif %}
+                    </div>
+
+                    <div class="stars">
+                        {% if order.rating == 5 %}
+                            ★ ★ ★ ★ ★
+                        {% elif order.rating == 4 %}
+                            ★ ★ ★ ★ <span class="empty-star">☆</span>
+                        {% elif order.rating == 3 %}
+                            ★ ★ ★ <span class="empty-star">☆ ☆</span>
+                        {% elif order.rating == 2 %}
+                            ★ ★ <span class="empty-star">☆ ☆ ☆</span>
+                        {% elif order.rating == 1 %}
+                            ★ <span class="empty-star">☆ ☆ ☆ ☆</span>
+                        {% else %}
+                            <span class="empty-star">☆ ☆ ☆ ☆ ☆</span>
+                        {% endif %}
+                    </div>
+
                 </div>
 
-                <div class="stars">
-                    <span class="empty-star">☆</span>
-                    <span class="empty-star">☆</span>
-                    <span class="empty-star">☆</span>
-                    <span class="empty-star">☆</span>
-                    <span class="empty-star">☆</span>
+            </div>
+
+            <div class="bottom-info">
+
+                <div class="info-box">
+                    <div class="info-label">Total Amount</div>
+                    <div class="info-value">USD {{ order.order_price|floatformat:2 }}</div>
                 </div>
+
+                <div class="info-box">
+                    <div class="info-label">Commission</div>
+                    <div class="info-value">USD {{ order.commission|floatformat:2 }}</div>
+                </div>
+
+                {% if order.status == "matched" or order.status == "waiting" %}
+                    <a href="{% url 'user_order_detail' order.id %}" class="submit-btn">
+                        Submit
+                    </a>
+                {% endif %}
 
             </div>
 
         </div>
 
-        <div class="bottom-info">
+    {% empty %}
+        <div class="no-more">No More Data...</div>
+    {% endfor %}
 
-            <div class="info-box">
-
-                <div class="info-label">
-                    Total Amount
-                </div>
-
-                <div class="info-value">
-                    USD 23.29
-                </div>
-
-            </div>
-
-            <div class="info-box">
-
-                <div class="info-label">
-                    Commission
-                </div>
-
-                <div class="info-value">
-                    USD 0.09
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- CARD 2 -->
-
-    <div class="record-time">
-        05-04-2026 10:27:22 pm
-    </div>
-
-    <div class="record-card">
-
-        <div class="status">
-            Completed
-        </div>
-
-        <div class="record-top">
-
-            <img
-                src="https://m.media-amazon.com/images/I/81QpkIctqPL._AC_SL1500_.jpg"
-                class="product-image"
-            >
-
-            <div>
-
-                <div class="product-title">
-                    Disney Junior Mickey Mouse Funhouse Dino Rover 6-piece Play Figures and Vehicle Playset, Officially Licensed Kids Toys for Ages 3 Up by Just Play
-                </div>
-
-                <div class="stars">
-                    ★ ★ ★ ★
-                    <span class="empty-star">☆</span>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="bottom-info">
-
-            <div class="info-box">
-
-                <div class="info-label">
-                    Total Amount
-                </div>
-
-                <div class="info-value">
-                    USD 30.24
-                </div>
-
-            </div>
-
-            <div class="info-box">
-
-                <div class="info-label">
-                    Commission
-                </div>
-
-                <div class="info-value">
-                    USD 0.12
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- CARD 3 -->
-
-    <div class="record-time">
-        05-04-2026 10:27:13 pm
-    </div>
-
-    <div class="record-card">
-
-        <div class="status">
-            Completed
-        </div>
-
-        <div class="record-top">
-
-            <img
-                src="https://m.media-amazon.com/images/I/71e5GgQj9NL._AC_SL1500_.jpg"
-                class="product-image"
-            >
-
-            <div>
-
-                <div class="product-title">
-                    Lavender Handmade Soap - B&B Products OKC, All Natural Farm Soap, 100% Natural and Organic Ingredients Moisturizing For Women, Men, All Skin Types
-                </div>
-
-                <div class="stars">
-                    <span class="empty-star">☆</span>
-                    <span class="empty-star">☆</span>
-                    <span class="empty-star">☆</span>
-                    <span class="empty-star">☆</span>
-                    <span class="empty-star">☆</span>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="bottom-info">
-
-            <div class="info-box">
-
-                <div class="info-label">
-                    Total Amount
-                </div>
-
-                <div class="info-value">
-                    USD 40.00
-                </div>
-
-            </div>
-
-            <div class="info-box">
-
-                <div class="info-label">
-                    Commission
-                </div>
-
-                <div class="info-value">
-                    USD 0.16
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
+    {% if orders %}
+        <div class="no-more">No More Data...</div>
+    {% endif %}
 
 </div>
 

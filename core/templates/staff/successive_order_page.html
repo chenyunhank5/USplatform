@@ -46,10 +46,6 @@
     background:#409eff;
 }
 
-.successive-red{
-    background:#ef4444;
-}
-
 .successive-table-scroll{
     width:100%;
     overflow:auto;
@@ -91,12 +87,7 @@
 
 .product-info-grid{
     display:grid;
-    grid-template-columns:
-        220px
-        120px
-        120px
-        120px
-        120px;
+    grid-template-columns:220px 120px 120px;
     gap:16px;
     align-items:start;
 }
@@ -129,6 +120,15 @@
     display:inline-block;
     background:#422006;
     color:#fbbf24;
+    padding:5px 12px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.successive-red-tag{
+    display:inline-block;
+    background:#3b1111;
+    color:#ff6b6b;
     padding:5px 12px;
     border-radius:3px;
     font-size:12px;
@@ -218,6 +218,7 @@
         </button>
 
         <button
+            type="button"
             onclick="location.reload()"
             class="successive-btn successive-blue"
         >
@@ -256,7 +257,7 @@
                     </td>
 
                     <td>
-                        {{ order.successive_order_number }}
+                        {{ order.target_order_number }}
                     </td>
 
                     <td>
@@ -269,12 +270,22 @@
 
                             <div>
                                 <b>Order Price:</b><br>
-                                {{ order.order_price }}
+
+                                {% if order.matched_order %}
+                                    {{ order.matched_order.order_price }}
+                                {% else %}
+                                    Pending
+                                {% endif %}
                             </div>
 
                             <div>
                                 <b>Commission:</b><br>
-                                {{ order.commission }}
+
+                                {% if order.matched_order %}
+                                    {{ order.matched_order.commission }}
+                                {% else %}
+                                    Pending
+                                {% endif %}
                             </div>
 
                         </div>
@@ -299,7 +310,11 @@
                     </td>
 
                     <td>
-                        Admin
+                        {% if order.created_by %}
+                            {{ order.created_by.username }}
+                        {% else %}
+                            Admin
+                        {% endif %}
                     </td>
 
                     <td>
@@ -324,6 +339,12 @@
 
                             <span class="successive-orange-tag">
                                 Matched
+                            </span>
+
+                        {% elif order.status == 'cancelled' %}
+
+                            <span class="successive-red-tag">
+                                Cancelled
                             </span>
 
                         {% endif %}

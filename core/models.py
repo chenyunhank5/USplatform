@@ -173,6 +173,7 @@ class UserOrder(models.Model):
     completed_at = models.DateTimeField(blank=True, null=True)
     order_type = models.CharField(max_length=30, choices=ORDER_TYPE_CHOICES, default="normal")
     lucky_reward = models.ForeignKey(LuckyReward, on_delete=models.SET_NULL, null=True, blank=True)
+    is_hidden_from_user = models.BooleanField(default=False)
 
     def __str__(self):
         if self.product:
@@ -181,6 +182,29 @@ class UserOrder(models.Model):
         return f'{self.user.username} - {self.order_type}'
 
 
+class SuccessiveOrderPlan(models.Model):
+    STATUS_CHOICES = (
+        ("waiting", "Waiting"),
+        ("matched", "Matched"),
+        ("cancelled", "Cancelled"),
+    )
+
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="successive_order_plans")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    target_order_number = models.IntegerField(default=0)
+    negative_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="waiting")
+    matched_order = models.ForeignKey(UserOrder, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    matched_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["target_order_number", "-id"]
+
+    def __str__(self):
+        return f"{self.profile.user.username} - Successive Order {self.target_order_number}"
+        
 class ProductEvaluation(models.Model):
     star_level = models.DecimalField(max_digits=2, decimal_places=1, default=5.0)
     content = models.TextField()

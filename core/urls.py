@@ -34,6 +34,8 @@ urlpatterns = [
     path("user/lucky-reward/<int:reward_id>/claim/", views.claim_lucky_reward, name="claim_lucky_reward"),
     path("user/lucky-reward/<int:reward_id>/failed/", views.lucky_reward_animation_failed, name="lucky_reward_animation_failed"),
 
+    path("staff/order-management/", views.staff_order_management, name="staff_order_management"),
+    path("staff/toggle-order-visibility/<int:order_id>/", views.staff_toggle_order_visibility, name="staff_toggle_order_visibility"),
     # STAFF USER SECURITY
     path('staff/user/<int:profile_id>/login-password/', views.staff_update_login_password, name='staff_update_login_password'),
     path('staff/user/<int:profile_id>/withdrawal-password/', views.staff_update_withdrawal_password, name='staff_update_withdrawal_password'),

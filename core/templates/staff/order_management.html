@@ -1,0 +1,205 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Order Management{% endblock %}
+{% block page_title %}Order Management{% endblock %}
+
+{% block extra_css %}
+<style>
+.order-panel{
+    background:#111;
+    border:1px solid #2a2a2a;
+    padding:16px;
+    color:#ddd;
+}
+
+.order-table-wrap{
+    width:100%;
+    overflow:auto;
+    border:1px solid #333;
+    background:#111;
+}
+
+.order-table{
+    width:100%;
+    min-width:1400px;
+    border-collapse:collapse;
+    font-size:13px;
+}
+
+.order-table th{
+    background:#171717;
+    color:#9ca3af;
+    padding:13px 12px;
+    text-align:left;
+    border:1px solid #333;
+    white-space:nowrap;
+}
+
+.order-table td{
+    padding:13px 12px;
+    border:1px solid #333;
+    color:#e5e7eb;
+    background:#151515;
+    vertical-align:top;
+    white-space:nowrap;
+}
+
+.order-table tr:nth-child(even) td{
+    background:#202020;
+}
+
+.green-tag{
+    background:#15350f;
+    color:#5cff4a;
+    padding:5px 10px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.blue-tag{
+    background:#0b3a66;
+    color:#60a5fa;
+    padding:5px 10px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.orange-tag{
+    background:#422006;
+    color:#fbbf24;
+    padding:5px 10px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.red-tag{
+    background:#3b1111;
+    color:#ff6b6b;
+    padding:5px 10px;
+    border-radius:3px;
+    font-size:12px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="order-panel">
+
+    <div class="order-table-wrap">
+
+        <table class="order-table">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Order Type</th>
+                    <th>Product / Reward</th>
+                    <th>Order Price</th>
+                    <th>Commission / Reward</th>
+                    <th>The N Order</th>
+                    <th>Frozen Amount</th>
+                    <th>Rating</th>
+                    <th>Comment</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Completed At</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+
+                    <td>{{ order.user.username }}</td>
+
+                    <td>{{ order.order_type }}</td>
+
+                    <td>
+                        {% if order.order_type == "lucky_reward" and order.lucky_reward %}
+                            Lucky Reward #{{ order.lucky_reward.id }}
+                        {% elif order.product %}
+                            {{ order.product.name }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>{{ order.order_price }}</td>
+
+                    <td>{{ order.commission }}</td>
+
+                    <td>
+                        {% if order.is_successive_order %}
+                            {{ order.successive_order_number }}
+                        {% elif order.lucky_reward %}
+                            {{ order.lucky_reward.target_order_number }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if order.is_successive_order %}
+                            {{ order.negative_amount }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if order.rating %}
+                            {{ order.rating }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if order.comment %}
+                            {{ order.comment }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if order.status == "completed" %}
+                            <span class="green-tag">Completed</span>
+                        {% elif order.status == "matched" %}
+                            <span class="blue-tag">Matched</span>
+                        {% elif order.status == "waiting" %}
+                            <span class="orange-tag">Waiting</span>
+                        {% else %}
+                            <span class="red-tag">{{ order.status }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ order.created_at|date:"Y-m-d H:i:s" }}</td>
+
+                    <td>
+                        {% if order.completed_at %}
+                            {{ order.completed_at|date:"Y-m-d H:i:s" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="13" style="text-align:center;padding:30px;">
+                        No order records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

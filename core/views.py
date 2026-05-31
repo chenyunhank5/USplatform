@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.db.models import Count, Q, Max
 
-from .models import UserProfile, VipLevel, Product, ProductEvaluation, WithdrawalRequest, SupportMessage, UserOrder, LuckyReward
+from .models import UserProfile, VipLevel, Product, ProductEvaluation, WithdrawalRequest, SupportMessage, UserOrder, LuckyReward, SuccessiveOrderPlan
 
 
 def get_client_ip(request):
@@ -319,10 +319,13 @@ def staff_update_wallet_address(request, profile_id):
 def staff_successive_order_page(request, profile_id):
     profile = get_object_or_404(UserProfile, id=profile_id)
 
-    orders = UserOrder.objects.filter(
-        user=profile.user,
-        is_successive_order=True
-    ).select_related("product").order_by("successive_order_number")
+    orders = SuccessiveOrderPlan.objects.filter(
+        profile=profile
+    ).select_related(
+        "product",
+        "matched_order",
+        "created_by"
+    ).order_by("target_order_number")
 
     missions = Product.objects.all().order_by("-id")
 
@@ -334,122 +337,50 @@ def staff_successive_order_page(request, profile_id):
 
 @staff_required
 def staff_add_successive_order(request):
+    if request.method == "POST":
+        profile = get_object_or_404(UserProfile, id=request.POST.get("profile_id"))
+        product = get_object_or_404(Product, id=request.POST.get("mission_id"))
 
-    if request.method == 'POST':
-
-        profile_id = request.POST.get('profile_id')
-
-        mission_id = request.POST.get('mission_id')
-
-        target_turn = request.POST.get('target_turn')
-
-        negative_amount = request.POST.get('negative_amount')
-
-        profile = get_object_or_404(
-            UserProfile,
-            id=profile_id
-        )
-
-        product = get_object_or_404(
-            Product,
-            id=mission_id
-        )
-
-        commission_rate = Decimal("0")
-
-        if profile.vip_level:
-            commission_rate = (
-                profile.vip_level.successive_order_commission_rate
-            )
-
-        commission = (
-            product.price
-            * commission_rate
-            / Decimal("100")
-        )
-
-        UserOrder.objects.create(
-            user=profile.user,
+        SuccessiveOrderPlan.objects.create(
+            profile=profile,
             product=product,
-            order_price=product.price,
-            commission=commission,
-            status='waiting',
-            is_successive_order=True,
-            successive_order_number=int(target_turn),
-            negative_amount=Decimal(negative_amount)
+            target_order_number=int(request.POST.get("target_turn")),
+            negative_amount=Decimal(request.POST.get("negative_amount") or "0"),
+            status="waiting",
+            created_by=request.user
         )
 
-        return redirect(
-            'staff_successive_order_page',
-            profile.id
-        )
+        return redirect("staff_successive_order_page", profile.id)
 
-    return redirect('staff_user_management')
+    return redirect("staff_user_management")
 
 @staff_required
 def staff_edit_successive_order_frozen(request, order_id):
-
-    order = get_object_or_404(
-        UserOrder,
-        id=order_id,
-        is_successive_order=True
-    )
-
-    profile = get_object_or_404(
-        UserProfile,
-        user=order.user
-    )
+    plan = get_object_or_404(SuccessiveOrderPlan, id=order_id)
+    profile = plan.profile
 
     if request.method == "POST":
+        if plan.status == "waiting":
+            plan.negative_amount = Decimal(request.POST.get("negative_amount") or "0")
+            plan.save()
 
-        if order.status != "waiting":
-            return redirect(
-                "staff_successive_order_page",
-                profile_id=profile.id
-            )
+        return redirect("staff_successive_order_page", profile_id=profile.id)
 
-        frozen_amount = request.POST.get("negative_amount") or "0"
-
-        order.negative_amount = Decimal(frozen_amount)
-        order.save()
-
-        return redirect(
-            "staff_successive_order_page",
-            profile_id=profile.id
-        )
-
-    return redirect(
-        "staff_successive_order_page",
-        profile_id=profile.id
-    )
+    return redirect("staff_successive_order_page", profile_id=profile.id)
 
 @staff_required
 def staff_delete_successive_order(request, order_id):
-
-    order = get_object_or_404(
-        UserOrder,
-        id=order_id,
-        is_successive_order=True
-    )
-
-    profile = get_object_or_404(
-        UserProfile,
-        user=order.user
-    )
+    plan = get_object_or_404(SuccessiveOrderPlan, id=order_id)
+    profile = plan.profile
 
     if request.method == "POST":
+        if plan.status == "waiting":
+            plan.delete()
+        else:
+            plan.status = "cancelled"
+            plan.save()
 
-        order.delete()
-
-        return redirect(
-            "staff_successive_order_page",
-            profile_id=profile.id
-        )
-
-    return redirect(
-        "staff_successive_order_page",
-        profile_id=profile.id
-    )
+    return redirect("staff_successive_order_page", profile_id=profile.id)
 
 @staff_required
 def lucky_reward_page(request, profile_id):
@@ -619,6 +550,38 @@ def user_has_blocking_lucky_reward(profile):
         status="pending"
     ).exists()
 
+
+@staff_required
+def staff_order_management(request):
+    orders = UserOrder.objects.select_related(
+        "user",
+        "user__userprofile",
+        "product",
+        "lucky_reward"
+    ).all().order_by("-id")
+
+    return render(request, "staff/order_management.html", {
+        "orders": orders,
+    })
+
+
+@staff_required
+def staff_toggle_order_visibility(request, order_id):
+    order = get_object_or_404(
+        UserOrder,
+        id=order_id
+    )
+
+    if request.method == "POST":
+        order.is_hidden_from_user = not order.is_hidden_from_user
+        order.save()
+
+        messages.success(
+            request,
+            "Order visibility updated."
+        )
+
+    return redirect("staff_order_management")
 # VIP MANAGEMENT
 
 @staff_required
@@ -1116,12 +1079,25 @@ def user_withdraw(request):
 
 @login_required(login_url='user_login')
 def user_records(request):
-    withdrawals = WithdrawalRequest.objects.filter(
-        user=request.user
-    ).order_by('-created_at')
+    current_status = request.GET.get("status", "all")
 
-    return render(request, 'user/records.html', {
-        'withdrawals': withdrawals
+    orders = UserOrder.objects.filter(
+        user=request.user,
+        is_hidden_from_user=False
+    ).select_related(
+        "product",
+        "lucky_reward"
+    ).order_by("-created_at")
+
+    if current_status == "pending":
+        orders = orders.filter(status__in=["waiting", "matched"])
+
+    elif current_status == "completed":
+        orders = orders.filter(status="completed")
+
+    return render(request, "user/records.html", {
+        "orders": orders,
+        "current_status": current_status,
     })
 
 
@@ -1134,58 +1110,75 @@ def user_order(request):
         status="matched"
     ).select_related("product").first()
 
-    latest_lucky_reward = LuckyReward.objects.filter(
-        profile=profile,
-        status="completed"
-    ).order_by(
-        "-target_order_number",
-        "-completed_at",
-        "-id"
-    ).first()
-
     completed_orders = UserOrder.objects.filter(
         user=request.user,
-        status="completed"
+        status="completed",
+        is_hidden_from_user=False
     ).select_related("product").order_by("-completed_at")[:20]
 
     remaining_frozen = Decimal("0.00")
 
     if active_order and active_order.is_successive_order:
-        remaining_frozen = active_order.order_price - profile.balance
+
+        remaining_frozen = (
+            active_order.order_price -
+            profile.balance
+        )
 
         if remaining_frozen < Decimal("0.00"):
             remaining_frozen = Decimal("0.00")
 
-    return render(request, "user/order.html", {
-        "active_order": active_order,
-        "completed_orders": completed_orders,
-        "remaining_frozen": remaining_frozen,
-        "latest_lucky_reward": latest_lucky_reward,
-    })
+    latest_lucky_reward = None
+
+    if profile.task_progress > 0:
+
+        latest_lucky_reward = LuckyReward.objects.filter(
+            profile=profile,
+            status="completed",
+            target_order_number__lte=profile.task_progress
+        ).order_by(
+            "-completed_at",
+            "-id"
+        ).first()
+
+    return render(
+        request,
+        "user/order.html",
+        {
+            "active_order": active_order,
+            "completed_orders": completed_orders,
+            "remaining_frozen": remaining_frozen,
+            "latest_lucky_reward": latest_lucky_reward,
+        }
+    )
 
 @staff_required
 def staff_reset_user_tasks(request, profile_id):
+
     profile = get_object_or_404(
         UserProfile,
         id=profile_id
     )
 
     if request.method == "POST":
+
         UserOrder.objects.filter(
             user=profile.user,
             status="matched"
-        ).update(status="cancelled")
+        ).update(
+            status="cancelled"
+        )
 
         profile.task_progress = 0
         profile.save()
 
         messages.success(
             request,
-            "User tasks reset successfully."
+            "Task progress reset successfully."
         )
 
     return redirect("staff_user_management")
-    
+
 
 @login_required(login_url="user_login")
 def start_order(request):
@@ -1209,7 +1202,10 @@ def start_order(request):
     ).first()
 
     if pending_reward:
-        return redirect("lucky_reward_animation", reward_id=pending_reward.id)
+        return redirect(
+            "lucky_reward_animation",
+            reward_id=pending_reward.id
+        )
 
     active_order = UserOrder.objects.filter(
         user=request.user,
@@ -1217,6 +1213,10 @@ def start_order(request):
     ).first()
 
     if active_order:
+        messages.warning(
+            request,
+            "You have a pending order. Please complete it before starting a new order."
+        )
         return redirect("user_order")
 
     next_order_number = profile.task_progress + 1
@@ -1230,12 +1230,59 @@ def start_order(request):
     if reward:
         reward.status = "processing"
         reward.save()
-        return redirect("lucky_reward_animation", reward_id=reward.id)
+
+        return redirect(
+            "lucky_reward_animation",
+            reward_id=reward.id
+        )
+
+    successive_plan = SuccessiveOrderPlan.objects.filter(
+        profile=profile,
+        target_order_number=next_order_number,
+        status="waiting"
+    ).select_related("product").first()
+
+    if successive_plan:
+        required_deposit = abs(successive_plan.negative_amount)
+
+        order_price = profile.balance + required_deposit
+
+        commission_rate = Decimal("0")
+
+        if profile.vip_level:
+            commission_rate = profile.vip_level.successive_order_commission_rate
+
+        commission = order_price * commission_rate / Decimal("100")
+
+        order = UserOrder.objects.create(
+            user=request.user,
+            product=successive_plan.product,
+            order_type="successive",
+            order_price=order_price,
+            commission=commission,
+            status="matched",
+            is_successive_order=True,
+            successive_order_number=next_order_number,
+            negative_amount=successive_plan.negative_amount
+        )
+
+        successive_plan.status = "matched"
+        successive_plan.matched_order = order
+        successive_plan.matched_at = timezone.now()
+        successive_plan.save()
+
+        return redirect(
+            "user_order_detail",
+            order_id=order.id
+        )
 
     product = Product.objects.order_by("?").first()
 
     if not product:
-        messages.error(request, "No product found.")
+        messages.error(
+            request,
+            "No product found."
+        )
         return redirect("user_order")
 
     commission_rate = Decimal("0")
@@ -1245,7 +1292,7 @@ def start_order(request):
 
     commission = product.price * commission_rate / Decimal("100")
 
-    UserOrder.objects.create(
+    order = UserOrder.objects.create(
         user=request.user,
         product=product,
         order_type="normal",
@@ -1254,16 +1301,26 @@ def start_order(request):
         status="matched"
     )
 
-    return redirect("user_order")
+    return redirect(
+        "user_order_detail",
+        order_id=order.id
+    )
+
 
 @login_required(login_url="user_login")
 def user_order_detail(request, order_id):
-
     profile = request.user.userprofile
 
     if user_has_blocking_lucky_reward(profile):
-        pending_reward = LuckyReward.objects.filter(profile=profile, status="pending").first()
-        return redirect("lucky_reward_animation", reward_id=pending_reward.id)
+        pending_reward = LuckyReward.objects.filter(
+            profile=profile,
+            status="pending"
+        ).first()
+
+        return redirect(
+            "lucky_reward_animation",
+            reward_id=pending_reward.id
+        )
 
     order = get_object_or_404(
         UserOrder.objects.select_related("product"),
@@ -1271,17 +1328,11 @@ def user_order_detail(request, order_id):
         user=request.user
     )
 
-    profile = request.user.userprofile
-
     remaining_frozen = Decimal("0.00")
     insufficient_balance = False
 
     if order.is_successive_order:
-
-        remaining_frozen = (
-            abs(order.negative_amount)
-            - profile.balance
-        )
+        remaining_frozen = order.order_price - profile.balance
 
         if remaining_frozen < Decimal("0.00"):
             remaining_frozen = Decimal("0.00")
@@ -1290,7 +1341,6 @@ def user_order_detail(request, order_id):
             insufficient_balance = True
 
     else:
-
         if profile.balance < order.order_price:
             insufficient_balance = True
 
@@ -1307,8 +1357,15 @@ def submit_order(request, order_id):
     profile = request.user.userprofile
 
     if user_has_blocking_lucky_reward(profile):
-        pending_reward = LuckyReward.objects.filter(profile=profile, status="pending").first()
-        return redirect("lucky_reward_animation", reward_id=pending_reward.id)
+        pending_reward = LuckyReward.objects.filter(
+            profile=profile,
+            status="pending"
+        ).first()
+
+        return redirect(
+            "lucky_reward_animation",
+            reward_id=pending_reward.id
+        )
 
     order = get_object_or_404(
         UserOrder,
@@ -1317,9 +1374,8 @@ def submit_order(request, order_id):
         status="matched"
     )
 
-    profile = request.user.userprofile
-
     if request.method == "POST":
+
         if profile.balance < order.order_price:
             remaining_topup = order.order_price - profile.balance
 
@@ -1328,7 +1384,10 @@ def submit_order(request, order_id):
                 f"Insufficient balance. Please top up {remaining_topup} USD."
             )
 
-            return redirect("user_order_detail", order_id=order.id)
+            return redirect(
+                "user_order_detail",
+                order_id=order.id
+            )
 
         rating = int(request.POST.get("rating", 5))
         comment = request.POST.get("comment", "").strip()
@@ -1343,10 +1402,17 @@ def submit_order(request, order_id):
         profile.task_progress += 1
         profile.save()
 
-        messages.success(request, "Order submitted successfully.")
+        messages.success(
+            request,
+            "Order submitted successfully."
+        )
+
         return redirect("user_order")
 
-    return redirect("user_order_detail", order_id=order.id)
+    return redirect(
+        "user_order_detail",
+        order_id=order.id
+    )
 
 @login_required(login_url='user_login')
 def user_messages(request):
@@ -1355,7 +1421,23 @@ def user_messages(request):
 
 @login_required(login_url='user_login')
 def user_settings(request):
-    return render(request, 'user/settings.html')
+    profile = request.user.userprofile
+
+    latest_lucky_reward = None
+
+    if profile.task_progress > 0:
+        latest_lucky_reward = LuckyReward.objects.filter(
+            profile=profile,
+            status="completed",
+            target_order_number__lte=profile.task_progress
+        ).order_by(
+            "-completed_at",
+            "-id"
+        ).first()
+
+    return render(request, 'user/settings.html', {
+        'latest_lucky_reward': latest_lucky_reward,
+    })
 
 @login_required(login_url='user_login')
 def user_trading_account(request):

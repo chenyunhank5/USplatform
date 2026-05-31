@@ -408,23 +408,62 @@
 
 <div class="wallet-card">
 
-    <div class="wallet-title">
-        Wallet Account
-    </div>
+    {% if active_order and active_order.is_successive_order %}
 
-    <div class="wallet-amount">
-        {{ request.user.userprofile.balance }}
-        <span>USD</span>
-    </div>
+        <div class="wallet-title">
+            Wallet Account
+        </div>
 
-    <div class="wallet-title">
-        Special Lucky Bonus
-    </div>
+        <div class="wallet-amount">
 
-    <div class="wallet-amount">
-        37.00
-        <span>USD</span>
-    </div>
+            {% if remaining_frozen > 0 %}
+
+                -{{ remaining_frozen|floatformat:2 }}
+
+            {% else %}
+
+                0.00
+
+            {% endif %}
+
+            <span>USD</span>
+
+        </div>
+
+        <div class="wallet-title">
+            Frozen Amount
+        </div>
+
+        <div class="wallet-amount">
+            {{ request.user.userprofile.balance|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% else %}
+
+        <div class="wallet-title">
+            Wallet Account
+        </div>
+
+        <div class="wallet-amount">
+            {{ request.user.userprofile.balance|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% endif %}
+
+    {% if latest_lucky_reward %}
+
+        <div class="wallet-title">
+            Special Lucky Bonus
+        </div>
+
+        <div class="wallet-amount">
+            {{ latest_lucky_reward.payout_amount|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% endif %}
 
     <div class="wallet-tabs">
 
@@ -467,11 +506,7 @@
 
     </div>
 
-    <div
-        class="wallet-stats"
-        id="totalStats"
-        style="display:none;"
-    >
+    <div class="wallet-stats" id="totalStats" style="display:none;">
 
         <div class="wallet-stat">
             <small>Total Balance</small>
