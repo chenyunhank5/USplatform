@@ -59,6 +59,11 @@
         background: #e5e7eb;
     }
 
+    video.hero-media::-webkit-media-controls-start-playback-button {
+        display: none !important;
+        -webkit-appearance: none;
+    }
+
     .menu-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -238,7 +243,8 @@
             muted
             loop
             playsinline
-            preload="metadata"
+            webkit-playsinline
+            preload="auto"
             disablepictureinpicture
             controlslist="nodownload noplaybackrate noremoteplayback"
             aria-label="Home banner video"
@@ -263,23 +269,37 @@
 
 {% if home_settings.banner_type == "video" and home_settings.banner_url %}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    (() => {
         const bannerVideo = document.getElementById('homeBannerVideo');
+        if (!bannerVideo) return;
 
-        if (bannerVideo) {
+        const startBannerVideo = () => {
             bannerVideo.defaultMuted = true;
             bannerVideo.muted = true;
+            bannerVideo.volume = 0;
             bannerVideo.loop = true;
+            bannerVideo.controls = false;
+            bannerVideo.setAttribute('muted', '');
+            bannerVideo.setAttribute('playsinline', '');
+            bannerVideo.setAttribute('webkit-playsinline', '');
 
-            const playAttempt = bannerVideo.play();
-
-            if (playAttempt !== undefined) {
-                playAttempt.catch(() => {
-                    // Some browsers wait until the banner is visible.
-                });
+            if (bannerVideo.paused) {
+                const playAttempt = bannerVideo.play();
+                if (playAttempt) playAttempt.catch(() => {});
             }
-        }
-    });
+        };
+
+        startBannerVideo();
+        ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough'].forEach((eventName) => {
+            bannerVideo.addEventListener(eventName, startBannerVideo);
+        });
+        window.addEventListener('pageshow', startBannerVideo);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) startBannerVideo();
+        });
+        document.addEventListener('pointerdown', startBannerVideo, { once: true, capture: true });
+        document.addEventListener('touchstart', startBannerVideo, { once: true, capture: true, passive: true });
+    })();
 </script>
 {% endif %}
 

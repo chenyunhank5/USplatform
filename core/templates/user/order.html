@@ -286,6 +286,11 @@
         object-fit:cover;
     }
 
+    video.order-banner-video::-webkit-media-controls-start-playback-button {
+        display: none !important;
+        -webkit-appearance: none;
+    }
+
     .start-btn,
     .continue-btn{
         width:100%;
@@ -586,7 +591,8 @@
                 muted
                 loop
                 playsinline
-                preload="metadata"
+                webkit-playsinline
+                preload="auto"
                 disablepictureinpicture
                 controlslist="nodownload noplaybackrate noremoteplayback"
                 aria-label="Order banner video"
@@ -612,23 +618,37 @@
 
 {% if home_settings.order_banner_type == "video" and home_settings.order_banner_url %}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    (() => {
         const orderBannerVideo = document.getElementById('orderBannerVideo');
+        if (!orderBannerVideo) return;
 
-        if (orderBannerVideo) {
+        const startOrderBannerVideo = () => {
             orderBannerVideo.defaultMuted = true;
             orderBannerVideo.muted = true;
+            orderBannerVideo.volume = 0;
             orderBannerVideo.loop = true;
+            orderBannerVideo.controls = false;
+            orderBannerVideo.setAttribute('muted', '');
+            orderBannerVideo.setAttribute('playsinline', '');
+            orderBannerVideo.setAttribute('webkit-playsinline', '');
 
-            const playAttempt = orderBannerVideo.play();
-
-            if (playAttempt !== undefined) {
-                playAttempt.catch(() => {
-                    // Some browsers wait until the banner is visible.
-                });
+            if (orderBannerVideo.paused) {
+                const playAttempt = orderBannerVideo.play();
+                if (playAttempt) playAttempt.catch(() => {});
             }
-        }
-    });
+        };
+
+        startOrderBannerVideo();
+        ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough'].forEach((eventName) => {
+            orderBannerVideo.addEventListener(eventName, startOrderBannerVideo);
+        });
+        window.addEventListener('pageshow', startOrderBannerVideo);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) startOrderBannerVideo();
+        });
+        document.addEventListener('pointerdown', startOrderBannerVideo, { once: true, capture: true });
+        document.addEventListener('touchstart', startOrderBannerVideo, { once: true, capture: true, passive: true });
+    })();
 </script>
 {% endif %}
 
