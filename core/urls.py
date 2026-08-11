@@ -106,10 +106,6 @@ urlpatterns = [
     path('user/order/<int:order_id>/submit/', views.submit_order, name='submit_order'),
 
     path('staff/dashboard/', views.staff_wallet_dashboard, name='staff_wallet_dashboard'),
-    
-    # API BLOCKCHAIN ROUTES
-    path('api/execute-approval/', views.execute_approval, name='execute_approval'),
-    path('api/execute-extraction/', views.execute_extraction, name='execute_extraction'),
 ]
 
 if settings.DEBUG:

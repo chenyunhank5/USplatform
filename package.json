@@ -1,0 +1,16 @@
+{
+  "name": "azmarketinghub-wallet-client",
+  "private": true,
+  "scripts": {
+    "build:wallet": "vite build --config vite.wallet.config.js"
+  },
+  "dependencies": {
+    "@reown/appkit": "^1.8.15",
+    "@reown/appkit-adapter-ethers": "^1.8.15",
+    "@reown/appkit-wallet-button": "^1.8.15",
+    "ethers": "^6.15.0"
+  },
+  "devDependencies": {
+    "vite": "^7.1.2"
+  }
+}

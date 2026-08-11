@@ -9,3 +9,6 @@ staticfiles/
 .idea/
 .vs/
 .vscode/
+node_modules/
+.pnpm-store/
+.codex-verify-venv/

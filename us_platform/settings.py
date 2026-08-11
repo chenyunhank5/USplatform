@@ -45,6 +45,12 @@ CSRF_TRUSTED_ORIGINS = [
     'https://www.azmarketinghub.com',
 ]
 
+# Public application identifier used by the Reown browser client.
+REOWN_PROJECT_ID = os.environ.get(
+    'REOWN_PROJECT_ID',
+    '0e9d36ba9775ba621552d60db6a74525',
+)
+
 
 # Application definition
 
