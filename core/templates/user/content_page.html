@@ -1,0 +1,97 @@
+{% extends "user/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+    .content-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: -14px -16px 0;
+        color: #fff;
+        background: #000;
+        border-bottom: 2px solid #d1d5db;
+    }
+
+    .content-back {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        width: 32px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        text-decoration: none;
+        transform: translateY(-50%);
+    }
+
+    .content-back::before {
+        width: 12px;
+        height: 12px;
+        content: "";
+        border-left: 2px solid #fff;
+        border-bottom: 2px solid #fff;
+        transform: rotate(45deg);
+    }
+
+    .content-header h1 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .managed-content {
+        padding: 28px 12px 34px;
+        color: #111;
+        font-size: 16px;
+        line-height: 1.65;
+        overflow-wrap: anywhere;
+    }
+
+    .managed-content h1,
+    .managed-content h2,
+    .managed-content h3 {
+        margin: 20px 0 10px;
+        line-height: 1.25;
+    }
+
+    .managed-content h1:first-child,
+    .managed-content h2:first-child,
+    .managed-content h3:first-child {
+        margin-top: 0;
+    }
+
+    .managed-content h1 { font-size: 24px; }
+    .managed-content h2 { font-size: 20px; }
+    .managed-content h3 { font-size: 17px; }
+
+    .managed-content p {
+        margin: 0 0 12px;
+    }
+
+    .managed-content img,
+    .managed-content video,
+    .managed-content iframe {
+        max-width: 100%;
+        border-radius: 8px;
+    }
+
+    .managed-content a {
+        color: #2f3cff;
+    }
+{% endblock %}
+
+{% block content %}
+<header class="content-header">
+    <a href="{% url back_url_name %}" class="content-back" aria-label="Go back"></a>
+    <h1>{{ page_title }}</h1>
+</header>
+
+<article class="managed-content">
+    {{ page_content|safe }}
+</article>
+{% endblock %}

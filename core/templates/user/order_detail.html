@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Order Detail</title>
+
+<style>
+body{
+    background:#f5f5f5;
+    margin:0;
+    font-family:Arial,sans-serif;
+    max-width:430px;
+    margin:auto;
+}
+
+.custom-alert{
+    position:fixed;
+    left:50%;
+    top:50%;
+    transform:translate(-50%, -50%);
+    background:#4a4a4a;
+    color:white;
+    padding:14px 26px;
+    border-radius:8px;
+    font-size:14px;
+    z-index:99999999;
+    opacity:0;
+    visibility:hidden;
+    transition:.25s ease;
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+    max-width:82%;
+    text-align:center;
+    line-height:1.4;
+}
+
+.custom-alert.show{
+    opacity:1;
+    visibility:visible;
+}
+
+.topbar{
+    height:50px;
+    background:#000;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:sticky;
+    top:0;
+    z-index:1000;
+    font-size:17px;
+    font-weight:bold;
+}
+
+.back-btn{
+    position:absolute;
+    left:14px;
+    color:white;
+    text-decoration:none;
+    font-size:28px;
+}
+
+.product-box{
+    background:white;
+    margin-bottom:10px;
+}
+
+.product-name{
+    padding:14px 16px;
+    font-size:15px;
+    line-height:1.5;
+    border-bottom:1px solid #eee;
+}
+
+.image-slider{
+    width:100%;
+    height:340px;
+    background:white;
+    overflow:hidden;
+    position:relative;
+}
+
+.slide-img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:none;
+    padding:10px;
+    box-sizing:border-box;
+}
+
+.slide-img.active{
+    display:block;
+}
+
+.slider-dots{
+    text-align:center;
+    padding:10px 0;
+    border-top:1px solid #eee;
+}
+
+.slider-dot{
+    width:8px;
+    height:8px;
+    background:#ccc;
+    border-radius:50%;
+    display:inline-block;
+    margin:0 4px;
+    cursor:pointer;
+}
+
+.slider-dot.active{
+    background:#111;
+}
+
+.price-box{
+    background:white;
+    padding:16px;
+    margin-bottom:10px;
+}
+
+.currency{
+    font-size:14px;
+    vertical-align:top;
+}
+
+.price{
+    font-size:38px;
+    font-weight:bold;
+}
+
+.stock{
+    color:#008a00;
+    margin-top:10px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.description-box{
+    background:white;
+    padding:16px;
+    margin-bottom:10px;
+    line-height:1.7;
+    color:#111;
+}
+
+.review-title-main{
+    padding:16px 16px 0;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.review-card{
+    background:white;
+    padding:16px;
+    border-bottom:1px solid #eee;
+}
+
+.review-user{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:6px;
+}
+
+.review-avatar{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background:#bbb;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.review-stars{
+    color:#ff9500;
+    font-size:16px;
+}
+
+.review-date{
+    font-size:13px;
+    color:#666;
+    margin-top:4px;
+}
+
+.review-text{
+    margin-top:8px;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.bottom-box{
+    position:fixed;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:0;
+    width:100%;
+    max-width:430px;
+    background:#f5f5f5;
+    padding:12px;
+    box-sizing:border-box;
+    box-shadow:0 -4px 12px rgba(0,0,0,.08);
+}
+
+.summary-box{
+    background:white;
+    border-radius:12px;
+    padding:12px;
+    cursor:pointer;
+}
+
+.vip-box{
+    background:#f5e4a5;
+    border-radius:10px;
+    padding:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+}
+
+.vip-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:bold;
+    font-size:14px;
+}
+
+.vip-icon{
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    background:black;
+    color:#ffd700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.qty{
+    background:black;
+    color:white;
+    border-radius:20px;
+    padding:6px 12px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:6px;
+}
+
+.summary-item{
+    text-align:center;
+}
+
+.summary-label{
+    font-size:11px;
+    font-weight:700;
+    color:#333;
+    line-height:1.3;
+    min-height:28px;
+}
+
+.summary-value{
+    margin-top:6px;
+    font-size:16px;
+    font-weight:800;
+    color:#000;
+}
+
+.order-details-box{
+    display:none;
+    margin-top:10px;
+    animation:fadeIn .2s ease;
+}
+
+.order-details-box.show{
+    display:block;
+}
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(5px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.review-submit-box{
+    background:#efefef;
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:10px;
+}
+
+.review-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+}
+
+.review-label{
+    font-size:14px;
+    font-weight:bold;
+}
+
+.stars{
+    display:flex;
+    gap:4px;
+}
+
+.star{
+    font-size:28px;
+    color:#ccc;
+    cursor:pointer;
+}
+
+.star.active{
+    color:#ffc400;
+}
+
+.review-input-wrap{
+    position:relative;
+}
+
+.review-textarea{
+    width:100%;
+    height:110px;
+    border:none;
+    border-radius:8px;
+    padding:14px;
+    resize:none;
+    box-sizing:border-box;
+    font-size:14px;
+}
+
+.auto-review-btn{
+    position:absolute;
+    right:10px;
+    bottom:10px;
+    border:none;
+    background:#111;
+    color:white;
+    height:30px;
+    border-radius:6px;
+    padding:0 12px;
+    font-size:12px;
+    cursor:pointer;
+}
+
+.extra-info-box{
+    background:white;
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:10px;
+}
+
+.extra-row{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:12px;
+    font-size:14px;
+    font-weight:bold;
+    gap:10px;
+}
+
+.extra-row:last-child{
+    margin-bottom:0;
+}
+
+.extra-row b{
+    text-align:right;
+    word-break:break-all;
+}
+
+.order-btn{
+    width:100%;
+    height:50px;
+    border:none;
+    background:#ff8a00;
+    color:white;
+    border-radius:10px;
+    font-size:20px;
+    font-weight:bold;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="custom-alert" id="customAlertBox"></div>
+
+<div class="topbar">
+    <a href="/user/order/" class="back-btn">‹</a>
+    Order
+</div>
+
+<div class="product-box">
+    <div class="product-name">
+        {{ order.product.name }}
+    </div>
+
+    <div class="image-slider" id="imageSlider">
+        {% if order.product.cover %}
+            <img src="{{ order.product.cover }}" class="slide-img active">
+        {% endif %}
+
+        {% if order.product.goods_album_1 %}
+            <img src="{{ order.product.goods_album_1 }}" class="slide-img">
+        {% endif %}
+
+        {% if order.product.goods_album_2 %}
+            <img src="{{ order.product.goods_album_2 }}" class="slide-img">
+        {% endif %}
+    </div>
+
+    <div class="slider-dots" id="sliderDots"></div>
+</div>
+
+<div class="price-box">
+    <span class="currency">USD</span>
+
+    <span class="price">
+        {{ order.order_price }}
+    </span>
+
+    <div class="stock">
+        In Stock
+    </div>
+</div>
+
+<div class="description-box">
+    {{ order.product.description|safe }}
+</div>
+
+<div class="review-title-main">
+    Customer Reviews
+</div>
+
+{% for review in reviews %}
+<div class="review-card">
+    <div class="review-user">
+        <div class="review-avatar">
+            {{ review.content|first|upper }}
+        </div>
+
+        <div>
+            <div class="review-stars">
+                ★★★★★
+            </div>
+
+            <div class="review-date">
+                {{ review.created_at|date:"M d, Y" }}
+            </div>
+        </div>
+    </div>
+
+    <div class="review-text">
+        {{ review.content }}
+    </div>
+</div>
+{% endfor %}
+
+<div style="height:450px;"></div>
+
+<div class="bottom-box">
+
+    <div class="summary-box" onclick="toggleOrderDetails()">
+
+        <div class="vip-box">
+            <div class="vip-left">
+                <div class="vip-icon">
+                    V2
+                </div>
+
+                <span>
+                    {{ request.user.userprofile.vip_level.level_name }}
+                </span>
+            </div>
+
+            <div class="qty">
+                Order Quantity :
+                {{ request.user.userprofile.vip_level.maximum_task }}
+            </div>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">
+                    Total Amount(USD)
+                </div>
+
+                <div class="summary-value">
+                    {{ order.order_price }}
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">
+                    Commission
+                </div>
+
+                <div class="summary-value">
+                    {% if order.is_successive_order %}
+                        {{ request.user.userprofile.vip_level.successive_order_commission_rate }}%
+                    {% else %}
+                        {{ request.user.userprofile.vip_level.commission_rate }}%
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">
+                    Commission Revenues(USD)
+                </div>
+
+                <div class="summary-value">
+                    {{ order.commission }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="order-details-box" id="orderDetailsBox">
+
+        <div class="extra-info-box">
+            <div class="extra-row">
+                <span>Created At</span>
+
+                <b>
+                    {{ order.created_at|date:"m-d-Y h:i:s a" }}
+                </b>
+            </div>
+
+            <div class="extra-row">
+                <span>NO :</span>
+
+                <b>
+                    {% if order.order_number %}
+                        {{ order.order_number }}
+                    {% else %}
+                        {{ order.id }}
+                    {% endif %}
+                </b>
+            </div>
+        </div>
+
+        <div class="review-submit-box">
+            <div class="review-top">
+                <div class="review-label">
+                    Click To Comment :
+                </div>
+
+                <div class="stars">
+                    <span class="star active" data-value="1">★</span>
+                    <span class="star active" data-value="2">★</span>
+                    <span class="star active" data-value="3">★</span>
+                    <span class="star active" data-value="4">★</span>
+                    <span class="star active" data-value="5">★</span>
+                </div>
+            </div>
+
+            <div class="review-input-wrap">
+                <textarea
+                    id="reviewTextarea"
+                    class="review-textarea"
+                    placeholder="Write a Review"></textarea>
+
+                <button
+                    type="button"
+                    class="auto-review-btn"
+                    onclick="fillRandomReview()">
+                    Automatic Review
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <form
+        method="POST"
+        action="{% url 'submit_order' order.id %}"
+        class="submit-form">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="rating"
+            id="hiddenRating"
+            value="5">
+
+        <textarea
+            name="comment"
+            id="hiddenComment"
+            hidden></textarea>
+
+        <button type="submit" class="order-btn">
+            Start Order
+        </button>
+
+    </form>
+
+</div>
+
+<script>
+function showAlert(message){
+    const alertBox = document.getElementById('customAlertBox');
+
+    if(!alertBox){
+        return;
+    }
+
+    alertBox.innerText = message;
+    alertBox.classList.add('show');
+
+    setTimeout(function(){
+        alertBox.classList.remove('show');
+    }, 2200);
+}
+
+function toggleOrderDetails(){
+    document
+        .getElementById("orderDetailsBox")
+        .classList
+        .toggle("show");
+}
+
+const stars = document.querySelectorAll(".star");
+let selectedRating = 5;
+
+stars.forEach(function(star){
+    star.addEventListener("click", function(){
+        selectedRating = parseInt(this.dataset.value);
+
+        stars.forEach(function(s){
+            s.classList.remove("active");
+        });
+
+        for(let i = 0; i < selectedRating; i++){
+            stars[i].classList.add("active");
+        }
+    });
+});
+
+const reviews = [
+    "Amazing quality and works perfectly.",
+    "Very satisfied with this product.",
+    "Fast shipping and excellent packaging.",
+    "Looks premium and high quality.",
+    "Worth the price and highly recommended.",
+    "Very comfortable and easy to use.",
+    "Exceeded my expectations."
+];
+
+function fillRandomReview(){
+    const randomReview =
+        reviews[Math.floor(Math.random() * reviews.length)];
+
+    document.getElementById("reviewTextarea").value = randomReview;
+}
+
+const submitForm = document.querySelector(".submit-form");
+
+submitForm.addEventListener("submit", function(event){
+    const commentText =
+        document.getElementById("reviewTextarea").value.trim();
+
+    if(!commentText){
+        event.preventDefault();
+
+        document
+            .getElementById("orderDetailsBox")
+            .classList
+            .add("show");
+
+        showAlert("Please write a review before starting the order.");
+
+        return;
+    }
+
+    document.getElementById("hiddenComment").value = commentText;
+    document.getElementById("hiddenRating").value = selectedRating;
+});
+
+let currentSlide = 0;
+
+const slides = document.querySelectorAll(".slide-img");
+const dotsBox = document.getElementById("sliderDots");
+
+slides.forEach(function(slide, index){
+    const dot = document.createElement("span");
+
+    dot.className = "slider-dot";
+
+    if(index === 0){
+        dot.classList.add("active");
+    }
+
+    dot.onclick = function(){
+        showSlide(index);
+    };
+
+    dotsBox.appendChild(dot);
+});
+
+const dots = document.querySelectorAll(".slider-dot");
+
+function showSlide(index){
+    if(slides.length === 0){
+        return;
+    }
+
+    slides[currentSlide].classList.remove("active");
+    dots[currentSlide].classList.remove("active");
+
+    currentSlide = index;
+
+    slides[currentSlide].classList.add("active");
+    dots[currentSlide].classList.add("active");
+}
+</script>
+
+{% if messages %}
+<script>
+window.addEventListener("load", function(){
+    {% for message in messages %}
+        showAlert("{{ message|escapejs }}");
+    {% endfor %}
+});
+</script>
+{% endif %}
+
+</body>
+</html>

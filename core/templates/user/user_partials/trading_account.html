@@ -1,0 +1,152 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Trading Account{% endblock %}
+
+{% block extra_css %}
+    .content{
+        padding:0 !important;
+        background:#f5f6f8;
+        min-height:100vh;
+    }
+
+    .topbar{
+        height:44px;
+        background:#000;
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        position:relative;
+        font-size:16px;
+        font-weight:bold;
+    }
+
+    .back-btn{
+        position:absolute;
+        left:14px;
+        color:white;
+        text-decoration:none;
+        font-size:30px;
+        line-height:1;
+    }
+
+    .page{
+        padding:32px 16px 90px;
+    }
+
+    .wallet-row{
+        background:#fff7d8;
+        border-radius:8px;
+        padding:18px 12px;
+        display:flex;
+        align-items:center;
+        gap:12px;
+    }
+
+    .wallet-icon{
+        width:58px;
+        height:58px;
+        background:white;
+        border-radius:2px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-shrink:0;
+    }
+
+    .wallet-icon img{
+        width:34px;
+        height:34px;
+        object-fit:contain;
+    }
+
+    .wallet-info{
+        flex:1;
+        min-width:0;
+    }
+
+    .wallet-title{
+        font-size:15px;
+        font-weight:bold;
+        color:#000;
+        margin-bottom:8px;
+    }
+
+    .wallet-address{
+        font-size:14px;
+        color:#000;
+        font-weight:bold;
+        word-break:break-all;
+    }
+
+    .edit-btn{
+        width:28px;
+        height:28px;
+        border-radius:7px;
+        background:#b8f15d;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#1f2937;
+        text-decoration:none;
+        font-size:17px;
+        flex-shrink:0;
+        border:0;
+        cursor:pointer;
+    }
+
+    .message{
+        background:#eef0ff;
+        color:#202bb5;
+        border:1px solid #cbd0ff;
+        padding:10px;
+        border-radius:6px;
+        margin-bottom:12px;
+        text-align:center;
+        font-size:13px;
+    }
+{% endblock %}
+
+{% block content %}
+
+<div class="topbar">
+    <a href="{% url 'user_settings' %}" class="back-btn">&#8249;</a>
+    Trading Account
+</div>
+
+<div class="page">
+
+    <div class="wallet-row">
+
+        <div class="wallet-icon">
+            <img src="{{ home_settings.wallet_icon_url }}" alt="Wallet">
+        </div>
+
+        <div class="wallet-info">
+
+            <div class="wallet-title">
+                Digital Currency Wallet Address
+            </div>
+
+            <div class="wallet-address">
+                {% if profile.wallet_address %}
+                    {{ profile.wallet_address|slice:":3" }}***{{ profile.wallet_address|slice:"-2:" }}
+                {% else %}
+                    Not set
+                {% endif %}
+            </div>
+
+        </div>
+
+        <a href="{% url 'user_edit_wallet_address' %}" class="edit-btn" aria-label="Edit wallet address">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
+            </svg>
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

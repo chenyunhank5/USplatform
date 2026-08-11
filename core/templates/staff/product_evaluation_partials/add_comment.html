@@ -1,0 +1,178 @@
+<style>
+
+    .modal-overlay{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.70);
+        z-index:9999;
+        padding-top:120px;
+    }
+
+    .modal-box{
+        width:620px;
+        max-width:92%;
+        background:#111;
+        border:1px solid #444;
+        margin:0 auto;
+        color:white;
+    }
+
+    .modal-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:16px 20px;
+        border-bottom:1px solid #555;
+        font-size:18px;
+        font-weight:bold;
+    }
+
+    .modal-header button{
+        background:none;
+        border:0;
+        color:#aaa;
+        font-size:24px;
+        cursor:pointer;
+    }
+
+    .modal-body{
+        padding:24px 30px;
+    }
+
+    .form-row{
+        margin-bottom:18px;
+    }
+
+    .form-row label{
+        display:block;
+        margin-bottom:8px;
+        color:#ddd;
+        font-weight:bold;
+    }
+
+    .form-row select,
+    .form-row textarea{
+        width:100%;
+        background:#0f0f0f;
+        border:1px solid #444;
+        color:white;
+        padding:11px 12px;
+        outline:none;
+        border-radius:3px;
+    }
+
+    .form-row textarea{
+        min-height:140px;
+        resize:vertical;
+        line-height:1.6;
+    }
+
+    .modal-footer{
+        border-top:1px solid #555;
+        padding:16px 30px;
+        text-align:right;
+    }
+
+    .submit-btn{
+        background:#409eff;
+        color:white;
+        border:0;
+        padding:10px 24px;
+        border-radius:3px;
+        cursor:pointer;
+        margin-right:8px;
+    }
+
+    .cancel-btn{
+        background:#222;
+        color:white;
+        border:1px solid #555;
+        padding:10px 24px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+
+</style>
+
+<div class="modal-overlay" id="addCommentModal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <span>Add comment</span>
+
+            <button type="button" onclick="closeAddCommentModal()">
+                ×
+            </button>
+
+        </div>
+
+        <form method="POST" action="{% url 'staff_add_product_evaluation' %}">
+
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                <div class="form-row">
+
+                    <label>Star level</label>
+
+                    <select name="star_level">
+                        <option value="5.0">5.0</option>
+                        <option value="4.0">4.0</option>
+                        <option value="3.0">3.0</option>
+                        <option value="2.0">2.0</option>
+                        <option value="1.0">1.0</option>
+                    </select>
+
+                </div>
+
+                <div class="form-row">
+
+                    <label>Content</label>
+
+                    <textarea
+                        name="content"
+                        placeholder="Write auto comment..."
+                        required
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="submit" class="submit-btn">
+                    Submit
+                </button>
+
+                <button
+                    type="button"
+                    class="cancel-btn"
+                    onclick="closeAddCommentModal()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+function openAddCommentModal(){
+    document.getElementById('addCommentModal').style.display = 'block';
+}
+
+function closeAddCommentModal(){
+    document.getElementById('addCommentModal').style.display = 'none';
+}
+
+</script>

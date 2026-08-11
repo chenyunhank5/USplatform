@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        *{
+            box-sizing:border-box;
+        }
+
+        body{
+            margin:0;
+            font-family:Arial, sans-serif;
+            background:#f3f4f6;
+        }
+
+        .mobile-page{
+            max-width:430px;
+            min-height:100vh;
+            margin:0 auto;
+            position:relative;
+            overflow:hidden;
+            background:
+                linear-gradient(rgba(255,255,255,.78), rgba(255,255,255,.78)),
+                url("https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?auto=format&fit=crop&w=900&q=80");
+            background-size:cover;
+            background-position:center;
+            padding:12px 24px 24px;
+        }
+
+        .top-actions{
+            display:flex;
+            gap:8px;
+            align-items:center;
+            margin-bottom:34px;
+        }
+
+        .circle-btn{
+            width:30px;
+            height:30px;
+            border-radius:50%;
+            background:#2f3cff;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:18px;
+        }
+
+        .lang-btn{
+            height:30px;
+            border-radius:20px;
+            background:#2f3cff;
+            color:white;
+            display:flex;
+            align-items:center;
+            gap:7px;
+            padding:0 12px;
+            font-size:13px;
+            font-weight:bold;
+        }
+
+        .main-logo{
+            text-align:center;
+            margin-bottom:88px;
+        }
+
+        .main-logo .logo-line{
+            font-family:Georgia, "Times New Roman", serif;
+            font-size:54px;
+            line-height:.9;
+            letter-spacing:-1px;
+            color:#2f3cff;
+            font-weight:700;
+        }
+
+        .login-card{
+            background:#f7f8fb;
+            margin-bottom:32px;
+        }
+
+        .input-row{
+            height:58px;
+            display:flex;
+            align-items:center;
+            border-bottom:1px solid #111;
+            padding:0 26px;
+        }
+
+        .input-row:last-child{
+            border-bottom:0;
+        }
+
+        .input-row input{
+            flex:1;
+            border:0;
+            outline:0;
+            background:transparent;
+            color:#111827;
+            font-size:14px;
+        }
+
+        .input-row input::placeholder{
+            color:#b8bdc6;
+        }
+
+        .eye-btn{
+            color:#2f3cff;
+            font-size:20px;
+            cursor:pointer;
+            user-select:none;
+        }
+
+        .login-btn,
+        .register-btn{
+            width:100%;
+            height:58px;
+            border:0;
+            border-radius:4px;
+            font-size:17px;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            text-decoration:none;
+            cursor:pointer;
+        }
+
+        .login-btn{
+            background:#2f3cff;
+            margin-bottom:14px;
+        }
+
+        .register-btn{
+            background:#000;
+            margin-bottom:14px;
+        }
+
+        .terms{
+            text-align:center;
+            font-size:14px;
+            color:#111;
+            line-height:2.2;
+        }
+
+        .terms a{
+            color:inherit;
+            text-decoration:none;
+        }
+
+        .terms a:hover{
+            color:#2f3cff;
+            text-decoration:underline;
+        }
+
+        .bottom-logo{
+            text-align:center;
+            margin-top:8px;
+            color:#2f3cff;
+        }
+
+        .bottom-logo .logo-line{
+            font-family:Georgia, "Times New Roman", serif;
+            font-size:39px;
+            line-height:.9;
+            letter-spacing:-1px;
+            font-weight:700;
+        }
+
+        .copyright{
+            position:absolute;
+            bottom:18px;
+            left:0;
+            right:0;
+            text-align:center;
+            font-size:14px;
+            color:#111;
+        }
+
+        .message{
+            margin:0 0 14px;
+            padding:12px;
+            border-radius:6px;
+            font-size:14px;
+            background:#eef0ff;
+            color:#202bb5;
+            border:1px solid #cbd0ff;
+            text-align:center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="mobile-page">
+
+    <div class="top-actions">
+        <div class="circle-btn">🎧</div>
+
+        <div class="lang-btn">
+            🌐 ENGLISH
+        </div>
+    </div>
+
+    <div class="main-logo">
+        <div class="logo-line">LANDOR</div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="login-card">
+
+            <div class="input-row">
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="Username or phone number"
+                    autocomplete="username"
+                    required
+                >
+            </div>
+
+            <div class="input-row">
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    required
+                    id="passwordInput"
+                >
+
+                <span class="eye-btn" onclick="togglePassword()">👁</span>
+            </div>
+
+        </div>
+
+        <button type="submit" class="login-btn">
+            Login
+        </button>
+
+        <a href="{% url 'user_register' %}" class="register-btn">
+            Register
+        </a>
+
+    </form>
+
+    <div class="terms">
+        <div>
+            <a href="{% url 'terms_and_conditions' %}">
+                Terms and Conditions
+            </a>
+        </div>
+        <div>Terms Of Use For Personal Information</div>
+    </div>
+
+    <div class="bottom-logo">
+        <div class="logo-line">LANDOR</div>
+    </div>
+
+    <div class="copyright">
+        Landor. All Rights Reserved.
+    </div>
+
+</div>
+
+<script>
+function togglePassword(){
+    const input = document.getElementById('passwordInput');
+
+    if(input.type === 'password'){
+        input.type = 'text';
+    }else{
+        input.type = 'password';
+    }
+}
+</script>
+
+</body>
+</html>

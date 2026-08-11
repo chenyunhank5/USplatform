@@ -1,0 +1,157 @@
+<div id="resetTasksModal"
+     style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.7);
+        z-index:999999;
+        align-items:center;
+        justify-content:center;
+     ">
+
+    <div style="
+        width:420px;
+        max-width:95%;
+        background:#111;
+        border:1px solid #333;
+        border-radius:8px;
+        overflow:hidden;
+        color:white;
+    ">
+
+        <!-- HEADER -->
+
+        <div style="
+            padding:16px 20px;
+            border-bottom:1px solid #333;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        ">
+
+            <div style="
+                font-size:18px;
+                font-weight:bold;
+            ">
+                Reset User Tasks
+            </div>
+
+            <button type="button"
+                    onclick="closeResetTasksModal()"
+                    style="
+                        background:none;
+                        border:none;
+                        color:#999;
+                        font-size:24px;
+                        cursor:pointer;
+                    ">
+                ×
+            </button>
+
+        </div>
+
+        <!-- BODY -->
+
+        <div style="
+            padding:24px 20px;
+            font-size:14px;
+            line-height:1.8;
+            color:#ddd;
+        ">
+
+            <div style="margin-bottom:12px;">
+                Username:
+                <b id="resetTasksUsername"></b>
+            </div>
+
+            <div style="margin-bottom:12px;">
+                Current Progress:
+                <b id="resetTasksProgress"></b>
+            </div>
+
+            <div style="
+                background:#2a130f;
+                border:1px solid #5b211b;
+                color:#ffb4a9;
+                padding:12px;
+                border-radius:6px;
+                margin-top:16px;
+            ">
+                This will reset the user's task progress back to 0.
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+
+        <div style="
+            padding:16px 20px;
+            border-top:1px solid #333;
+            display:flex;
+            justify-content:flex-end;
+            gap:10px;
+        ">
+
+            <button type="button"
+                    onclick="closeResetTasksModal()"
+                    style="
+                        background:#222;
+                        border:1px solid #444;
+                        color:white;
+                        padding:10px 18px;
+                        border-radius:6px;
+                        cursor:pointer;
+                    ">
+                Cancel
+            </button>
+
+            <form id="resetTasksForm" method="POST">
+
+                {% csrf_token %}
+
+                <button type="submit"
+                        style="
+                            background:#e53935;
+                            border:none;
+                            color:white;
+                            padding:10px 18px;
+                            border-radius:6px;
+                            cursor:pointer;
+                            font-weight:bold;
+                        ">
+                    Reset Tasks
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function openResetTasksModal(profileId, username, progress){
+
+    document.getElementById("resetTasksModal").style.display = "flex";
+
+    document.getElementById("resetTasksUsername").innerText =
+        username;
+
+    document.getElementById("resetTasksProgress").innerText =
+        progress;
+
+    document.getElementById("resetTasksForm").action =
+        "/staff/reset-user-tasks/" + profileId + "/";
+
+}
+
+function closeResetTasksModal(){
+
+    document.getElementById("resetTasksModal").style.display =
+        "none";
+
+}
+
+</script>

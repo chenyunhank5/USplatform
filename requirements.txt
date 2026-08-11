@@ -1,0 +1,11 @@
+Django>=6.0,<6.2
+daphne==4.1.2
+channels==4.1.0
+gunicorn
+whitenoise
+Pillow
+asgiref
+sqlparse
+tzdata
+web3
+python-dotenv

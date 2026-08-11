@@ -1,0 +1,647 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Order{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-row{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        margin-bottom:18px;
+    }
+
+    .avatar{
+        width:62px;
+        height:62px;
+        border-radius:50%;
+        overflow:hidden;
+        background:white;
+        flex-shrink:0;
+        box-shadow:0 4px 12px rgba(47,60,255,.25);
+    }
+
+    .avatar img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+    }
+
+    .username{
+        font-weight:bold;
+        font-size:17px;
+        display:flex;
+        align-items:center;
+        gap:6px;
+        margin-bottom:5px;
+    }
+
+    .username-vip-img{
+        width:20px;
+        height:20px;
+        object-fit:cover;
+        border-radius:6px;
+        flex-shrink:0;
+    }
+
+    .vip-badge{
+        background:#111827;
+        color:#facc15;
+        padding:3px 6px;
+        border-radius:4px;
+        font-size:12px;
+    }
+
+    .credit-row{
+        display:flex;
+        align-items:center;
+        gap:6px;
+        font-weight:bold;
+        flex-wrap:wrap;
+    }
+
+    .label-gray{
+        color:#6b7280;
+    }
+
+    .credit-bar-wrapper{
+        width:90px;
+        height:8px;
+        background:#e5e7eb;
+        border-radius:20px;
+        overflow:hidden;
+    }
+
+    .credit-bar{
+        height:100%;
+        background:#2f3cff;
+        border-radius:20px;
+    }
+
+    .wallet-card{
+        background:linear-gradient(135deg,#2f3cff,#6670ff);
+        color:white;
+        border-radius:14px;
+        padding:20px 16px;
+        margin-bottom:18px;
+        position:relative;
+        overflow:hidden;
+    }
+
+    .wallet-card::before{
+        content:'';
+        position:absolute;
+        left:-30px;
+        top:40px;
+        width:180px;
+        height:180px;
+        border-radius:50%;
+        background:rgba(255,255,255,0.08);
+    }
+
+    .wallet-card::after{
+        content:'';
+        position:absolute;
+        right:-40px;
+        bottom:-40px;
+        width:160px;
+        height:160px;
+        border-radius:50%;
+        background:rgba(255,255,255,0.06);
+    }
+
+    .wallet-title{
+        font-weight:bold;
+        font-size:15px;
+        margin-bottom:8px;
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-amount{
+        font-size:30px;
+        font-weight:bold;
+        margin-bottom:16px;
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-amount span{
+        font-size:12px;
+        font-weight:normal;
+    }
+
+    .wallet-tabs{
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-tabs button{
+        background:transparent;
+        border:1px solid rgba(255,255,255,.75);
+        color:white;
+        padding:6px 10px;
+        border-radius:20px;
+        margin-right:6px;
+        font-size:12px;
+    }
+
+    .wallet-tabs .active{
+        background:white;
+        color:#2f3cff;
+        border-color:white;
+        font-weight:bold;
+    }
+
+    .wallet-stats{
+        display:flex;
+        margin-top:14px;
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-stat{
+        flex:1;
+        border-right:1px solid rgba(255,255,255,.55);
+        padding-right:8px;
+    }
+
+    .wallet-stat:last-child{
+        border-right:0;
+        padding-left:10px;
+    }
+
+    .wallet-stat small{
+        display:block;
+        margin-bottom:8px;
+    }
+
+    .wallet-stat b{
+        font-size:18px;
+    }
+
+    .info-buttons{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+        margin-bottom:14px;
+    }
+
+    .info-btn{
+        height:58px;
+        background:white;
+        border-radius:8px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        font-weight:bold;
+        font-size:13px;
+        color:#000;
+        text-decoration:none;
+        box-shadow:0 3px 10px rgba(0,0,0,.04);
+    }
+
+    .info-btn img{
+        width:24px;
+        height:24px;
+        object-fit:contain;
+    }
+
+    .vip-row{
+        background:white;
+        border-radius:8px;
+        padding:8px;
+        display:flex;
+        align-items:center;
+        margin-bottom:14px;
+        box-shadow:0 3px 10px rgba(0,0,0,.04);
+    }
+
+    .vip-row .left{
+        font-weight:bold;
+        display:flex;
+        align-items:center;
+        gap:8px;
+    }
+
+    .vip-img{
+        width:30px;
+        height:30px;
+        border-radius:6px;
+        object-fit:cover;
+        background:#111827;
+        flex-shrink:0;
+    }
+
+    .fallback-vip{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#facc15;
+        font-size:11px;
+        font-weight:bold;
+    }
+
+    .commission{
+        margin-left:auto;
+        background:#2f3cff;
+        color:#000;
+        padding:8px 10px;
+        border-radius:8px;
+        font-weight:bold;
+    }
+
+    .animation-box{
+        min-height:202px;
+        background:#2f3cff;
+        border-radius:12px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin-bottom:20px;
+        overflow:hidden;
+        border:0;
+        position:relative;
+    }
+
+    .center-logo-img{
+        width:92px;
+        height:92px;
+        object-fit:contain;
+    }
+
+    .order-banner-image,
+    .order-banner-video{
+        width:100%;
+        height:202px;
+        display:block;
+    }
+
+    .order-banner-image{
+        object-fit:contain;
+    }
+
+    .order-banner-video{
+        object-fit:cover;
+    }
+
+    .start-btn,
+    .continue-btn{
+        width:100%;
+        height:44px;
+        border:0;
+        border-radius:4px;
+        background:#2f3cff;
+        color:white;
+        font-size:15px;
+        font-weight:bold;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        text-decoration:none;
+    }
+
+    .start-btn:active,
+    .continue-btn:active{
+        transform:scale(.99);
+    }
+
+    .matched-card{
+        width:100%;
+        background:white;
+        border-radius:14px;
+        padding:14px;
+        box-shadow:0 8px 22px rgba(0,0,0,.12);
+    }
+
+    .matched-title{
+        font-size:17px;
+        font-weight:bold;
+        color:#111827;
+        margin-bottom:10px;
+        text-align:center;
+    }
+
+    .product-img{
+        width:100%;
+        height:120px;
+        object-fit:cover;
+        border-radius:10px;
+        background:#f3f4f6;
+        margin-bottom:10px;
+    }
+
+    .product-name{
+        font-size:15px;
+        font-weight:bold;
+        color:#111827;
+        margin-bottom:8px;
+    }
+
+    .product-row{
+        display:flex;
+        justify-content:space-between;
+        font-size:13px;
+        margin-bottom:6px;
+        color:#374151;
+    }
+
+    .product-row b{
+        color:#2f3cff;
+    }
+
+    .history-section{
+        margin-top:22px;
+        padding-bottom:20px;
+    }
+
+    .history-title{
+        font-size:16px;
+        font-weight:bold;
+        margin-bottom:10px;
+    }
+
+    .history-card{
+        background:white;
+        border-radius:10px;
+        padding:12px;
+        margin-bottom:10px;
+        box-shadow:0 3px 10px rgba(0,0,0,.04);
+    }
+
+    .history-product{
+        font-weight:bold;
+        font-size:14px;
+        margin-bottom:6px;
+    }
+
+    .history-row{
+        display:flex;
+        justify-content:space-between;
+        font-size:12px;
+        color:#6b7280;
+        margin-bottom:4px;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-row">
+    <div class="avatar">
+        <img src="{{ home_settings.default_profile_icon_url }}" alt="Profile">
+    </div>
+
+    <div>
+        <div class="username">
+            {{ request.user.username }}
+
+            {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
+                <img
+                    src="{{ request.user.userprofile.vip_level.icon.url }}"
+                    class="username-vip-img"
+                >
+            {% else %}
+                <span class="vip-badge">
+                    {{ request.user.userprofile.vip_level }}
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="credit-row">
+            <span class="label-gray">Credit Score :</span>
+
+            <div class="credit-bar-wrapper">
+                <div
+                    class="credit-bar"
+                    style="width:{{ request.user.userprofile.credit_score }}%;"
+                ></div>
+            </div>
+
+            {{ request.user.userprofile.credit_score }}%
+        </div>
+    </div>
+</div>
+
+<div class="wallet-card">
+
+    {% if active_order and active_order.is_successive_order %}
+
+        <div class="wallet-title">
+            Wallet Account
+        </div>
+
+        <div class="wallet-amount">
+
+            {% if remaining_frozen > 0 %}
+
+                -{{ remaining_frozen|floatformat:2 }}
+
+            {% else %}
+
+                0.00
+
+            {% endif %}
+
+            <span>USD</span>
+
+        </div>
+
+        <div class="wallet-title">
+            Frozen Amount
+        </div>
+
+        <div class="wallet-amount">
+            {{ request.user.userprofile.balance|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% else %}
+
+        <div class="wallet-title">
+            Wallet Account
+        </div>
+
+        <div class="wallet-amount">
+            {{ request.user.userprofile.balance|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% endif %}
+
+    {% if latest_lucky_reward %}
+
+        <div class="wallet-title">
+            Special Lucky Bonus
+        </div>
+
+        <div class="wallet-amount">
+            {{ latest_lucky_reward.payout_amount|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% endif %}
+
+    <div class="wallet-tabs">
+        <button class="active">
+            Todays Earnings
+        </button>
+
+        <button>
+            Total Earnings
+        </button>
+    </div>
+
+    <div class="wallet-stats">
+
+        <div class="wallet-stat">
+
+            <small>
+                Order Revenue
+            </small>
+
+            <b>
+                {% if active_order %}
+                    {{ active_order.commission|floatformat:2 }}
+                {% else %}
+                    0.00
+                {% endif %}
+            </b>
+
+        </div>
+
+        <div class="wallet-stat">
+
+            <small>
+                Team
+            </small>
+
+            <b>
+                0
+            </b>
+
+        </div>
+
+        <div class="wallet-stat">
+
+            <small>
+                Total Earnings
+            </small>
+
+            <b>
+                0
+            </b>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="info-buttons">
+    <a href="{% url 'order_description' %}" class="info-btn">
+        <img src="{{ home_settings.order_description_icon_url }}" alt="Order Description">
+        Order Description
+    </a>
+
+    <a href="{% url 'please_note' %}" class="info-btn">
+        <img src="{{ home_settings.please_note_icon_url }}" alt="Please Note">
+        Please Note
+    </a>
+</div>
+
+<div class="vip-row">
+    <div class="left">
+        {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
+            <img
+                src="{{ request.user.userprofile.vip_level.icon.url }}"
+                class="vip-img"
+            >
+        {% else %}
+            <div class="vip-img fallback-vip">
+                VIP
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="commission">
+        Comm x
+        {% if request.user.userprofile.vip_level %}
+            {{ request.user.userprofile.vip_level.commission_rate|floatformat:"-1" }}%
+        {% else %}
+            0%
+        {% endif %}
+    </div>
+</div>
+
+<div class="animation-box">
+    {% if home_settings.order_banner_url %}
+        {% if home_settings.order_banner_type == "video" %}
+            <video
+                id="orderBannerVideo"
+                class="order-banner-video"
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="metadata"
+                disablepictureinpicture
+                controlslist="nodownload noplaybackrate noremoteplayback"
+                aria-label="Order banner video"
+            >
+                <source src="{{ home_settings.order_banner_url }}">
+                Your browser does not support video playback.
+            </video>
+        {% else %}
+            <img
+                src="{{ home_settings.order_banner_url }}"
+                class="order-banner-image"
+                alt="Order banner"
+            >
+        {% endif %}
+    {% else %}
+        <img
+            src="{{ home_settings.order_nav_active_url }}"
+            class="center-logo-img"
+            alt="Order banner"
+        >
+    {% endif %}
+</div>
+
+{% if home_settings.order_banner_type == "video" and home_settings.order_banner_url %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const orderBannerVideo = document.getElementById('orderBannerVideo');
+
+        if (orderBannerVideo) {
+            orderBannerVideo.defaultMuted = true;
+            orderBannerVideo.muted = true;
+            orderBannerVideo.loop = true;
+
+            const playAttempt = orderBannerVideo.play();
+
+            if (playAttempt !== undefined) {
+                playAttempt.catch(() => {
+                    // Some browsers wait until the banner is visible.
+                });
+            }
+        }
+    });
+</script>
+{% endif %}
+
+
+<a href="{% url 'start_order' %}" class="start-btn">
+    Start (
+    {{ request.user.userprofile.task_progress }}/
+    {% if request.user.userprofile.vip_level %}
+        {{ request.user.userprofile.vip_level.maximum_task }}
+    {% else %}
+        40
+    {% endif %}
+    )
+</a>
+
+{% endblock %}

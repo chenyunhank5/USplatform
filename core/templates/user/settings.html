@@ -1,0 +1,688 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+
+    body{
+        background:#f5f5f5;
+    }
+
+    .profile-row{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        margin-bottom:18px;
+    }
+
+    .avatar{
+        width:62px;
+        height:62px;
+        border-radius:50%;
+        overflow:hidden;
+        flex-shrink:0;
+        box-shadow:0 4px 12px rgba(47,60,255,.25);
+        background:white;
+    }
+
+    .avatar img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+    }
+
+    .username{
+        font-weight:bold;
+        font-size:17px;
+        display:flex;
+        align-items:center;
+        gap:6px;
+        margin-bottom:5px;
+        color:#111827;
+    }
+
+    .username-vip-img{
+        width:20px;
+        height:20px;
+        border-radius:6px;
+        object-fit:cover;
+        flex-shrink:0;
+    }
+
+    .vip-badge{
+        background:#111827;
+        color:#facc15;
+        padding:3px 6px;
+        border-radius:4px;
+        font-size:12px;
+    }
+
+    .credit-row,
+    .invite-row{
+        display:flex;
+        align-items:center;
+        gap:6px;
+        font-weight:bold;
+        margin-top:5px;
+        flex-wrap:wrap;
+        font-size:13px;
+    }
+
+    .label-gray{
+        color:#6b7280;
+    }
+
+    .credit-bar-wrapper{
+        width:90px;
+        height:8px;
+        background:#e5e7eb;
+        border-radius:20px;
+        overflow:hidden;
+    }
+
+    .credit-bar{
+        height:100%;
+        background:#2f3cff;
+        border-radius:20px;
+    }
+
+    .copy-btn{
+        background:#eef0ff;
+        color:#2f3cff;
+        border:1px solid #cbd0ff;
+        padding:4px 10px;
+        border-radius:20px;
+        font-weight:bold;
+        cursor:pointer;
+    }
+
+    .wallet-card{
+        background:linear-gradient(135deg,#2f3cff,#6670ff);
+        color:white;
+        border-radius:14px;
+        padding:20px 16px;
+        margin-bottom:20px;
+        position:relative;
+        overflow:hidden;
+        box-shadow:0 10px 24px rgba(47,60,255,.25);
+    }
+
+    .wallet-card::before{
+        content:'';
+        position:absolute;
+        left:-40px;
+        top:30px;
+        width:180px;
+        height:180px;
+        border-radius:50%;
+        background:rgba(255,255,255,0.08);
+    }
+
+    .wallet-card::after{
+        content:'';
+        position:absolute;
+        right:-50px;
+        bottom:-50px;
+        width:170px;
+        height:170px;
+        border-radius:50%;
+        background:rgba(255,255,255,0.06);
+    }
+
+    .wallet-title{
+        font-weight:bold;
+        margin-bottom:8px;
+        position:relative;
+        z-index:2;
+        font-size:14px;
+    }
+
+    .wallet-amount{
+        font-size:30px;
+        font-weight:bold;
+        margin-bottom:16px;
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-amount span{
+        font-size:12px;
+        font-weight:normal;
+    }
+
+    .wallet-tabs{
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-tabs button{
+        background:transparent;
+        border:1px solid rgba(255,255,255,.7);
+        color:white;
+        padding:6px 10px;
+        border-radius:20px;
+        margin-right:6px;
+        font-size:12px;
+    }
+
+    .wallet-tabs .active{
+        background:white;
+        color:#2f3cff;
+        border-color:white;
+        font-weight:bold;
+    }
+
+    .wallet-stats{
+        display:flex;
+        margin-top:16px;
+        position:relative;
+        z-index:2;
+    }
+
+    .wallet-stat{
+        flex:1;
+        border-right:1px solid rgba(255,255,255,.5);
+        padding-right:8px;
+    }
+
+    .wallet-stat:last-child{
+        border-right:0;
+        padding-left:10px;
+    }
+
+    .wallet-stat small{
+        display:block;
+        margin-bottom:8px;
+        opacity:.9;
+    }
+
+    .wallet-stat b{
+        font-size:20px;
+    }
+
+    .section-title{
+        font-weight:bold;
+        margin:20px 0 14px;
+        font-size:17px;
+        color:#111827;
+    }
+
+    .menu-grid{
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:10px;
+    }
+
+    .menu-card{
+        height:86px;
+        text-decoration: none;
+        color: inherit;
+        background:white;
+        border-radius:14px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        font-weight:bold;
+        text-align:center;
+        font-size:13px;
+        box-shadow:0 4px 14px rgba(0,0,0,.05);
+    }
+
+    .menu-icon{
+        width:46px;
+        height:46px;
+        border-radius:12px;
+        background:#eef0ff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin-bottom:8px;
+    }
+
+    .menu-icon img{
+        width:40px;
+        height:40px;
+        object-fit:contain;
+    }
+
+    .vip-card{
+        height:66px;
+        background:linear-gradient(135deg,#2f3cff,#6670ff);
+        border-radius:14px;
+        color:white;
+        display:flex;
+        align-items:center;
+        padding:0 14px;
+        font-weight:bold;
+        font-size:18px;
+        box-shadow:0 6px 18px rgba(47,60,255,.25);
+    }
+
+    .vip-card-img{
+        width:36px;
+        height:36px;
+        border-radius:8px;
+        object-fit:cover;
+        flex-shrink:0;
+    }
+
+    .vip-current{
+        margin-left:auto;
+        font-size:14px;
+    }
+
+    .other-box{
+        background:white;
+        border-radius:14px;
+        overflow:hidden;
+        box-shadow:0 4px 14px rgba(0,0,0,.05);
+    }
+
+    .other-row{
+        height:66px;
+        display:flex;
+        align-items:center;
+        padding:0 16px;
+        border-bottom:1px solid #f3f4f6;
+        font-size:15px;
+        color:#111827;
+        text-decoration:none;
+    }
+
+    .other-row:last-child{
+        border-bottom:0;
+    }
+
+    .other-row img{
+        width:24px;
+        height:24px;
+        object-fit:contain;
+    }
+
+    .other-row span{
+        margin-left:14px;
+    }
+
+    .other-row .arrow{
+        margin-left:auto;
+        color:#c4c4c4;
+        font-size:24px;
+    }
+
+    .logout-btn{
+        width:100%;
+        height:48px;
+        background:linear-gradient(135deg,#2f3cff,#6670ff);
+        color:white;
+        border-radius:12px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        text-decoration:none;
+        font-weight:bold;
+        margin-top:20px;
+        font-size:15px;
+        box-shadow:0 6px 18px rgba(47,60,255,.25);
+    }
+
+    .copyright{
+        text-align:center;
+        color:#000000;
+        margin-top:22px;
+        font-size:13px;
+        margin-bottom:20px;
+        font-weight:500;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-row">
+
+    <div class="avatar">
+        <img src="{{ home_settings.default_profile_icon_url }}" alt="Profile">
+    </div>
+
+    <div>
+
+      <div class="username">
+
+          {{ request.user.username }}
+
+          {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
+
+              <img
+                  src="{{ request.user.userprofile.vip_level.icon.url }}"
+                  class="username-vip-img"
+              >
+
+          {% else %}
+
+              <span class="vip-badge">
+                  {{ request.user.userprofile.vip_level }}
+              </span>
+
+          {% endif %}
+
+      </div>
+
+        <div class="credit-row">
+
+            <span class="label-gray">
+                Credit Score:
+            </span>
+
+            <div class="credit-bar-wrapper">
+
+                <div
+                    class="credit-bar"
+                    style="width:{{ request.user.userprofile.credit_score }}%;"
+                ></div>
+
+            </div>
+
+            {{ request.user.userprofile.credit_score }}%
+
+        </div>
+
+        <div class="invite-row">
+
+            <span class="label-gray">
+                Invitation Code:
+            </span>
+
+            {{ request.user.userprofile.invite_code }}
+
+            <button type="button" class="copy-btn" onclick="copyInviteCode('{{ request.user.userprofile.invite_code }}')">
+                Copy
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="wallet-card">
+
+    {% if active_order and active_order.is_successive_order %}
+
+        <div class="wallet-title">
+            Wallet Account
+        </div>
+
+        <div class="wallet-amount">
+
+            {% if remaining_frozen > 0 %}
+
+                -{{ remaining_frozen|floatformat:2 }}
+
+            {% else %}
+
+                0.00
+
+            {% endif %}
+
+            <span>USD</span>
+
+        </div>
+
+        <div class="wallet-title">
+            Frozen Amount
+        </div>
+
+        <div class="wallet-amount">
+            {{ request.user.userprofile.balance|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% else %}
+
+        <div class="wallet-title">
+            Wallet Account
+        </div>
+
+        <div class="wallet-amount">
+            {{ request.user.userprofile.balance|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% endif %}
+
+    {% if latest_lucky_reward %}
+
+        <div class="wallet-title">
+            Special Lucky Bonus
+        </div>
+
+        <div class="wallet-amount">
+            {{ latest_lucky_reward.payout_amount|floatformat:2 }}
+            <span>USD</span>
+        </div>
+
+    {% endif %}
+
+    <div class="wallet-tabs">
+
+        <button
+            type="button"
+            class="wallet-tab-btn active"
+            id="todayTabBtn"
+            onclick="showWalletTab('today')"
+        >
+            Todays Earnings
+        </button>
+
+        <button
+            type="button"
+            class="wallet-tab-btn"
+            id="totalTabBtn"
+            onclick="showWalletTab('total')"
+        >
+            Total Earnings
+        </button>
+
+    </div>
+
+    <div class="wallet-stats" id="todayStats">
+
+        <div class="wallet-stat">
+            <small>Order Revenue</small>
+            <b>{{ request.user.userprofile.today_profit|default:"0" }}</b>
+        </div>
+
+        <div class="wallet-stat">
+            <small>Team</small>
+            <b>0</b>
+        </div>
+
+        <div class="wallet-stat">
+            <small>Today Earnings</small>
+            <b>{{ request.user.userprofile.today_profit|default:"0" }}</b>
+        </div>
+
+    </div>
+
+    <div class="wallet-stats" id="totalStats" style="display:none;">
+
+        <div class="wallet-stat">
+            <small>Total Balance</small>
+            <b>{{ request.user.userprofile.balance }}</b>
+        </div>
+
+        <div class="wallet-stat">
+            <small>Total Team</small>
+            <b>0</b>
+        </div>
+
+        <div class="wallet-stat">
+            <small>Total Earnings</small>
+            <b>{{ request.user.userprofile.balance }}</b>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="section-title">
+    Transaction History
+</div>
+
+<div class="menu-grid">
+
+    <div class="menu-card">
+        <div class="menu-icon">
+            <img src="{{ home_settings.settings_deposit_icon_url }}" alt="Deposit">
+        </div>
+        Deposit
+    </div>
+
+    <a
+        href="javascript:void(0);"
+        class="menu-card"
+        onclick="openWithdrawPasswordModal('{% url 'user_withdraw' %}')"
+    >
+        <div class="menu-icon">
+            <img src="{{ home_settings.settings_withdraw_icon_url }}" alt="Withdraw">
+        </div>
+        Withdraw
+    </a>
+
+    <a href="javascript:void(0);" class="menu-card" onclick="openWithdrawPasswordModal('{% url 'user_trading_account' %}')">
+        <div class="menu-icon">
+            <img src="{{ home_settings.trading_account_icon_url }}" alt="Trading Account">
+        </div>
+        Trading Account
+    </a>
+
+    <a href="{% url 'user_personal_information' %}" class="menu-card">
+        <div class="menu-icon">
+            <img src="{{ home_settings.personal_information_icon_url }}" alt="Personal Information">
+        </div>
+        Personal Information
+    </a>
+
+</div>
+
+<div class="section-title">
+    VIP Levels
+</div>
+
+<div class="vip-card">
+
+    {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
+
+        <img
+            src="{{ request.user.userprofile.vip_level.icon.url }}"
+            class="vip-card-img"
+        >
+
+    {% else %}
+
+        <span class="vip-badge">
+            V1
+        </span>
+
+    {% endif %}
+
+    &nbsp;
+
+    {{ request.user.userprofile.vip_level }}
+
+    <div class="vip-current">
+        Current VIP Level
+    </div>
+
+</div>
+
+<div class="section-title">
+    Other
+</div>
+
+<div class="other-box">
+
+    <div class="other-row">
+
+        <img src="{{ home_settings.official_announcement_icon_url }}" alt="Official Announcement">
+
+        <span>
+            Official Announcement
+        </span>
+
+        <div class="arrow">
+            ›
+        </div>
+
+    </div>
+
+    <a href="{% url 'more_services' %}" class="other-row">
+
+        <img src="{{ home_settings.more_services_icon_url }}" alt="More Services">
+
+        <span>
+            More Services
+        </span>
+
+        <div class="arrow">
+            ›
+        </div>
+
+    </a>
+
+</div>
+
+<a href="{% url 'user_logout' %}" class="logout-btn">
+    Logout
+</a>
+
+<div class="copyright">
+    Landor. All Rights Reserved.
+</div>
+
+<script>
+function copyInviteCode(code){
+
+    navigator.clipboard.writeText(code)
+    .then(() => {
+        showAlert("Invitation Code Copied Successfully");
+    })
+    .catch(() => {
+        showAlert("Failed To Copy Invitation Code");
+    });
+
+}
+
+function showWalletTab(type){
+
+    const todayStats = document.getElementById('todayStats');
+    const totalStats = document.getElementById('totalStats');
+
+    const todayBtn = document.getElementById('todayTabBtn');
+    const totalBtn = document.getElementById('totalTabBtn');
+
+    if(type === 'today'){
+
+        todayStats.style.display = 'flex';
+        totalStats.style.display = 'none';
+
+        todayBtn.classList.add('active');
+        totalBtn.classList.remove('active');
+
+    }else{
+
+        todayStats.style.display = 'flex';
+        totalStats.style.display = 'flex';
+
+        todayStats.style.display = 'none';
+
+        totalBtn.classList.add('active');
+        todayBtn.classList.remove('active');
+
+    }
+}
+</script>
+{% endblock %}

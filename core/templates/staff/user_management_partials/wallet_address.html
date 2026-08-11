@@ -1,0 +1,41 @@
+<div class="security-overlay" id="walletAddressModal">
+    <div class="security-box">
+        <div class="security-header">
+            <span>Edit Wallet Address</span>
+            <button type="button" onclick="closeWalletAddressModal()">×</button>
+        </div>
+
+        <form method="POST" id="walletAddressForm">
+            {% csrf_token %}
+
+            <div class="security-body">
+                <label>Wallet address</label>
+                <input type="text" name="wallet_address" id="walletAddressInput">
+            </div>
+
+            <div class="security-footer">
+                <button type="submit" class="security-submit">Submit</button>
+                <button type="button" class="security-cancel" onclick="closeWalletAddressModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+  function openWalletAddressModal(profileId){
+
+      document.getElementById('floatingOperateMenu').style.display = 'none';
+
+      document.getElementById('walletAddressForm').action =
+          '/staff/user/' + profileId + '/wallet-address/';
+
+      document.getElementById('walletAddressInput').value =
+          selectedWalletAddress || '';
+
+      document.getElementById('walletAddressModal').style.display = 'block';
+  }
+
+  function closeWalletAddressModal(){
+      document.getElementById('walletAddressModal').style.display = 'none';
+  }
+</script>

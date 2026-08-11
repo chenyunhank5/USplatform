@@ -1,0 +1,229 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Landor{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        *{
+            box-sizing:border-box;
+        }
+
+        body{
+            margin:0;
+            font-family:Arial, sans-serif;
+            background:#f5f7fb;
+            color:#111827;
+        }
+
+        .app{
+            max-width:430px;
+            margin:0 auto;
+            min-height:100vh;
+            background:white;
+            padding-bottom:90px;
+            position:relative;
+        }
+
+        .content{
+            padding:14px 16px;
+        }
+
+        .bottom-nav{
+            position:fixed;
+            bottom:0;
+            left:50%;
+            transform:translateX(-50%);
+            width:100%;
+            max-width:430px;
+            height:78px;
+            background:white;
+            border-top:1px solid #e5e7eb;
+            display:flex;
+            justify-content:space-around;
+            align-items:center;
+            z-index:100;
+        }
+
+        .nav-item{
+            text-align:center;
+            font-size:12px;
+            color:#777;
+            text-decoration:none;
+            width:20%;
+            transition:.2s;
+        }
+
+        .nav-item.active{
+            color:#2f3cff;
+            font-weight:bold;
+        }
+
+        .nav-icon-img{
+            width:38px;
+            height:38px;
+            object-fit:contain;
+            margin:0 auto 4px;
+            display:block;
+        }
+
+        .order-center{
+            margin-top:-38px;
+        }
+
+        .order-circle{
+            width:78px;
+            height:78px;
+            border-radius:50%;
+            background:white;
+            margin:0 auto 4px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border:5px solid #f5f7fb;
+        }
+
+        .order-circle img{
+            width:78px;
+            height:78px;
+            object-fit:contain;
+        }
+
+        .custom-alert{
+            position:fixed;
+            left:50%;
+            top:50%;
+            transform:translate(-50%, -50%);
+            background:#4a4a4a;
+            color:white;
+            padding:14px 26px;
+            border-radius:8px;
+            font-size:14px;
+            z-index:99999;
+            opacity:0;
+            visibility:hidden;
+            transition:.25s ease;
+            box-shadow:0 8px 20px rgba(0,0,0,.18);
+            max-width:82%;
+            text-align:center;
+            line-height:1.4;
+        }
+
+        .custom-alert.show{
+            opacity:1;
+            visibility:visible;
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <nav class="bottom-nav">
+
+        <a href="{% url 'user_home' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'user_home' or request.resolver_match.url_name == 'transaction_notice' or request.resolver_match.url_name == 'campaign' or request.resolver_match.url_name == 'illustrate' or request.resolver_match.url_name == 'faqs' or request.resolver_match.url_name == 'company_profile' %}active{% endif %}">
+
+            {% if request.resolver_match.url_name == 'user_home' or request.resolver_match.url_name == 'transaction_notice' or request.resolver_match.url_name == 'campaign' or request.resolver_match.url_name == 'illustrate' or request.resolver_match.url_name == 'faqs' or request.resolver_match.url_name == 'company_profile' %}
+                <img src="{{ home_settings.home_nav_active_url }}" class="nav-icon-img" alt="Home">
+            {% else %}
+                <img src="{{ home_settings.home_nav_inactive_url }}" class="nav-icon-img" alt="Home">
+            {% endif %}
+
+            Home
+        </a>
+
+        <a href="{% url 'user_records' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'user_records' %}active{% endif %}">
+
+            {% if request.resolver_match.url_name == 'user_records' %}
+                <img src="{{ home_settings.records_nav_active_url }}" class="nav-icon-img" alt="Records">
+            {% else %}
+                <img src="{{ home_settings.records_nav_inactive_url }}" class="nav-icon-img" alt="Records">
+            {% endif %}
+
+            Records
+        </a>
+
+        <a href="{% url 'user_order' %}"
+           class="nav-item order-center {% if request.resolver_match.url_name == 'user_order' or request.resolver_match.url_name == 'user_order_detail' or request.resolver_match.url_name == 'order_description' or request.resolver_match.url_name == 'please_note' %}active{% endif %}">
+
+            <div class="order-circle">
+                {% if request.resolver_match.url_name == 'user_order' or request.resolver_match.url_name == 'user_order_detail' or request.resolver_match.url_name == 'order_description' or request.resolver_match.url_name == 'please_note' %}
+                    <img src="{{ home_settings.order_nav_active_url }}" alt="Order">
+                {% else %}
+                    <img src="{{ home_settings.order_nav_inactive_url }}" alt="Order">
+                {% endif %}
+            </div>
+
+            Order
+        </a>
+
+        <a href="{% url 'user_messages' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'user_messages' or request.resolver_match.url_name == 'customer_service' %}active{% endif %}">
+
+            {% if request.resolver_match.url_name == 'user_messages' or request.resolver_match.url_name == 'customer_service' %}
+                <img src="{{ home_settings.messages_nav_active_url }}" class="nav-icon-img" alt="Messages">
+            {% else %}
+                <img src="{{ home_settings.messages_nav_inactive_url }}" class="nav-icon-img" alt="Messages">
+            {% endif %}
+
+            Messages
+        </a>
+
+        <a href="{% url 'user_settings' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'user_settings' or request.resolver_match.url_name == 'more_services' or request.resolver_match.url_name == 'my_team' or request.resolver_match.url_name == 'user_trading_account' or request.resolver_match.url_name == 'user_edit_wallet_address' or request.resolver_match.url_name == 'user_personal_information' or request.resolver_match.url_name == 'user_update_email' or request.resolver_match.url_name == 'user_update_password' or request.resolver_match.url_name == 'user_update_transaction_password' %}active{% endif %}">
+
+            {% if request.resolver_match.url_name == 'user_settings' or request.resolver_match.url_name == 'more_services' or request.resolver_match.url_name == 'my_team' or request.resolver_match.url_name == 'user_trading_account' or request.resolver_match.url_name == 'user_edit_wallet_address' or request.resolver_match.url_name == 'user_personal_information' or request.resolver_match.url_name == 'user_update_email' or request.resolver_match.url_name == 'user_update_password' or request.resolver_match.url_name == 'user_update_transaction_password' %}
+                <img src="{{ home_settings.settings_nav_active_url }}" class="nav-icon-img" alt="Settings">
+            {% else %}
+                <img src="{{ home_settings.settings_nav_inactive_url }}" class="nav-icon-img" alt="Settings">
+            {% endif %}
+
+            Settings
+        </a>
+
+    </nav>
+
+</div>
+
+<div class="custom-alert" id="customAlertBox"></div>
+
+{% include 'user/user_partials/withdrawal_password.html' %}
+
+<script>
+function showAlert(message){
+    const alertBox = document.getElementById('customAlertBox');
+
+    if(!alertBox){
+        return;
+    }
+
+    alertBox.innerText = message;
+    alertBox.classList.add('show');
+
+    setTimeout(() => {
+        alertBox.classList.remove('show');
+    }, 2200);
+}
+</script>
+
+{% if messages %}
+<script>
+    {% for message in messages %}
+        showAlert("{{ message|escapejs }}");
+    {% endfor %}
+</script>
+{% endif %}
+
+</body>
+</html>

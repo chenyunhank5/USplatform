@@ -1,0 +1,163 @@
+<div
+    id="editFrozenOverlay"
+    class="edit-frozen-overlay"
+    style="display:none;"
+>
+
+    <div class="edit-frozen-box">
+
+        <div class="edit-frozen-header">
+            Edit frozen amount
+        </div>
+
+        <form
+            method="POST"
+            id="editFrozenForm"
+        >
+            {% csrf_token %}
+
+            <div class="edit-frozen-body">
+
+                <label>
+                    Frozen Amount
+                </label>
+
+                <input
+                    type="number"
+                    step="0.01"
+                    name="negative_amount"
+                    id="editFrozenInput"
+                    required
+                >
+
+            </div>
+
+            <div class="edit-frozen-footer">
+
+                <button
+                    type="submit"
+                    class="edit-frozen-submit"
+                >
+                    Save
+                </button>
+
+                <button
+                    type="button"
+                    class="edit-frozen-cancel"
+                    onclick="closeEditFrozenModal()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<style>
+.edit-frozen-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.70);
+    z-index:999999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+}
+
+.edit-frozen-box{
+    width:380px;
+    max-width:92%;
+    background:#111;
+    border:1px solid #444;
+    color:white;
+}
+
+.edit-frozen-header{
+    padding:16px 18px;
+    border-bottom:1px solid #333;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.edit-frozen-body{
+    padding:22px 18px;
+}
+
+.edit-frozen-body label{
+    display:block;
+    margin-bottom:8px;
+    color:#ddd;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.edit-frozen-body input{
+    width:100%;
+    background:#151515;
+    border:1px solid #555;
+    color:white;
+    padding:10px 12px;
+    outline:none;
+    border-radius:3px;
+}
+
+.edit-frozen-footer{
+    padding:14px 18px;
+    border-top:1px solid #333;
+    text-align:right;
+}
+
+.edit-frozen-submit{
+    background:#409eff;
+    color:white;
+    border:0;
+    padding:8px 18px;
+    border-radius:3px;
+    cursor:pointer;
+    margin-right:8px;
+}
+
+.edit-frozen-cancel{
+    background:#222;
+    color:white;
+    border:1px solid #555;
+    padding:8px 18px;
+    border-radius:3px;
+    cursor:pointer;
+}
+</style>
+
+<script>
+function openEditFrozenModal(orderId, frozenAmount){
+
+    const overlay = document.getElementById(
+        "editFrozenOverlay"
+    );
+
+    const form = document.getElementById(
+        "editFrozenForm"
+    );
+
+    const input = document.getElementById(
+        "editFrozenInput"
+    );
+
+    form.action =
+        "/staff/edit-successive-order-frozen/" + orderId + "/";
+
+    input.value = frozenAmount;
+
+    overlay.style.display = "flex";
+}
+
+function closeEditFrozenModal(){
+
+    document.getElementById(
+        "editFrozenOverlay"
+    ).style.display = "none";
+}
+</script>

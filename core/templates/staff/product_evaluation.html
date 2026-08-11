@@ -1,0 +1,186 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Product Evaluation{% endblock %}
+{% block page_title %}Product management{% endblock %}
+{% block page_subtitle %}Product evaluation{% endblock %}
+
+{% block extra_css %}
+<style>
+
+    .top-line{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:14px;
+    }
+
+    .add-btn{
+        background:#409eff;
+        color:white;
+        border:0;
+        padding:9px 18px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+
+    .table-scroll{
+        width:100%;
+        overflow:auto;
+        border:1px solid #333;
+        background:#111;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        font-size:13px;
+    }
+
+    th{
+        background:#171717;
+        color:#6b7280;
+        padding:13px 12px;
+        border:1px solid #333;
+        text-align:center;
+    }
+
+    td{
+        padding:14px 12px;
+        border:1px solid #333;
+        background:#151515;
+        color:#e5e7eb;
+        text-align:center;
+        vertical-align:middle;
+    }
+
+    tr:nth-child(even) td{
+        background:#181818;
+    }
+
+    tr:hover td{
+        background:#242424;
+    }
+
+    .content-text{
+        max-width:720px;
+        margin:auto;
+        line-height:1.6;
+        font-weight:600;
+    }
+
+    .operate{
+        white-space:nowrap;
+    }
+
+    .operate a{
+        text-decoration:none;
+        margin-right:10px;
+        font-size:13px;
+    }
+
+    .edit-link{
+        color:#409eff;
+    }
+
+    .delete-link{
+        color:#ef4444;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="panel">
+
+    <div class="top-line">
+
+        <button
+            type="button"
+            class="add-btn"
+            onclick="openAddCommentModal()"
+        >
+            ＋ Add comment
+        </button>
+
+    </div>
+
+    <div class="table-scroll">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th style="width:80px;">ID</th>
+                    <th style="width:180px;">Star level</th>
+                    <th>Content</th>
+                    <th style="width:220px;">Operate</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for comment in comments %}
+
+                <tr>
+
+                    <td>{{ comment.id }}</td>
+
+                    <td>
+                        <b>{{ comment.star_level }}</b>
+                    </td>
+
+                    <td>
+                        <div class="content-text">
+                            {{ comment.content }}
+                        </div>
+                    </td>
+
+                    <td class="operate">
+
+                        <a href="#"
+                           class="edit-link"
+                           onclick="openEditCommentModal(
+                               '{{ comment.id }}',
+                               '{{ comment.star_level }}',
+                               '{{ comment.content|escapejs }}'
+                           )">
+                            ✎Edit
+                        </a>
+
+                        <a href="#"
+                           class="delete-link"
+                           onclick="openDeleteCommentModal(
+                               '{{ comment.id }}',
+                               '{{ comment.content|truncatechars:50|escapejs }}'
+                           )">
+                            🗑Delete
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="4">No comments found.</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% include 'staff/product_evaluation_partials/add_comment.html' %}
+{% include 'staff/product_evaluation_partials/edit_comment.html' %}
+{% include 'staff/product_evaluation_partials/delete_comment.html' %}
+
+{% endblock %}

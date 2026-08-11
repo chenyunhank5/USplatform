@@ -1,0 +1,258 @@
+<div id="orderVisibilityModal"
+     style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.75);
+        z-index:999999;
+        align-items:center;
+        justify-content:center;
+     ">
+
+    <div style="
+        width:650px;
+        max-width:95%;
+        background:#111;
+        border:1px solid #333;
+        border-radius:8px;
+        overflow:hidden;
+        color:white;
+    ">
+
+        <!-- HEADER -->
+
+        <div style="
+            padding:16px 20px;
+            border-bottom:1px solid #333;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        ">
+
+            <div id="visibilityModalTitle"
+                 style="
+                    font-size:18px;
+                    font-weight:bold;
+                 ">
+                Hide Order Record
+            </div>
+
+            <button
+                type="button"
+                onclick="closeOrderVisibilityModal()"
+                style="
+                    background:none;
+                    border:none;
+                    color:#999;
+                    font-size:24px;
+                    cursor:pointer;
+                "
+            >
+                ×
+            </button>
+
+        </div>
+
+        <!-- BODY -->
+
+        <div style="
+            padding:24px 20px;
+            color:#ddd;
+            line-height:1.8;
+        ">
+
+            <div style="
+                background:#1a1a1a;
+                border:1px solid #333;
+                border-radius:8px;
+                padding:16px;
+                margin-bottom:16px;
+            ">
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span style="color:#888;">Username</span>
+                    <b id="modalUsername"></b>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span style="color:#888;">Phone Number</span>
+                    <b id="modalPhone"></b>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span style="color:#888;">Order ID</span>
+                    <b id="modalOrderId"></b>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span style="color:#888;">Order Type</span>
+                    <b id="modalOrderType"></b>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span style="color:#888;">Product Name</span>
+                    <b id="modalProduct"></b>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span style="color:#888;">Order Price</span>
+                    <b id="modalPrice"></b>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span style="color:#888;">Commission</span>
+                    <b id="modalCommission"></b>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                    <span style="color:#888;">Status</span>
+                    <b id="modalStatus"></b>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:#888;">Created Time</span>
+                    <b id="modalCreated"></b>
+                </div>
+
+            </div>
+
+            <div id="modalMessage"
+                 style="
+                    background:#2a130f;
+                    border:1px solid #5b211b;
+                    color:#ffb4a9;
+                    padding:12px;
+                    border-radius:6px;
+                 ">
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+
+        <div style="
+            padding:16px 20px;
+            border-top:1px solid #333;
+            display:flex;
+            justify-content:flex-end;
+            gap:10px;
+        ">
+
+            <button
+                type="button"
+                onclick="closeOrderVisibilityModal()"
+                style="
+                    background:#222;
+                    border:1px solid #444;
+                    color:white;
+                    padding:10px 18px;
+                    border-radius:6px;
+                    cursor:pointer;
+                "
+            >
+                Cancel
+            </button>
+
+            <form id="orderVisibilityForm" method="POST">
+
+                {% csrf_token %}
+
+                <button
+                    id="modalActionButton"
+                    type="submit"
+                    style="
+                        background:#f59e0b;
+                        border:none;
+                        color:white;
+                        padding:10px 18px;
+                        border-radius:6px;
+                        cursor:pointer;
+                        font-weight:bold;
+                    "
+                >
+                    Hide Order
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function openOrderVisibilityModal(
+    orderId,
+    username,
+    phone,
+    orderType,
+    productName,
+    orderPrice,
+    commission,
+    status,
+    createdAt,
+    isHidden
+){
+
+    document.getElementById("orderVisibilityModal").style.display = "flex";
+
+    document.getElementById("modalOrderId").innerText = orderId;
+    document.getElementById("modalUsername").innerText = username;
+    document.getElementById("modalPhone").innerText = phone;
+    document.getElementById("modalOrderType").innerText = orderType;
+    document.getElementById("modalProduct").innerText = productName;
+    document.getElementById("modalPrice").innerText = orderPrice;
+    document.getElementById("modalCommission").innerText = commission;
+    document.getElementById("modalStatus").innerText = status;
+    document.getElementById("modalCreated").innerText = createdAt;
+
+    const button = document.getElementById("modalActionButton");
+    const title = document.getElementById("visibilityModalTitle");
+    const message = document.getElementById("modalMessage");
+
+    if(isHidden === "true"){
+
+        title.innerText = "Unhide Order Record";
+
+        button.innerText = "Unhide Order";
+
+        button.style.background = "#22c55e";
+
+        message.innerHTML = `
+            This order is currently hidden from the user's order history.
+            <br><br>
+            Clicking Unhide will make it visible again.
+        `;
+
+    }else{
+
+        title.innerText = "Hide Order Record";
+
+        button.innerText = "Hide Order";
+
+        button.style.background = "#f59e0b";
+
+        message.innerHTML = `
+            This order will be hidden from the user's order history.
+            <br><br>
+            Staff will still be able to see this order record.
+            <br><br>
+            You can restore it later using Unhide.
+        `;
+
+    }
+
+    document.getElementById("orderVisibilityForm").action =
+        "/staff/toggle-order-visibility/" + orderId + "/";
+
+}
+
+function closeOrderVisibilityModal(){
+
+    document.getElementById("orderVisibilityModal").style.display = "none";
+
+}
+
+</script>

@@ -1,0 +1,562 @@
+{% extends "staff/base.html" %}
+
+{% block title %}Website Content Editor{% endblock %}
+{% block page_title %}Website Content Editor{% endblock %}
+{% block page_subtitle %}Content management{% endblock %}
+
+{% block extra_css %}
+    .content-editor {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .editor-tabs {
+        display: flex;
+        gap: 6px;
+        padding: 8px;
+        overflow-x: auto;
+        background: #181818;
+        border: 1px solid #333;
+        border-radius: 5px 5px 0 0;
+    }
+
+    .tab-button {
+        flex: 0 0 auto;
+        padding: 11px 16px;
+        color: #b8bec9;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .tab-button:hover {
+        color: #fff;
+        background: #252525;
+    }
+
+    .tab-button.active {
+        color: #fff;
+        background: #2f3cff;
+        border-color: #6670ff;
+    }
+
+    .tab-panel {
+        display: none;
+        min-height: 420px;
+        padding: 22px;
+        background: #181818;
+        border: 1px solid #333;
+        border-top: 0;
+        border-radius: 0 0 5px 5px;
+    }
+
+    .tab-panel.active {
+        display: block;
+    }
+
+    .panel-heading {
+        margin: 0 0 5px;
+        color: #fff;
+        font-size: 19px;
+    }
+
+    .panel-description {
+        margin: 0 0 22px;
+        color: #9ca3af;
+        line-height: 1.5;
+    }
+
+    .field-group-title {
+        grid-column: 1 / -1;
+        margin: 10px 0 0;
+        padding-bottom: 9px;
+        color: #fff;
+        border-bottom: 1px solid #333;
+        font-size: 15px;
+    }
+
+    .icon-input-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 54px;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .icon-preview-button {
+        width: 54px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #4b5563;
+        border-radius: 5px;
+        cursor: zoom-in;
+    }
+
+    .icon-preview-button:hover {
+        border-color: #6670ff;
+        box-shadow: 0 0 0 2px rgba(47, 60, 255, .2);
+    }
+
+    .icon-preview-button img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .icon-preview-button img.preview-error {
+        display: none;
+    }
+
+    .icon-preview-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 28px;
+        background: rgba(0, 0, 0, .82);
+    }
+
+    .icon-preview-modal.open {
+        display: flex;
+    }
+
+    .icon-preview-dialog {
+        position: relative;
+        width: min(520px, 92vw);
+        padding: 24px;
+        background: #181818;
+        border: 1px solid #4b5563;
+        border-radius: 8px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+    }
+
+    .icon-preview-large {
+        width: 100%;
+        height: 340px;
+        display: block;
+        object-fit: contain;
+        background: #fff;
+        border-radius: 6px;
+    }
+
+    .icon-preview-url {
+        margin: 14px 34px 0 0;
+        color: #9ca3af;
+        font-size: 12px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .icon-preview-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 36px;
+        height: 36px;
+        color: #fff;
+        background: #2a2a2a;
+        border: 1px solid #555;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 22px;
+        line-height: 1;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .field.full {
+        grid-column: 1 / -1;
+    }
+
+    .field label {
+        display: block;
+        margin-bottom: 7px;
+        color: #d1d5db;
+        font-weight: 700;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+        width: 100%;
+        padding: 11px 12px;
+        color: #fff;
+        background: #111;
+        border: 1px solid #4b5563;
+        border-radius: 4px;
+        font: inherit;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+        outline: none;
+        border-color: #6670ff;
+        box-shadow: 0 0 0 2px rgba(47, 60, 255, .18);
+    }
+
+    .field textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .field .html-editor {
+        min-height: 430px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 14px;
+        line-height: 1.55;
+        tab-size: 4;
+    }
+
+    .editor-help {
+        display: block;
+        margin-top: 9px;
+        color: #9ca3af;
+        line-height: 1.5;
+    }
+
+    .form-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid #333;
+    }
+
+    .save-button {
+        padding: 11px 24px;
+        color: #fff;
+        background: #2f3cff;
+        border: 1px solid #6670ff;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 700;
+    }
+
+    .save-button:hover {
+        background: #202bb5;
+    }
+
+    .message {
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        color: #86efac;
+        background: #12351f;
+        border: 1px solid #237a3b;
+        border-radius: 4px;
+    }
+
+    @media (max-width: 800px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .field.full {
+            grid-column: auto;
+        }
+
+        .tab-panel {
+            padding: 16px;
+        }
+    }
+{% endblock %}
+
+{% block content %}
+<div class="content-editor">
+    {% for message in messages %}
+        <div class="message">{{ message }}</div>
+    {% endfor %}
+
+    <div class="editor-tabs" role="tablist" aria-label="Website content sections">
+        <button type="button" class="tab-button {% if active_tab == 'home' %}active{% endif %}" data-tab="home">Home</button>
+        <button type="button" class="tab-button {% if active_tab == 'order' %}active{% endif %}" data-tab="order">Order Page</button>
+        <button type="button" class="tab-button {% if active_tab == 'icons' %}active{% endif %}" data-tab="icons">Icons</button>
+        <button type="button" class="tab-button {% if active_tab == 'terms' %}active{% endif %}" data-tab="terms">Terms</button>
+        <button type="button" class="tab-button {% if active_tab == 'campaign' %}active{% endif %}" data-tab="campaign">Campaign</button>
+        <button type="button" class="tab-button {% if active_tab == 'illustrate' %}active{% endif %}" data-tab="illustrate">Illustrate</button>
+        <button type="button" class="tab-button {% if active_tab == 'faqs' %}active{% endif %}" data-tab="faqs">FAQs</button>
+        <button type="button" class="tab-button {% if active_tab == 'company' %}active{% endif %}" data-tab="company">Company Profile</button>
+    </div>
+
+    <section class="tab-panel {% if active_tab == 'home' %}active{% endif %}" data-panel="home">
+        <h2 class="panel-heading">Home page</h2>
+        <p class="panel-description">Edit branding, banners, announcements, and statistics.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="section" value="home">
+
+            <div class="form-grid">
+                <div class="field">
+                    <label for="brand_name">Brand name</label>
+                    <input id="brand_name" name="brand_name" value="{{ home_settings.brand_name }}" required>
+                </div>
+
+                <div class="field">
+                    <label for="banner_type">Home banner type</label>
+                    <select id="banner_type" name="banner_type">
+                        <option value="image" {% if home_settings.banner_type == 'image' %}selected{% endif %}>Image</option>
+                        <option value="video" {% if home_settings.banner_type == 'video' %}selected{% endif %}>Video</option>
+                    </select>
+                </div>
+
+                <div class="field full">
+                    <label for="banner_url">Home banner URL</label>
+                    <input id="banner_url" type="url" name="banner_url" value="{{ home_settings.banner_url }}">
+                    <small class="editor-help">
+                        Select Image for an image URL. Select Video for a direct
+                        video URL such as an MP4 file. Videos autoplay muted and loop.
+                    </small>
+                </div>
+
+                <div class="field full">
+                    <label for="announcement">Scrolling announcement</label>
+                    <textarea id="announcement" name="announcement" required>{{ home_settings.announcement }}</textarea>
+                </div>
+
+                <div class="field"><label>Online users value</label><input name="online_users_value" value="{{ home_settings.online_users_value }}"></div>
+                <div class="field"><label>Online users note</label><input name="online_users_note" value="{{ home_settings.online_users_note }}"></div>
+                <div class="field"><label>Order completion value</label><input name="order_completion_value" value="{{ home_settings.order_completion_value }}"></div>
+                <div class="field"><label>Order completion note</label><input name="order_completion_note" value="{{ home_settings.order_completion_note }}"></div>
+                <div class="field"><label>Optimize demand value</label><input name="optimize_demand_value" value="{{ home_settings.optimize_demand_value }}"></div>
+                <div class="field"><label>Optimize demand note</label><input name="optimize_demand_note" value="{{ home_settings.optimize_demand_note }}"></div>
+                <div class="field"><label>Order quantity value</label><input name="order_quantity_value" value="{{ home_settings.order_quantity_value }}"></div>
+                <div class="field"><label>Order quantity note</label><input name="order_quantity_note" value="{{ home_settings.order_quantity_note }}"></div>
+            </div>
+
+            <div class="form-actions"><button type="submit" class="save-button">Save home page</button></div>
+        </form>
+    </section>
+
+    <section class="tab-panel {% if active_tab == 'order' %}active{% endif %}" data-panel="order">
+        <h2 class="panel-heading">Order page</h2>
+        <p class="panel-description">Edit the order banner, Order Description, and Please Note content.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="section" value="order">
+
+            <div class="form-grid">
+                <div class="field">
+                    <label for="order_banner_type">Order banner type</label>
+                    <select id="order_banner_type" name="order_banner_type">
+                        <option value="image" {% if home_settings.order_banner_type == 'image' %}selected{% endif %}>Image</option>
+                        <option value="video" {% if home_settings.order_banner_type == 'video' %}selected{% endif %}>Video</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="order_banner_url">Order page banner URL</label>
+                    <input id="order_banner_url" type="url" name="order_banner_url" value="{{ home_settings.order_banner_url }}">
+                    <small class="editor-help">Videos autoplay muted and loop continuously.</small>
+                </div>
+
+                <div class="field full">
+                    <label for="order_description_html">Order Description HTML</label>
+                    <textarea id="order_description_html" class="html-editor" name="order_description_html" spellcheck="false" required>{{ home_settings.order_description_html }}</textarea>
+                </div>
+
+                <div class="field full">
+                    <label for="please_note_html">Please Note HTML</label>
+                    <textarea id="please_note_html" class="html-editor" name="please_note_html" spellcheck="false" required>{{ home_settings.please_note_html }}</textarea>
+                </div>
+            </div>
+
+            <div class="form-actions"><button type="submit" class="save-button">Save order page</button></div>
+        </form>
+    </section>
+
+    <section class="tab-panel {% if active_tab == 'icons' %}active{% endif %}" data-panel="icons">
+        <h2 class="panel-heading">Icons</h2>
+        <p class="panel-description">Edit the home-menu icons and active/inactive bottom navigation images.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="section" value="icons">
+
+            <div class="form-grid">
+                <h3 class="field-group-title">Home menu icons</h3>
+                <div class="field"><label>Withdrawal icon URL</label><input type="url" name="withdrawal_icon_url" value="{{ home_settings.withdrawal_icon_url }}" required></div>
+                <div class="field"><label>Deposit icon URL</label><input type="url" name="deposit_icon_url" value="{{ home_settings.deposit_icon_url }}" required></div>
+                <div class="field"><label>Customer Service icon URL</label><input type="url" name="customer_service_icon_url" value="{{ home_settings.customer_service_icon_url }}" required></div>
+                <div class="field"><label>Transaction Notice icon URL</label><input type="url" name="transaction_notice_icon_url" value="{{ home_settings.transaction_notice_icon_url }}" required></div>
+                <div class="field"><label>Campaign icon URL</label><input type="url" name="campaign_icon_url" value="{{ home_settings.campaign_icon_url }}" required></div>
+                <div class="field"><label>Illustrate icon URL</label><input type="url" name="illustrate_icon_url" value="{{ home_settings.illustrate_icon_url }}" required></div>
+                <div class="field"><label>FAQs icon URL</label><input type="url" name="faqs_icon_url" value="{{ home_settings.faqs_icon_url }}" required></div>
+                <div class="field"><label>Company Profile icon URL</label><input type="url" name="company_profile_icon_url" value="{{ home_settings.company_profile_icon_url }}" required></div>
+
+                <h3 class="field-group-title">Bottom navigation icons</h3>
+                <div class="field"><label>Home active image URL</label><input type="url" name="home_nav_active_url" value="{{ home_settings.home_nav_active_url }}" required></div>
+                <div class="field"><label>Home inactive image URL</label><input type="url" name="home_nav_inactive_url" value="{{ home_settings.home_nav_inactive_url }}" required></div>
+                <div class="field"><label>Records active image URL</label><input type="url" name="records_nav_active_url" value="{{ home_settings.records_nav_active_url }}" required></div>
+                <div class="field"><label>Records inactive image URL</label><input type="url" name="records_nav_inactive_url" value="{{ home_settings.records_nav_inactive_url }}" required></div>
+                <div class="field"><label>Order active image URL</label><input type="url" name="order_nav_active_url" value="{{ home_settings.order_nav_active_url }}" required></div>
+                <div class="field"><label>Order inactive image URL</label><input type="url" name="order_nav_inactive_url" value="{{ home_settings.order_nav_inactive_url }}" required></div>
+                <div class="field"><label>Messages active image URL</label><input type="url" name="messages_nav_active_url" value="{{ home_settings.messages_nav_active_url }}" required></div>
+                <div class="field"><label>Messages inactive image URL</label><input type="url" name="messages_nav_inactive_url" value="{{ home_settings.messages_nav_inactive_url }}" required></div>
+                <div class="field"><label>Settings active image URL</label><input type="url" name="settings_nav_active_url" value="{{ home_settings.settings_nav_active_url }}" required></div>
+                <div class="field"><label>Settings inactive image URL</label><input type="url" name="settings_nav_inactive_url" value="{{ home_settings.settings_nav_inactive_url }}" required></div>
+
+                <h3 class="field-group-title">Other page icons</h3>
+                <div class="field"><label>Default profile icon URL</label><input type="url" name="default_profile_icon_url" value="{{ home_settings.default_profile_icon_url }}" required></div>
+                <div class="field"><label>Order Description icon URL</label><input type="url" name="order_description_icon_url" value="{{ home_settings.order_description_icon_url }}" required></div>
+                <div class="field"><label>Please Note icon URL</label><input type="url" name="please_note_icon_url" value="{{ home_settings.please_note_icon_url }}" required></div>
+                <div class="field"><label>Wallet icon URL</label><input type="url" name="wallet_icon_url" value="{{ home_settings.wallet_icon_url }}" required></div>
+                <div class="field"><label>Settings Deposit icon URL</label><input type="url" name="settings_deposit_icon_url" value="{{ home_settings.settings_deposit_icon_url }}" required></div>
+                <div class="field"><label>Settings Withdraw icon URL</label><input type="url" name="settings_withdraw_icon_url" value="{{ home_settings.settings_withdraw_icon_url }}" required></div>
+                <div class="field"><label>Trading Account icon URL</label><input type="url" name="trading_account_icon_url" value="{{ home_settings.trading_account_icon_url }}" required></div>
+                <div class="field"><label>Personal Information icon URL</label><input type="url" name="personal_information_icon_url" value="{{ home_settings.personal_information_icon_url }}" required></div>
+                <div class="field"><label>Official Announcement icon URL</label><input type="url" name="official_announcement_icon_url" value="{{ home_settings.official_announcement_icon_url }}" required></div>
+                <div class="field"><label>More Services icon URL</label><input type="url" name="more_services_icon_url" value="{{ home_settings.more_services_icon_url }}" required></div>
+                <div class="field"><label>My Team icon URL</label><input type="url" name="my_team_icon_url" value="{{ home_settings.my_team_icon_url }}" required></div>
+                <div class="field"><label>Online Customer Service icon URL</label><input type="url" name="online_customer_service_icon_url" value="{{ home_settings.online_customer_service_icon_url }}" required></div>
+            </div>
+
+            <div class="form-actions"><button type="submit" class="save-button">Save icons</button></div>
+        </form>
+    </section>
+
+    <section class="tab-panel {% if active_tab == 'terms' %}active{% endif %}" data-panel="terms">
+        <h2 class="panel-heading">Terms and Conditions</h2>
+        <p class="panel-description">Edit only the Terms and Conditions page.</p>
+        <form method="post">
+            {% csrf_token %}<input type="hidden" name="section" value="terms">
+            <div class="field"><label for="terms_and_conditions_html">Terms and Conditions HTML</label><textarea id="terms_and_conditions_html" class="html-editor" name="terms_and_conditions_html" spellcheck="false" required>{{ home_settings.terms_and_conditions_html }}</textarea><small class="editor-help">HTML tags such as &lt;h2&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;img&gt; and &lt;a&gt; are supported.</small></div>
+            <div class="form-actions"><button type="submit" class="save-button">Save Terms</button></div>
+        </form>
+    </section>
+
+    <section class="tab-panel {% if active_tab == 'campaign' %}active{% endif %}" data-panel="campaign">
+        <h2 class="panel-heading">Campaign</h2><p class="panel-description">Edit only the Campaign page.</p>
+        <form method="post">{% csrf_token %}<input type="hidden" name="section" value="campaign"><div class="field"><label for="campaign_html">Campaign HTML</label><textarea id="campaign_html" class="html-editor" name="campaign_html" spellcheck="false" required>{{ home_settings.campaign_html }}</textarea></div><div class="form-actions"><button type="submit" class="save-button">Save Campaign</button></div></form>
+    </section>
+
+    <section class="tab-panel {% if active_tab == 'illustrate' %}active{% endif %}" data-panel="illustrate">
+        <h2 class="panel-heading">Illustrate</h2><p class="panel-description">Edit only the Illustrate page.</p>
+        <form method="post">{% csrf_token %}<input type="hidden" name="section" value="illustrate"><div class="field"><label for="illustrate_html">Illustrate HTML</label><textarea id="illustrate_html" class="html-editor" name="illustrate_html" spellcheck="false" required>{{ home_settings.illustrate_html }}</textarea></div><div class="form-actions"><button type="submit" class="save-button">Save Illustrate</button></div></form>
+    </section>
+
+    <section class="tab-panel {% if active_tab == 'faqs' %}active{% endif %}" data-panel="faqs">
+        <h2 class="panel-heading">FAQs</h2><p class="panel-description">Edit only the FAQs page.</p>
+        <form method="post">{% csrf_token %}<input type="hidden" name="section" value="faqs"><div class="field"><label for="faqs_html">FAQs HTML</label><textarea id="faqs_html" class="html-editor" name="faqs_html" spellcheck="false" required>{{ home_settings.faqs_html }}</textarea></div><div class="form-actions"><button type="submit" class="save-button">Save FAQs</button></div></form>
+    </section>
+
+    <section class="tab-panel {% if active_tab == 'company' %}active{% endif %}" data-panel="company">
+        <h2 class="panel-heading">Company Profile</h2><p class="panel-description">Edit only the Company Profile page.</p>
+        <form method="post">{% csrf_token %}<input type="hidden" name="section" value="company"><div class="field"><label for="company_profile_html">Company Profile HTML</label><textarea id="company_profile_html" class="html-editor" name="company_profile_html" spellcheck="false" required>{{ home_settings.company_profile_html }}</textarea></div><div class="form-actions"><button type="submit" class="save-button">Save Company Profile</button></div></form>
+    </section>
+</div>
+
+<div class="icon-preview-modal" id="iconPreviewModal" aria-hidden="true">
+    <div class="icon-preview-dialog" role="dialog" aria-modal="true" aria-label="Icon preview">
+        <button type="button" class="icon-preview-close" id="iconPreviewClose" aria-label="Close preview">&times;</button>
+        <img class="icon-preview-large" id="iconPreviewLarge" alt="Large icon preview">
+        <div class="icon-preview-url" id="iconPreviewUrl"></div>
+    </div>
+</div>
+
+<script>
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            const selectedTab = button.dataset.tab;
+
+            tabButtons.forEach((item) => item.classList.remove('active'));
+            tabPanels.forEach((panel) => panel.classList.remove('active'));
+
+            button.classList.add('active');
+            document.querySelector(`[data-panel="${selectedTab}"]`).classList.add('active');
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', selectedTab);
+            window.history.replaceState({}, '', url);
+        });
+    });
+
+    const iconModal = document.getElementById('iconPreviewModal');
+    const iconModalImage = document.getElementById('iconPreviewLarge');
+    const iconModalUrl = document.getElementById('iconPreviewUrl');
+    const iconModalClose = document.getElementById('iconPreviewClose');
+    const iconUrlInputs = document.querySelectorAll('[data-panel="icons"] input[type="url"]');
+
+    function closeIconPreview() {
+        iconModal.classList.remove('open');
+        iconModal.setAttribute('aria-hidden', 'true');
+        iconModalImage.removeAttribute('src');
+    }
+
+    function openIconPreview(url) {
+        if (!url) {
+            return;
+        }
+
+        iconModalImage.src = url;
+        iconModalUrl.textContent = url;
+        iconModal.classList.add('open');
+        iconModal.setAttribute('aria-hidden', 'false');
+        iconModalClose.focus();
+    }
+
+    iconUrlInputs.forEach((input) => {
+        const row = document.createElement('div');
+        const previewButton = document.createElement('button');
+        const previewImage = document.createElement('img');
+
+        row.className = 'icon-input-row';
+        previewButton.type = 'button';
+        previewButton.className = 'icon-preview-button';
+        previewButton.title = 'Click to enlarge';
+        previewButton.setAttribute('aria-label', 'Preview icon');
+        previewImage.alt = '';
+        previewImage.src = input.value;
+
+        input.parentNode.insertBefore(row, input);
+        row.appendChild(input);
+        previewButton.appendChild(previewImage);
+        row.appendChild(previewButton);
+
+        input.addEventListener('input', () => {
+            previewImage.classList.remove('preview-error');
+            previewImage.src = input.value;
+        });
+
+        previewImage.addEventListener('error', () => {
+            previewImage.classList.add('preview-error');
+        });
+
+        previewButton.addEventListener('click', () => {
+            openIconPreview(input.value.trim());
+        });
+    });
+
+    iconModalClose.addEventListener('click', closeIconPreview);
+
+    iconModal.addEventListener('click', (event) => {
+        if (event.target === iconModal) {
+            closeIconPreview();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && iconModal.classList.contains('open')) {
+            closeIconPreview();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+<div class="modal-overlay" id="editCommentModal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <span>Edit comment</span>
+
+            <button type="button" onclick="closeEditCommentModal()">
+                ×
+            </button>
+
+        </div>
+
+        <form method="POST" id="editCommentForm">
+
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                <div class="form-row">
+
+                    <label>Star level</label>
+
+                    <select name="star_level" id="editStarLevel">
+                        <option value="5.0">5.0</option>
+                        <option value="4.0">4.0</option>
+                        <option value="3.0">3.0</option>
+                        <option value="2.0">2.0</option>
+                        <option value="1.0">1.0</option>
+                    </select>
+
+                </div>
+
+                <div class="form-row">
+
+                    <label>Content</label>
+
+                    <textarea
+                        name="content"
+                        id="editContent"
+                        required
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="submit" class="submit-btn">
+                    Submit
+                </button>
+
+                <button
+                    type="button"
+                    class="cancel-btn"
+                    onclick="closeEditCommentModal()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+function openEditCommentModal(id, starLevel, content){
+
+    document.getElementById('editCommentModal').style.display = 'block';
+
+    document.getElementById('editCommentForm').action =
+        '/staff/product-evaluation/' + id + '/edit/';
+
+    document.getElementById('editStarLevel').value = starLevel;
+
+    document.getElementById('editContent').value = content || '';
+}
+
+function closeEditCommentModal(){
+    document.getElementById('editCommentModal').style.display = 'none';
+}
+
+</script>

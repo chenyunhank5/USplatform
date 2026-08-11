@@ -1,0 +1,145 @@
+{% extends "user/base.html" %}
+
+{% block title %}Transaction History{% endblock %}
+
+{% block extra_css %}
+    .history-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: -14px -16px 0;
+        color: #fff;
+        background: #000;
+        border-bottom: 2px solid #d1d5db;
+    }
+
+    .history-header h1 { margin: 0; font-size: 18px; }
+
+    .history-back {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        width: 32px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        transform: translateY(-50%);
+    }
+
+    .history-back::before {
+        width: 12px;
+        height: 12px;
+        content: "";
+        border-left: 2px solid #fff;
+        border-bottom: 2px solid #fff;
+        transform: rotate(45deg);
+    }
+
+    .history-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        padding: 18px 0 14px;
+    }
+
+    .history-tab {
+        padding: 9px 6px;
+        color: #4b5563;
+        text-align: center;
+        text-decoration: none;
+        background: #f3f4f6;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    .history-tab.active { color: #fff; background: #2f3cff; font-weight: 700; }
+    .history-list { padding-bottom: 88px; }
+
+    .transaction-card {
+        background: #fff;
+        border: 1px solid #f3f4f6;
+        border-radius: 8px;
+        min-height: 98px;
+        margin-bottom: 14px;
+        padding: 18px 14px;
+        box-shadow: 0 4px 14px rgba(0,0,0,.02);
+    }
+
+    .transaction-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .transaction-amount {
+        color: #000;
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .transaction-amount span {
+        margin-left: 2px;
+        font-size: 13px;
+    }
+
+    .transaction-status {
+        padding: 5px 12px;
+        color: #fff;
+        background: #000;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .transaction-id {
+        margin-bottom: 4px;
+        overflow-wrap: anywhere;
+        color: #9ca3af;
+        font-size: 13px;
+    }
+
+    .transaction-time { color: #000; font-size: 13px; }
+    .empty-history { padding: 80px 20px; color: #9ca3af; text-align: center; }
+{% endblock %}
+
+{% block content %}
+<header class="history-header">
+    <a href="{% url 'user_home' %}" class="history-back" aria-label="Back to home"></a>
+    <h1>Transaction History</h1>
+</header>
+
+<nav class="history-tabs" aria-label="Transaction types">
+    <a href="{% url 'transaction_notice' %}?type=all" class="history-tab {% if current_type == 'all' %}active{% endif %}">All</a>
+    <a href="{% url 'transaction_notice' %}?type=deposit" class="history-tab {% if current_type == 'deposit' %}active{% endif %}">Deposits</a>
+    <a href="{% url 'transaction_notice' %}?type=withdrawal" class="history-tab {% if current_type == 'withdrawal' %}active{% endif %}">Withdrawals</a>
+</nav>
+
+<div class="history-list">
+    {% for record in records %}
+        <article class="transaction-card {{ record.type }}">
+            <div class="transaction-top">
+                <div class="transaction-amount">{{ record.amount|floatformat:2 }}<span>USD</span></div>
+                <div class="transaction-status">
+                    {% if record.status == 'approved' or record.status == 'completed' %}
+                        Success
+                    {% elif record.status == 'pending' %}
+                        Pending
+                    {% else %}
+                        Rejected
+                    {% endif %}
+                </div>
+            </div>
+            <div class="transaction-id">{{ record.transaction_id }}</div>
+            <div class="transaction-time">{{ record.created_at|date:"m-d-Y h:i:s a" }}</div>
+        </article>
+    {% empty %}
+        <div class="empty-history">No transaction history yet.</div>
+    {% endfor %}
+</div>
+{% endblock %}

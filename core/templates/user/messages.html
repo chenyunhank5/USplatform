@@ -1,0 +1,274 @@
+{% extends "user/base.html" %}
+
+{% block title %}Messages{% endblock %}
+
+{% block extra_css %}
+    body { background: #f6f7f9; }
+
+    .messages-heading {
+        margin: 2px 0 16px;
+        color: #111827;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .service-card {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin: 0 -16px;
+        padding: 16px;
+        color: #111827;
+        text-decoration: none;
+        background: #fff;
+        transition: background-color .18s ease;
+    }
+
+    .service-card:active { background: #f9fafb; }
+
+    .service-icon {
+        width: 52px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 52px;
+        background: #eef2ff;
+        border-radius: 13px;
+    }
+
+    .service-icon img { width: 32px; height: 32px; object-fit: contain; }
+    .service-copy { min-width: 0; flex: 1; }
+
+    .service-title-row {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 5px;
+    }
+
+    .service-title { font-size: 15px; font-weight: 800; }
+
+    .online-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 7px;
+        color: #15803d;
+        background: #dcfce7;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .online-badge::before {
+        width: 6px;
+        height: 6px;
+        content: "";
+        background: #22c55e;
+        border-radius: 50%;
+    }
+
+    .service-subtitle { color: #6b7280; font-size: 12px; line-height: 1.4; }
+
+    .row-chevron {
+        width: 9px;
+        height: 9px;
+        margin-right: 4px;
+        flex: 0 0 9px;
+        border-top: 2px solid #9ca3af;
+        border-right: 2px solid #9ca3af;
+        transform: rotate(45deg);
+    }
+
+    .notification-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 24px 2px 12px;
+    }
+
+    .notification-heading h2 { margin: 0; color: #111827; font-size: 16px; }
+    .read-filter {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #4b5563;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .read-filter input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .switch-track {
+        position: relative;
+        width: 36px;
+        height: 20px;
+        background: #d1d5db;
+        border-radius: 20px;
+        transition: background-color .2s ease;
+    }
+
+    .switch-track::after {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 14px;
+        height: 14px;
+        content: "";
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0,0,0,.2);
+        transition: transform .2s ease;
+    }
+
+    .read-filter input:checked + .switch-track { background: #2f3cff; }
+    .read-filter input:checked + .switch-track::after { transform: translateX(16px); }
+    .read-filter input:focus-visible + .switch-track { outline: 2px solid #60a5fa; outline-offset: 2px; }
+    .notification-list {
+        margin: 0 -16px;
+        padding-bottom: 88px;
+        background: #fff;
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 76px;
+        margin: 0 16px;
+        padding: 13px 0;
+        color: #111827;
+        text-decoration: none;
+        background: #fff;
+    }
+
+    .notification-icon {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 44px;
+        background: #f3f4ff;
+        border-radius: 11px;
+    }
+
+    .notification-icon img { width: 28px; height: 28px; object-fit: contain; }
+    .notification-copy { min-width: 0; flex: 1; }
+    .notification-title { margin-bottom: 5px; font-size: 14px; font-weight: 800; }
+
+    .notification-meta {
+        overflow: hidden;
+        color: #9ca3af;
+        font-size: 11px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .notification-value { text-align: right; }
+    .notification-amount { margin-bottom: 6px; color: #111827; font-size: 14px; font-weight: 800; }
+
+    .notification-status {
+        display: inline-block;
+        padding: 3px 7px;
+        color: #fff;
+        background: #111827;
+        border-radius: 5px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .notification-item.unread .notification-title::after {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        margin: 0 0 2px 6px;
+        content: "";
+        background: #2f3cff;
+        border-radius: 50%;
+    }
+
+    .notification-list.hide-read .notification-item.read { display: none; }
+
+    .empty-notifications {
+        padding: 50px 20px;
+        color: #9ca3af;
+        text-align: center;
+        background: #fff;
+    }
+{% endblock %}
+
+{% block content %}
+<h1 class="messages-heading">Messages</h1>
+
+<a href="{% url 'customer_service' %}" class="service-card">
+    <div class="service-icon">
+        <img src="{{ home_settings.online_customer_service_icon_url }}" alt="Online Customer Service">
+    </div>
+    <div class="service-copy">
+        <div class="service-title-row">
+            <span class="service-title">Online Customer Service</span>
+            <span class="online-badge">Online</span>
+        </div>
+        <div class="service-subtitle">Chat with our support team for account assistance.</div>
+    </div>
+    <span class="row-chevron" aria-hidden="true"></span>
+</a>
+
+<div class="notification-heading">
+    <h2>System Notifications</h2>
+    <label class="read-filter">
+        <span>Hide Read</span>
+        <input type="checkbox" id="hideReadSwitch">
+        <span class="switch-track" aria-hidden="true"></span>
+    </label>
+</div>
+
+<div class="notification-list" id="notificationList">
+    {% for notification in notifications %}
+        <a href="{% url 'user_transaction_notification' notification.type notification.id %}"
+           class="notification-item {{ notification.type }} {% if notification.is_read %}read{% else %}unread{% endif %}">
+            <div class="notification-icon">
+                {% if notification.type == 'deposit' %}
+                    <img src="{{ home_settings.deposit_icon_url }}" alt="Deposit">
+                {% else %}
+                    <img src="{{ home_settings.withdrawal_icon_url }}" alt="Withdrawal">
+                {% endif %}
+            </div>
+            <div class="notification-copy">
+                <div class="notification-title">{{ notification.title }}</div>
+                <div class="notification-meta">{{ notification.transaction_id }} &middot; {{ notification.created_at|date:"m-d-Y h:i a" }}</div>
+            </div>
+            <div class="notification-value">
+                <div class="notification-amount">{% if notification.type == 'deposit' %}+{% else %}&minus;{% endif %}{{ notification.amount|floatformat:2 }} USD</div>
+                <span class="notification-status">{{ notification.status }}</span>
+            </div>
+        </a>
+    {% empty %}
+        <div class="empty-notifications">No deposit or withdrawal notifications yet.</div>
+    {% endfor %}
+</div>
+
+<script>
+    const hideReadSwitch = document.getElementById('hideReadSwitch');
+    const notificationList = document.getElementById('notificationList');
+    const savedHideRead = localStorage.getItem('messagesHideRead') === 'true';
+
+    hideReadSwitch.checked = savedHideRead;
+    notificationList.classList.toggle('hide-read', savedHideRead);
+
+    hideReadSwitch.addEventListener('change', () => {
+        notificationList.classList.toggle('hide-read', hideReadSwitch.checked);
+        localStorage.setItem('messagesHideRead', String(hideReadSwitch.checked));
+    });
+</script>
+{% endblock %}

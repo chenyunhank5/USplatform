@@ -1,0 +1,540 @@
+{% extends "user/base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    .logo-area {
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+    }
+
+    .logo-text {
+        color: #2f3cff;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 22px;
+        line-height: 1;
+        text-align: left;
+        letter-spacing: -.5px;
+        font-weight: 700;
+    }
+
+    .marquee-bar {
+        height: 28px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        color: white;
+        background: #000;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .marquee-bar span {
+        display: inline-block;
+        padding-left: 100%;
+        animation: marquee 13s linear infinite;
+    }
+
+    @keyframes marquee {
+        from {
+            transform: translateX(0);
+        }
+
+        to {
+            transform: translateX(-100%);
+        }
+    }
+
+    .hero-media {
+        width: 100%;
+        height: 178px;
+        display: block;
+        margin: 16px 0 22px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #e5e7eb;
+    }
+
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px 12px;
+        margin-bottom: 18px;
+    }
+
+    .menu-item {
+        color: #000;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.25;
+    }
+
+    .menu-link {
+        display: block;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .menu-icon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 8px;
+    }
+
+    .menu-icon img {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .stats-left {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .stats-card {
+        position: relative;
+        min-height: 84px;
+        padding: 10px 8px;
+        overflow: hidden;
+        background: white;
+        border: 1px solid #000;
+        border-radius: 9px;
+    }
+
+    .stats-tall {
+        min-height: 174px;
+    }
+
+    .stats-title {
+        margin-bottom: 6px;
+        color: #000;
+        font-size: 12px;
+    }
+
+    .stats-value {
+        margin-bottom: 3px;
+        color: #000;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .stats-sub {
+        color: #000;
+        font-size: 10px;
+        line-height: 1.2;
+    }
+
+    .percent-tag {
+        display: inline-block;
+        margin-right: 2px;
+        padding: 1px 3px;
+        color: white;
+        background: #000;
+        border-radius: 3px;
+        font-size: 9px;
+    }
+
+    .small-chart {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 48px;
+    }
+
+    .big-chart {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 95px;
+    }
+
+    .vip-title {
+        margin: 8px 0 12px;
+        color: #000;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .vip-card {
+        height: 64px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 18px;
+        padding: 0 12px;
+        color: white;
+        background: #2f3cff;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .vip-icon {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        overflow: hidden;
+        color: #facc15;
+        background: #111827;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .vip-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .vip-enter {
+        margin-left: auto;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="logo-area">
+    <div class="logo-text">
+        {{ home_settings.brand_name|default:"LANDOR"|linebreaksbr }}
+    </div>
+</div>
+
+<div class="marquee-bar">
+    <span>
+        {{ home_settings.announcement|default:"Welcome to our platform" }}
+    </span>
+</div>
+
+{% if home_settings.banner_url %}
+    {% if home_settings.banner_type == "video" %}
+        <video
+            id="homeBannerVideo"
+            class="hero-media"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            disablepictureinpicture
+            controlslist="nodownload noplaybackrate noremoteplayback"
+            aria-label="Home banner video"
+        >
+            <source src="{{ home_settings.banner_url }}">
+            Your browser does not support video playback.
+        </video>
+    {% else %}
+        <img
+            class="hero-media"
+            src="{{ home_settings.banner_url }}"
+            alt="Home banner"
+        >
+    {% endif %}
+{% else %}
+    <img
+        class="hero-media"
+        src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=80"
+        alt="Home banner"
+    >
+{% endif %}
+
+{% if home_settings.banner_type == "video" and home_settings.banner_url %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const bannerVideo = document.getElementById('homeBannerVideo');
+
+        if (bannerVideo) {
+            bannerVideo.defaultMuted = true;
+            bannerVideo.muted = true;
+            bannerVideo.loop = true;
+
+            const playAttempt = bannerVideo.play();
+
+            if (playAttempt !== undefined) {
+                playAttempt.catch(() => {
+                    // Some browsers wait until the banner is visible.
+                });
+            }
+        }
+    });
+</script>
+{% endif %}
+
+<div class="menu-grid">
+    <div class="menu-item">
+        <a
+            href="javascript:void(0);"
+            class="menu-link"
+            onclick="openWithdrawPasswordModal('{% url 'user_withdraw' %}')"
+        >
+            <div class="menu-icon">
+                <img
+                    src="{{ home_settings.withdrawal_icon_url }}"
+                    alt="Withdrawal"
+                >
+            </div>
+
+            Withdrawal
+        </a>
+    </div>
+
+    <div class="menu-item">
+        <div class="menu-icon">
+            <img
+                src="{{ home_settings.deposit_icon_url }}"
+                alt="Deposit"
+            >
+        </div>
+
+        Deposit
+    </div>
+
+    <div class="menu-item">
+        <a href="{% url 'customer_service' %}" class="menu-link">
+            <div class="menu-icon">
+                <img
+                    src="{{ home_settings.customer_service_icon_url }}"
+                    alt="Customer Service"
+                >
+            </div>
+
+            Customer Service<br>
+            Center
+        </a>
+    </div>
+
+    <div class="menu-item">
+        <a href="{% url 'transaction_notice' %}" class="menu-link">
+            <div class="menu-icon">
+                <img
+                    src="{{ home_settings.transaction_notice_icon_url }}"
+                    alt="Transaction Notice"
+                >
+            </div>
+
+            Transaction<br>
+            Notice
+        </a>
+    </div>
+
+    <div class="menu-item">
+        <a href="{% url 'campaign' %}" class="menu-link">
+            <div class="menu-icon">
+                <img
+                    src="{{ home_settings.campaign_icon_url }}"
+                    alt="Campaign"
+                >
+            </div>
+
+            Campaign
+        </a>
+    </div>
+
+    <div class="menu-item">
+        <a href="{% url 'illustrate' %}" class="menu-link">
+            <div class="menu-icon">
+                <img
+                    src="{{ home_settings.illustrate_icon_url }}"
+                    alt="Illustrate"
+                >
+            </div>
+
+            Illustrate
+        </a>
+    </div>
+
+    <div class="menu-item">
+        <a href="{% url 'faqs' %}" class="menu-link">
+            <div class="menu-icon">
+                <img
+                    src="{{ home_settings.faqs_icon_url }}"
+                    alt="FAQs"
+                >
+            </div>
+
+            FAQs
+        </a>
+    </div>
+
+    <div class="menu-item">
+        <a href="{% url 'company_profile' %}" class="menu-link">
+            <div class="menu-icon">
+                <img
+                    src="{{ home_settings.company_profile_icon_url }}"
+                    alt="Company Profile"
+                >
+            </div>
+
+            Company Profile
+        </a>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stats-left">
+        <div class="stats-card">
+            <div class="stats-title">
+                Online Users
+            </div>
+
+            <div class="stats-value">
+                {{ home_settings.online_users_value|default:"3.015k" }}
+            </div>
+
+            <div class="stats-sub">
+                {{ home_settings.online_users_note|default:"+ 29% From Last Month" }}
+            </div>
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-title">
+                Order Completion
+            </div>
+
+            <div class="stats-value">
+                {{ home_settings.order_completion_value|default:"5.016k" }}
+            </div>
+
+            <div class="stats-sub">
+                <span class="percent-tag">
+                    {{ home_settings.order_completion_note|default:"171% ↑" }}
+                </span>
+            </div>
+
+            <svg
+                class="small-chart"
+                viewBox="0 0 120 50"
+                aria-hidden="true"
+            >
+                <path
+                    d="M0 32 C20 25, 35 42, 55 32 C75 20, 88 42, 120 32"
+                    fill="none"
+                    stroke="#2f3cff"
+                    stroke-width="2"
+                />
+            </svg>
+        </div>
+    </div>
+
+    <div class="stats-card stats-tall">
+        <div class="stats-title">
+            Optimize Demand
+        </div>
+
+        <div class="stats-value">
+            {{ home_settings.optimize_demand_value|default:"305k" }}
+        </div>
+
+        <div class="stats-sub">
+            {{ home_settings.optimize_demand_note|default:"+ 160% From Last Month" }}
+        </div>
+
+        <svg
+            class="big-chart"
+            viewBox="0 0 120 95"
+            aria-hidden="true"
+        >
+            <path
+                d="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48 L120 95 L0 95 Z"
+                fill="#2f3cff33"
+            />
+
+            <path
+                d="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48"
+                fill="none"
+                stroke="#2f3cff"
+                stroke-width="2"
+            />
+        </svg>
+    </div>
+
+    <div class="stats-card stats-tall">
+        <div class="stats-title">
+            Order Quantity
+        </div>
+
+        <div class="stats-value">
+            {{ home_settings.order_quantity_value|default:"5.164k" }}
+        </div>
+
+        <div class="stats-sub">
+            <span class="percent-tag">
+                {{ home_settings.order_quantity_note|default:"157% ↑" }}
+            </span>
+        </div>
+
+        <svg
+            class="big-chart"
+            viewBox="0 0 120 95"
+            aria-hidden="true"
+        >
+            <path
+                d="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55 L120 95 L0 95 Z"
+                fill="#2f3cff33"
+            />
+
+            <path
+                d="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55"
+                fill="none"
+                stroke="#2f3cff"
+                stroke-width="2"
+            />
+        </svg>
+    </div>
+</div>
+
+<div class="vip-title">
+    VIP Levels
+</div>
+
+<div class="vip-card">
+    <div class="vip-icon">
+        {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
+            <img
+                src="{{ request.user.userprofile.vip_level.icon.url }}"
+                alt="VIP"
+            >
+        {% else %}
+            V{% if request.user.userprofile.vip_level %}
+                {{ request.user.userprofile.vip_level.level_name|slice:"3:" }}
+            {% else %}
+                1
+            {% endif %}
+        {% endif %}
+    </div>
+
+    {% if request.user.userprofile.vip_level %}
+        {{ request.user.userprofile.vip_level.level_name }}
+    {% else %}
+        VIP1
+    {% endif %}
+
+    <div class="vip-enter">
+        Enter ›
+    </div>
+</div>
+
+{% endblock %}

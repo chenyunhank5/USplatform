@@ -1,0 +1,266 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Records{% endblock %}
+
+{% block extra_css %}
+<style>
+body{
+    background:#f2f3f5;
+}
+
+.tabs{
+    display:flex;
+    gap:6px;
+    padding:18px 14px 12px;
+    background:#f2f3f5;
+    position:sticky;
+    top:0;
+    z-index:10;
+}
+
+.tab-btn{
+    flex:1;
+    height:30px;
+    background:#fff;
+    color:#000;
+    border:0;
+    border-radius:2px;
+    font-size:13px;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.tab-btn.active{
+    background:#000;
+    color:#fff;
+    font-weight:bold;
+}
+
+.records-list{
+    padding:0 14px 90px;
+}
+
+.record-time{
+    font-size:14px;
+    font-weight:bold;
+    color:#000;
+    margin:14px 0 8px;
+}
+
+.record-card{
+    background:#fff;
+    padding:16px 12px 20px;
+    border-radius:2px;
+    position:relative;
+    margin-bottom:20px;
+    border:1px solid #f0f0f0;
+}
+
+.status{
+    position:absolute;
+    top:-31px;
+    right:12px;
+    background:#000;
+    color:#fff;
+    font-size:12px;
+    font-weight:bold;
+    padding:5px 12px;
+    border-radius:2px;
+}
+
+.record-top{
+    display:flex;
+    gap:14px;
+}
+
+.product-image{
+    width:60px;
+    height:60px;
+    border-radius:8px;
+    object-fit:cover;
+    background:#f1f1f1;
+    flex-shrink:0;
+}
+
+.product-info{
+    flex:1;
+}
+
+.product-title{
+    font-size:16px;
+    font-weight:800;
+    color:#000;
+    line-height:1.55;
+}
+
+.stars{
+    margin-top:6px;
+    color:#facc15;
+    font-size:18px;
+    letter-spacing:1px;
+}
+
+.empty-star{
+    color:#d1d5db;
+}
+
+.bottom-info{
+    display:flex;
+    align-items:flex-end;
+    margin-top:12px;
+}
+
+.info-box{
+    flex:1;
+}
+
+.info-label{
+    font-size:13px;
+    font-weight:bold;
+    color:#000;
+    margin-bottom:8px;
+}
+
+.info-value{
+    font-size:14px;
+    font-weight:bold;
+    color:#000;
+}
+
+.submit-btn{
+    background:#000;
+    color:#fff;
+    border:0;
+    padding:7px 16px;
+    border-radius:4px;
+    font-size:13px;
+    font-weight:bold;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.no-more{
+    text-align:center;
+    color:#9ca3af;
+    font-size:14px;
+    margin-top:32px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="tabs">
+    <a href="{% url 'user_records' %}?status=all"
+       class="tab-btn {% if current_status == 'all' or not current_status %}active{% endif %}">
+        All
+    </a>
+
+    <a href="{% url 'user_records' %}?status=pending"
+       class="tab-btn {% if current_status == 'pending' %}active{% endif %}">
+        Pending
+    </a>
+
+    <a href="{% url 'user_records' %}?status=completed"
+       class="tab-btn {% if current_status == 'completed' %}active{% endif %}">
+        Completed
+    </a>
+</div>
+
+<div class="records-list">
+
+    {% for order in orders %}
+
+        <div class="record-time">
+            {{ order.created_at|date:"m-d-Y h:i:s a" }}
+        </div>
+
+        <div class="record-card">
+
+            <div class="status">
+                {% if order.status == "completed" %}
+                    Completed
+                {% elif order.status == "matched" or order.status == "waiting" %}
+                    Pending
+                {% else %}
+                    {{ order.status|title }}
+                {% endif %}
+            </div>
+
+            <div class="record-top">
+
+                {% if order.product and order.product.cover %}
+                    <img src="{{ order.product.cover }}" class="product-image">
+                {% else %}
+                    <div class="product-image"></div>
+                {% endif %}
+
+                <div class="product-info">
+
+                    <div class="product-title">
+                        {% if order.order_type == "lucky_reward" and order.lucky_reward %}
+                            Lucky Reward #{{ order.lucky_reward.id }}
+                        {% elif order.product %}
+                            {{ order.product.name }}
+                        {% else %}
+                            Order Record
+                        {% endif %}
+                    </div>
+
+                    <div class="stars">
+                        {% if order.rating == 5 %}
+                            ★ ★ ★ ★ ★
+                        {% elif order.rating == 4 %}
+                            ★ ★ ★ ★ <span class="empty-star">☆</span>
+                        {% elif order.rating == 3 %}
+                            ★ ★ ★ <span class="empty-star">☆ ☆</span>
+                        {% elif order.rating == 2 %}
+                            ★ ★ <span class="empty-star">☆ ☆ ☆</span>
+                        {% elif order.rating == 1 %}
+                            ★ <span class="empty-star">☆ ☆ ☆ ☆</span>
+                        {% else %}
+                            <span class="empty-star">☆ ☆ ☆ ☆ ☆</span>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="bottom-info">
+
+                <div class="info-box">
+                    <div class="info-label">Total Amount</div>
+                    <div class="info-value">USD {{ order.order_price|floatformat:2 }}</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Commission</div>
+                    <div class="info-value">USD {{ order.commission|floatformat:2 }}</div>
+                </div>
+
+                {% if order.status == "matched" or order.status == "waiting" %}
+                    <a href="{% url 'user_order_detail' order.id %}" class="submit-btn">
+                        Submit
+                    </a>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    {% empty %}
+        <div class="no-more">No More Data...</div>
+    {% endfor %}
+
+    {% if orders %}
+        <div class="no-more">No More Data...</div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

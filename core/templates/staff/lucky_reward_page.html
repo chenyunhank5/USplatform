@@ -1,0 +1,265 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Lucky Reward{% endblock %}
+{% block page_title %}Lucky Reward{% endblock %}
+
+{% block extra_css %}
+<style>
+.reward-wrapper{
+    background:#111;
+    border:1px solid #2a2a2a;
+    padding:14px;
+    color:#ddd;
+}
+
+.reward-top{
+    display:flex;
+    gap:30px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+    font-size:13px;
+}
+
+.reward-login{
+    margin-bottom:14px;
+    color:#aaa;
+    font-size:13px;
+}
+
+.reward-btns{
+    display:flex;
+    gap:10px;
+    margin-bottom:14px;
+}
+
+.reward-btn{
+    background:#409eff;
+    color:white;
+    border:0;
+    padding:9px 16px;
+    border-radius:3px;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.reward-table-wrap{
+    width:100%;
+    overflow:auto;
+    border:1px solid #333;
+    background:#111;
+}
+
+.reward-table{
+    width:100%;
+    min-width:1250px;
+    border-collapse:collapse;
+    font-size:13px;
+}
+
+.reward-table th{
+    background:#171717;
+    color:#6b7280;
+    padding:15px 12px;
+    text-align:left;
+    border:1px solid #333;
+    white-space:nowrap;
+}
+
+.reward-table td{
+    padding:14px 12px;
+    border:1px solid #333;
+    color:#e5e7eb;
+    background:#151515;
+    vertical-align:top;
+    white-space:nowrap;
+}
+
+.reward-table tr:nth-child(even) td{
+    background:#202020;
+}
+
+.green-tag{
+    display:inline-block;
+    background:#15350f;
+    color:#5cff4a;
+    padding:5px 12px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.blue-tag{
+    display:inline-block;
+    background:#0b3a66;
+    color:#60a5fa;
+    padding:5px 12px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.orange-tag{
+    display:inline-block;
+    background:#422006;
+    color:#fbbf24;
+    padding:5px 12px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.red-tag{
+    display:inline-block;
+    background:#3b1111;
+    color:#ff6b6b;
+    padding:5px 12px;
+    border-radius:3px;
+    font-size:12px;
+}
+
+.confirm-btn{
+    background:#22c55e;
+    color:white;
+    border:0;
+    padding:7px 12px;
+    border-radius:3px;
+    cursor:pointer;
+    font-size:12px;
+    margin-right:8px;
+}
+
+.delete-btn{
+    background:none;
+    border:0;
+    color:#ff4d4f;
+    cursor:pointer;
+    font-size:12px;
+    padding:0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="reward-wrapper">
+
+    <div class="reward-top">
+        <span>User name: {{ profile.user.username }}</span>
+        <span>Mobile number: {{ profile.phone_number }}</span>
+        <span>Wallet balance: {{ profile.balance }}</span>
+        <span>Current order number: {{ profile.task_progress }}</span>
+
+        <span>
+            Total order number:
+            {% if profile.vip_level %}
+                {{ profile.vip_level.maximum_task }}
+            {% else %}
+                0
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="reward-login">
+        Last login time:
+        {% if profile.recent_login %}
+            {{ profile.recent_login|date:"Y-m-d H:i:s" }}
+        {% else %}
+            -
+        {% endif %}
+    </div>
+
+    <div class="reward-btns">
+        <button type="button" class="reward-btn" onclick="openLuckyRewardModal()">
+            ＋ Add lucky reward
+        </button>
+    </div>
+
+    <div class="reward-table-wrap">
+        <table class="reward-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>The N order</th>
+                    <th>Presented payout</th>
+                    <th>Payout jump time</th>
+                    <th>Freeze</th>
+                    <th>Created by</th>
+                    <th>Creation time</th>
+                    <th>Status</th>
+                    <th>Operate</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for reward in rewards %}
+                <tr>
+                    <td>{{ reward.id }}</td>
+                    <td>{{ reward.target_order_number }}</td>
+                    <td>{{ reward.payout_amount }}</td>
+                    <td>{{ reward.payout_jump_time }} seconds</td>
+
+                    <td>
+                        {% if reward.freeze_reward %}
+                            Yes
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if reward.created_by %}
+                            {{ reward.created_by.username }}
+                        {% else %}
+                            Admin
+                        {% endif %}
+                    </td>
+
+                    <td>{{ reward.created_at|date:"Y-m-d H:i:s" }}</td>
+
+                    <td>
+                        {% if reward.status == 'completed' %}
+                            <span class="green-tag">Completed</span>
+                        {% elif reward.status == 'pending' %}
+                            <span class="orange-tag">Pending CS Confirm</span>
+                        {% elif reward.status == 'processing' %}
+                            <span class="blue-tag">Processing</span>
+                        {% elif reward.status == 'cancelled' %}
+                            <span class="red-tag">Cancelled</span>
+                        {% else %}
+                            <span class="blue-tag">Waiting</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if reward.status == 'pending' %}
+                            <form method="POST" action="{% url 'confirm_lucky_reward' reward.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="confirm-btn">
+                                    Confirm Reward
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        {% if reward.status == 'waiting' or reward.status == 'cancelled' %}
+                            <form method="POST" action="{% url 'delete_lucky_reward' reward.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-btn">
+                                    🗑 Delete
+                                </button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align:center;padding:28px;">
+                        No Data
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'staff/user_management_partials/add_lucky_reward.html' %}
+
+{% endblock %}

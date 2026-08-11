@@ -1,0 +1,233 @@
+<style>
+    .edit-user-overlay{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.65);
+        z-index:9999;
+    }
+
+    .edit-user-box{
+        width:760px;
+        max-width:95%;
+        background:#111;
+        border:1px solid #444;
+        margin:60px auto;
+        color:white;
+    }
+
+    .edit-user-header{
+        display:flex;
+        justify-content:space-between;
+        padding:14px;
+        border-bottom:1px solid #555;
+        font-size:16px;
+    }
+
+    .edit-user-header button{
+        background:none;
+        border:0;
+        color:#aaa;
+        font-size:22px;
+        cursor:pointer;
+    }
+
+    .edit-user-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:14px 20px;
+        padding:16px;
+    }
+
+    .edit-user-row{
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+
+    .edit-user-row label{
+        width:130px;
+        font-size:13px;
+        color:#ddd;
+        text-align:right;
+    }
+
+    .edit-user-row input,
+    .edit-user-row select{
+        flex:1;
+        background:#111;
+        border:1px solid #444;
+        color:white;
+        padding:8px 10px;
+        outline:none;
+    }
+
+    .edit-user-footer{
+        border-top:1px solid #555;
+        padding:14px;
+        text-align:right;
+    }
+
+    .edit-submit{
+        background:#409eff;
+        color:white;
+        border:0;
+        padding:8px 18px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+
+    .edit-cancel{
+        background:#222;
+        color:white;
+        border:1px solid #555;
+        padding:8px 18px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+</style>
+
+<div class="edit-user-overlay" id="editUserModal">
+
+    <div class="edit-user-box">
+
+        <div class="edit-user-header">
+            <span>Edit user</span>
+            <button type="button" onclick="closeEditUserModal()">×</button>
+        </div>
+
+        <form method="POST" id="editUserForm">
+            {% csrf_token %}
+
+            <div class="edit-user-grid">
+
+                <div class="edit-user-row">
+                    <label>User name</label>
+                    <input type="text" name="username" id="editUsername" required>
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Mobile number</label>
+                    <input type="text" name="phone_number" id="editPhone">
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Mailbox</label>
+                    <input type="email" name="email" id="editEmail">
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Member level</label>
+                    <select name="vip_level" id="editVipLevel">
+                        {% for vip in vip_levels %}
+                            <option value="{{ vip.id }}">
+                                {{ vip.level_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Balance</label>
+                    <input type="number" step="0.01" name="balance" id="editBalance">
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Frozen</label>
+                    <input type="number" step="0.01" name="frozen_amount" id="editFrozen">
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Credit score</label>
+                    <input type="number" name="credit_score" id="editCreditScore" min="0" max="100">
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Task progress</label>
+                    <input type="number" name="task_progress" id="editTaskProgress" min="0">
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Need auth</label>
+                    <select name="need_authorization" id="editNeedAuth">
+                        <option value="False">No</option>
+                        <option value="True">Yes</option>
+                    </select>
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Account status</label>
+                    <select name="account_status" id="editAccountStatus">
+                        <option value="active">Active</option>
+                        <option value="frozen">Frozen</option>
+                        <option value="disabled">Disabled</option>
+                    </select>
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Trade status</label>
+                    <select name="trade_status" id="editTradeStatus">
+                        <option value="enabled">Enabled</option>
+                        <option value="disabled">Disabled</option>
+                    </select>
+                </div>
+
+                <div class="edit-user-row">
+                    <label>Withdrawal status</label>
+                    <select name="withdrawal_status" id="editWithdrawalStatus">
+                        <option value="enabled">Enabled</option>
+                        <option value="disabled">Disabled</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="edit-user-footer">
+                <button type="submit" class="edit-submit">Submit</button>
+                <button type="button" class="edit-cancel" onclick="closeEditUserModal()">Cancel</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function openEditUserModal(
+    profileId,
+    username,
+    phone,
+    email,
+    vipLevel,
+    balance,
+    frozen,
+    creditScore,
+    taskProgress,
+    needAuth,
+    accountStatus,
+    tradeStatus,
+    withdrawalStatus
+){
+    document.getElementById('editUserModal').style.display = 'block';
+
+    document.getElementById('editUserForm').action = '/staff/user/' + profileId + '/edit/';
+
+    document.getElementById('editUsername').value = username;
+    document.getElementById('editPhone').value = phone;
+    document.getElementById('editEmail').value = email;
+    document.getElementById('editVipLevel').value = vipLevel;
+    document.getElementById('editBalance').value = balance;
+    document.getElementById('editFrozen').value = frozen;
+    document.getElementById('editCreditScore').value = creditScore;
+    document.getElementById('editTaskProgress').value = taskProgress;
+    document.getElementById('editNeedAuth').value = needAuth;
+    document.getElementById('editAccountStatus').value = accountStatus;
+    document.getElementById('editTradeStatus').value = tradeStatus;
+    document.getElementById('editWithdrawalStatus').value = withdrawalStatus;
+}
+
+function closeEditUserModal(){
+    document.getElementById('editUserModal').style.display = 'none';
+}
+</script>

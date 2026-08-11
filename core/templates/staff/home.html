@@ -1,0 +1,142 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Home page{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-grid{
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:16px;
+        margin-bottom:16px;
+    }
+
+    .stats-card,
+    .dashboard-box{
+        background:#181818;
+        border:1px solid #333;
+        border-radius:4px;
+    }
+
+    .stats-card{
+        padding:18px;
+    }
+
+    .stats-title{
+        color:#9ca3af;
+        font-size:13px;
+        margin-bottom:12px;
+    }
+
+    .stats-value{
+        color:white;
+        font-size:32px;
+        font-weight:bold;
+    }
+
+    .dashboard-layout{
+        display:grid;
+        grid-template-columns:2fr 1fr;
+        gap:16px;
+    }
+
+    .box-header{
+        background:#171717;
+        color:#9ca3af;
+        padding:13px 16px;
+        border-bottom:1px solid #333;
+        font-weight:bold;
+    }
+
+    .recent-item,
+    .status-item{
+        display:flex;
+        justify-content:space-between;
+        padding:14px 16px;
+        border-bottom:1px solid #333;
+    }
+
+    .recent-user{color:white;font-weight:bold}
+    .muted{color:#9ca3af;font-size:12px}
+    .blue-text{color:#409eff;font-weight:bold}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="stats-grid">
+    <div class="stats-card">
+        <div class="stats-title">Total users</div>
+        <div class="stats-value">{{ total_users }}</div>
+    </div>
+
+    <div class="stats-card">
+        <div class="stats-title">Registered today</div>
+        <div class="stats-value">{{ total_register_today }}</div>
+    </div>
+
+    <div class="stats-card">
+        <div class="stats-title">Online users</div>
+        <div class="stats-value">{{ online_users }}</div>
+    </div>
+
+    <div class="stats-card">
+        <div class="stats-title">Products</div>
+        <div class="stats-value">{{ product_count }}</div>
+    </div>
+</div>
+
+<div class="dashboard-layout">
+
+    <div class="dashboard-box">
+        <div class="box-header">Recent registrations</div>
+
+        {% for profile in recent_users %}
+        <div class="recent-item">
+            <div>
+                <div class="recent-user">{{ profile.user.username }}</div>
+                <div class="muted">{{ profile.registration_time|date:"Y-m-d H:i" }}</div>
+            </div>
+
+            <div class="blue-text">
+                {% if profile.vip_level %}
+                    {{ profile.vip_level.level_name }}
+                {% else %}
+                    VIP1
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="recent-item">No recent registrations</div>
+        {% endfor %}
+    </div>
+
+    <div class="dashboard-box">
+        <div class="box-header">System status</div>
+
+        <div class="status-item">
+            <span>Server</span>
+            <span class="blue-text">Running</span>
+        </div>
+
+        <div class="status-item">
+            <span>VIP levels</span>
+            <span class="blue-text">{{ vip_count }}</span>
+        </div>
+
+        <div class="status-item">
+            <span>Product evaluations</span>
+            <span class="blue-text">{{ evaluation_count }}</span>
+        </div>
+
+        <div class="status-item">
+            <span>Online users</span>
+            <span class="blue-text">{{ online_users }}</span>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

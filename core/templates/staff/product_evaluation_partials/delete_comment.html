@@ -1,0 +1,133 @@
+<style>
+
+    .delete-comment-overlay{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.70);
+        z-index:99999;
+    }
+
+    .delete-comment-box{
+        width:430px;
+        max-width:92%;
+        background:#111;
+        border:1px solid #444;
+        margin:180px auto;
+        color:white;
+        border-radius:4px;
+    }
+
+    .delete-comment-header{
+        padding:16px 20px;
+        border-bottom:1px solid #444;
+        font-size:17px;
+        font-weight:bold;
+    }
+
+    .delete-comment-body{
+        padding:30px 20px;
+        font-size:14px;
+        line-height:1.7;
+        color:#d1d5db;
+    }
+
+    .delete-comment-name{
+        color:#409eff;
+        font-weight:bold;
+        word-break:break-word;
+        margin-top:10px;
+    }
+
+    .delete-comment-footer{
+        border-top:1px solid #444;
+        padding:16px 20px;
+        text-align:right;
+    }
+
+    .delete-comment-confirm{
+        background:#ef4444;
+        color:white;
+        border:0;
+        padding:10px 22px;
+        border-radius:3px;
+        cursor:pointer;
+        margin-right:8px;
+    }
+
+    .delete-comment-cancel{
+        background:#222;
+        color:white;
+        border:1px solid #555;
+        padding:10px 22px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+
+</style>
+
+<div class="delete-comment-overlay" id="deleteCommentModal">
+
+    <div class="delete-comment-box">
+
+        <div class="delete-comment-header">
+            Delete Comment
+        </div>
+
+        <div class="delete-comment-body">
+
+            Are you sure you want to delete:
+
+            <div
+                class="delete-comment-name"
+                id="deleteCommentName"
+            ></div>
+
+        </div>
+
+        <div class="delete-comment-footer">
+
+            <form method="POST" id="deleteCommentForm">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="delete-comment-confirm"
+                >
+                    Delete
+                </button>
+
+                <button
+                    type="button"
+                    class="delete-comment-cancel"
+                    onclick="closeDeleteCommentModal()"
+                >
+                    Cancel
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function openDeleteCommentModal(id, content){
+
+    document.getElementById('deleteCommentModal').style.display = 'block';
+
+    document.getElementById('deleteCommentName').innerText = content;
+
+    document.getElementById('deleteCommentForm').action =
+        '/staff/product-evaluation/' + id + '/delete/';
+}
+
+function closeDeleteCommentModal(){
+    document.getElementById('deleteCommentModal').style.display = 'none';
+}
+
+</script>

@@ -1,0 +1,77 @@
+{% extends "user/base.html" %}
+
+{% block title %}More Services{% endblock %}
+
+{% block extra_css %}
+    .services-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: -14px -16px 0;
+        color: #fff;
+        background: #000;
+        border-bottom: 2px solid #d1d5db;
+    }
+
+    .services-back {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        width: 32px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        transform: translateY(-50%);
+    }
+
+    .services-back::before {
+        width: 12px;
+        height: 12px;
+        content: "";
+        border-left: 2px solid #fff;
+        border-bottom: 2px solid #fff;
+        transform: rotate(45deg);
+    }
+
+    .services-header h1 { margin: 0; font-size: 18px; }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px 12px;
+        padding: 28px 4px;
+    }
+
+    .service-item {
+        color: #111;
+        text-align: center;
+        text-decoration: none;
+        font-size: 12px;
+    }
+
+    .service-item img {
+        width: 46px;
+        height: 46px;
+        display: block;
+        margin: 0 auto 8px;
+        object-fit: contain;
+    }
+{% endblock %}
+
+{% block content %}
+<header class="services-header">
+    <a href="{% url 'user_settings' %}" class="services-back" aria-label="Back to settings"></a>
+    <h1>More Services</h1>
+</header>
+
+<div class="services-grid">
+    <a href="{% url 'my_team' %}" class="service-item">
+        <img src="{{ home_settings.my_team_icon_url }}" alt="My Team">
+        My Team
+    </a>
+</div>
+{% endblock %}

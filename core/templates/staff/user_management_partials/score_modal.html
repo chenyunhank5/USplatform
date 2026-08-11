@@ -1,0 +1,172 @@
+<style>
+    .score-modal-overlay{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.65);
+        z-index:9999;
+    }
+
+    .score-modal-box{
+        width:460px;
+        max-width:95%;
+        background:#111;
+        border:1px solid #444;
+        margin:80px auto;
+        color:white;
+        border-radius:2px;
+    }
+
+    .score-modal-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:12px 14px;
+        border-bottom:1px solid #444;
+        font-size:16px;
+    }
+
+    .score-modal-header button{
+        background:none;
+        border:0;
+        color:#999;
+        font-size:22px;
+        cursor:pointer;
+    }
+
+    .score-modal-row{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        padding:12px 14px;
+    }
+
+    .score-modal-row label{
+        width:120px;
+        color:#ddd;
+        font-size:13px;
+    }
+
+    .score-modal-row label span{
+        color:#ff4d4f;
+    }
+
+    .score-modal-row input,
+    .score-modal-row select{
+        flex:1;
+        background:#111;
+        border:1px solid #444;
+        color:white;
+        padding:8px 10px;
+        outline:none;
+        border-radius:2px;
+    }
+
+    .score-modal-footer{
+        border-top:1px solid #444;
+        padding:12px 14px;
+        text-align:right;
+    }
+
+    .score-submit-btn{
+        background:#409eff;
+        color:white;
+        border:0;
+        padding:7px 18px;
+        border-radius:3px;
+        cursor:pointer;
+        margin-right:8px;
+    }
+
+    .score-cancel-btn{
+        background:#222;
+        color:white;
+        border:1px solid #555;
+        padding:7px 18px;
+        border-radius:3px;
+        cursor:pointer;
+    }
+</style>
+
+<div class="score-modal-overlay" id="scoreModal">
+
+    <div class="score-modal-box">
+
+        <div class="score-modal-header">
+            <span>Score modification</span>
+
+            <button type="button" onclick="closeScoreModal()">
+                ×
+            </button>
+        </div>
+
+        <form method="POST" id="scoreForm">
+            {% csrf_token %}
+
+            <div class="score-modal-row">
+                <label>
+                    <span>*</span>
+                    Current balance
+                </label>
+
+                <input type="text" id="currentBalance" readonly>
+            </div>
+
+            <div class="score-modal-row">
+                <label>
+                    <span>*</span>
+                    Operation type
+                </label>
+
+                <select name="operation_type" required>
+                    <option value="plus">Plus</option>
+                    <option value="minus">Minus</option>
+                </select>
+            </div>
+
+            <div class="score-modal-row">
+                <label>
+                    <span>*</span>
+                    Amount
+                </label>
+
+                <input
+                    type="number"
+                    step="0.01"
+                    name="amount"
+                    placeholder="Please enter amount"
+                    required
+                >
+            </div>
+
+            <div class="score-modal-footer">
+                <button type="submit" class="score-submit-btn">
+                    Submit
+                </button>
+
+                <button
+                    type="button"
+                    class="score-cancel-btn"
+                    onclick="closeScoreModal()"
+                >
+                    Cancel
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    function openScoreModal(profileId, balance){
+        document.getElementById('scoreModal').style.display = 'block';
+        document.getElementById('currentBalance').value = balance;
+        document.getElementById('scoreForm').action = '/staff/user/' + profileId + '/score/';
+    }
+
+    function closeScoreModal(){
+        document.getElementById('scoreModal').style.display = 'none';
+    }
+</script>
