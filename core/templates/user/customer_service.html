@@ -309,6 +309,54 @@
             display:none;
         }
 
+        .image-preview{
+            display:none;
+            align-items:center;
+            gap:10px;
+            margin-bottom:9px;
+            padding:8px;
+            border:1px solid #f0dfd1;
+            border-radius:12px;
+            background:#fff8f2;
+        }
+
+        .image-preview.show{
+            display:flex;
+        }
+
+        .image-preview img{
+            width:58px;
+            height:58px;
+            border-radius:9px;
+            object-fit:cover;
+            background:#eee;
+        }
+
+        .image-preview-info{
+            min-width:0;
+            flex:1;
+            color:#555;
+            font-size:12px;
+        }
+
+        .image-preview-name{
+            display:block;
+            overflow:hidden;
+            color:#222;
+            font-weight:600;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+
+        .remove-image-btn{
+            border:none;
+            background:transparent;
+            color:#d9534f;
+            cursor:pointer;
+            font-size:12px;
+            font-weight:600;
+        }
+
         .chat-input{
             flex:1;
             height:44px;
@@ -528,11 +576,23 @@
 
     {% csrf_token %}
 
+    <div class="image-preview" id="imagePreview" aria-live="polite">
+        <img id="imagePreviewThumbnail" alt="Selected image preview">
+        <div class="image-preview-info">
+            <span class="image-preview-name" id="imagePreviewName"></span>
+            <span id="imagePreviewSize"></span>
+        </div>
+        <button type="button" class="remove-image-btn" id="removeImageButton">
+            Remove
+        </button>
+    </div>
+
     <div class="chat-form-inner">
 
         <label class="upload-btn">
             +
             <input type="file"
+                   id="imageInput"
                    name="image"
                    class="file-input"
                    accept="image/*">
@@ -578,6 +638,58 @@
     const chatForm = document.getElementById("chatForm");
     const messageInput = document.getElementById("messageInput");
     const messagesArea = document.getElementById("messagesArea");
+    const imageInput = document.getElementById("imageInput");
+    const imagePreview = document.getElementById("imagePreview");
+    const imagePreviewThumbnail = document.getElementById("imagePreviewThumbnail");
+    const imagePreviewName = document.getElementById("imagePreviewName");
+    const imagePreviewSize = document.getElementById("imagePreviewSize");
+    const removeImageButton = document.getElementById("removeImageButton");
+    let imagePreviewUrl = null;
+
+    function clearImagePreview(){
+        if(imagePreviewUrl){
+            URL.revokeObjectURL(imagePreviewUrl);
+            imagePreviewUrl = null;
+        }
+
+        imageInput.value = "";
+        imagePreviewThumbnail.removeAttribute("src");
+        imagePreviewName.textContent = "";
+        imagePreviewSize.textContent = "";
+        imagePreview.classList.remove("show");
+    }
+
+    imageInput.addEventListener("change", function(){
+        const file = imageInput.files[0];
+
+        if(!file){
+            clearImagePreview();
+            return;
+        }
+
+        if(!file.type.startsWith("image/")){
+            clearImagePreview();
+            alert("Please select an image file.");
+            return;
+        }
+
+        if(imagePreviewUrl){
+            URL.revokeObjectURL(imagePreviewUrl);
+        }
+
+        imagePreviewUrl = URL.createObjectURL(file);
+        imagePreviewThumbnail.src = imagePreviewUrl;
+        imagePreviewName.textContent = file.name;
+        imagePreviewSize.textContent = (file.size / 1024).toFixed(1) + " KB";
+        imagePreview.classList.add("show");
+    });
+
+    removeImageButton.addEventListener("click", clearImagePreview);
+    window.addEventListener("beforeunload", function(){
+        if(imagePreviewUrl){
+            URL.revokeObjectURL(imagePreviewUrl);
+        }
+    });
 
     function scrollBottom(){
         messagesArea.scrollTop = messagesArea.scrollHeight;
