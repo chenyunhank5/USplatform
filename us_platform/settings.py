@@ -40,6 +40,9 @@ ALLOWED_HOSTS = [
     'www.azmarketinghub.com',
 ]
 
+if DEBUG:
+    ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost'])
+
 CSRF_TRUSTED_ORIGINS = [
     'https://azmarketinghub.com',
     'https://www.azmarketinghub.com',
@@ -119,6 +122,12 @@ CACHES = {
         },
     },
 }
+
+if DEBUG:
+    CACHES['default'] = {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'us-platform-development',
+    }
 
 
 # Password validation
