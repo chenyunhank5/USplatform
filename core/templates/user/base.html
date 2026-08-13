@@ -71,6 +71,37 @@
             display:block;
         }
 
+        .nav-icon-wrap{
+            position:relative;
+            width:38px;
+            height:38px;
+            margin:0 auto 4px;
+        }
+
+        .nav-icon-wrap .nav-icon-img{
+            margin:0;
+        }
+
+        .message-count-badge{
+            position:absolute;
+            top:-7px;
+            right:-10px;
+            min-width:20px;
+            height:20px;
+            padding:0 5px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#fff;
+            background:#ef4444;
+            border:2px solid #fff;
+            border-radius:999px;
+            font-size:10px;
+            font-weight:800;
+            line-height:1;
+            box-shadow:0 2px 5px rgba(0,0,0,.2);
+        }
+
         .order-center{
             margin-top:-38px;
         }
@@ -173,11 +204,19 @@
         <a href="{% url 'user_messages' %}"
            class="nav-item {% if request.resolver_match.url_name == 'user_messages' or request.resolver_match.url_name == 'customer_service' %}active{% endif %}">
 
-            {% if request.resolver_match.url_name == 'user_messages' or request.resolver_match.url_name == 'customer_service' %}
-                <img src="{{ home_settings.messages_nav_active_url }}" class="nav-icon-img" alt="Messages" decoding="async">
-            {% else %}
-                <img src="{{ home_settings.messages_nav_inactive_url }}" class="nav-icon-img" alt="Messages" decoding="async">
-            {% endif %}
+            <span class="nav-icon-wrap">
+                {% if request.resolver_match.url_name == 'user_messages' or request.resolver_match.url_name == 'customer_service' %}
+                    <img src="{{ home_settings.messages_nav_active_url }}" class="nav-icon-img" alt="Messages" decoding="async">
+                {% else %}
+                    <img src="{{ home_settings.messages_nav_inactive_url }}" class="nav-icon-img" alt="Messages" decoding="async">
+                {% endif %}
+
+                {% if unread_message_count %}
+                    <span class="message-count-badge" aria-label="{{ unread_message_count }} unread messages">
+                        {% if unread_message_count > 99 %}99+{% else %}{{ unread_message_count }}{% endif %}
+                    </span>
+                {% endif %}
+            </span>
 
             Messages
         </a>

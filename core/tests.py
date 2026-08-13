@@ -5,7 +5,13 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import HomePageSettings, Product
+from .models import (
+    DepositRecord,
+    HomePageSettings,
+    Product,
+    SupportMessage,
+    WithdrawalRequest,
+)
 from .views import get_random_product
 
 
@@ -69,6 +75,27 @@ class CustomerEntryAndWalletTests(TestCase):
         self.client.logout()
         response = self.client.get(reverse("user_login"))
         self.assertContains(response, 'id="pageLoadingOverlay"')
+
+    def test_messages_navigation_shows_combined_unread_count(self):
+        staff = User.objects.create_user(username="support", password="test-password", is_staff=True)
+        SupportMessage.objects.create(
+            user=self.user,
+            sender=staff,
+            message="Support reply",
+            is_read_by_user=False,
+            is_read_by_staff=True,
+        )
+        DepositRecord.objects.create(user=self.user, amount="25.00", is_read_by_user=False)
+        WithdrawalRequest.objects.create(user=self.user, amount="10.00", is_read_by_user=False)
+
+        response = self.client.get(reverse("user_home"))
+
+        self.assertContains(response, 'class="message-count-badge"')
+        self.assertContains(response, "3 unread messages")
+
+    def test_messages_navigation_hides_badge_without_unread_messages(self):
+        response = self.client.get(reverse("user_home"))
+        self.assertNotContains(response, 'class="message-count-badge"')
 
     def test_verify_button_is_hidden_when_authorization_is_disabled(self):
         profile = self.user.userprofile
