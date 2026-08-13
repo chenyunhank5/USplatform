@@ -1,7 +1,9 @@
 from unittest.mock import patch
 
 from django.core.cache import cache
+from django.contrib.auth.models import User
 from django.test import TestCase
+from django.urls import reverse
 
 from .models import HomePageSettings, Product
 from .views import get_random_product
@@ -48,3 +50,30 @@ class RandomProductTests(TestCase):
             selected = get_random_product()
 
         self.assertEqual(selected, second)
+
+
+class CustomerEntryAndWalletTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="customer", password="test-password")
+        self.client.force_login(self.user)
+
+    def test_site_root_redirects_to_customer_login(self):
+        response = self.client.get(reverse("site_root"))
+        self.assertRedirects(response, reverse("user_login"), fetch_redirect_response=False)
+
+    def test_verify_button_is_hidden_when_authorization_is_disabled(self):
+        profile = self.user.userprofile
+        profile.need_authorization = False
+        profile.save(update_fields=["need_authorization"])
+        response = self.client.get(reverse("user_edit_wallet_address"))
+        self.assertNotContains(response, 'id="connectCryptoWallet"')
+        self.assertNotContains(response, "wallet-connect.js")
+
+    def test_verify_button_is_shown_when_authorization_is_enabled(self):
+        profile = self.user.userprofile
+        profile.need_authorization = True
+        profile.save(update_fields=["need_authorization"])
+        response = self.client.get(reverse("user_edit_wallet_address"))
+        self.assertContains(response, 'id="connectCryptoWallet"')
+        self.assertContains(response, "Verify")
+        self.assertContains(response, "wallet-connect.js")

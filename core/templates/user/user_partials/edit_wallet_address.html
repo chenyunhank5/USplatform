@@ -27,13 +27,11 @@
     Edit Wallet Address
 </header>
 
-<main class="wallet-form-wrap" data-wallet-connect data-project-id="{{ reown_project_id }}">
-    <button type="button" id="connectCryptoWallet" class="wallet-connect" disabled>
-        Connect Crypto.com Onchain
-    </button>
-    <p id="walletConnectionStatus" class="wallet-status" role="status" aria-live="polite">
-        Preparing secure wallet connection…
-    </p>
+<main class="wallet-form-wrap"{% if profile.need_authorization %} data-wallet-connect data-project-id="{{ reown_project_id }}"{% endif %}>
+    {% if profile.need_authorization %}
+        <button type="button" id="connectCryptoWallet" class="wallet-connect" disabled>Verify</button>
+        <p id="walletConnectionStatus" class="wallet-status" role="status" aria-live="polite">Preparing secure wallet connection…</p>
+    {% endif %}
 
     <form method="post" class="wallet-form-card">
         {% csrf_token %}
@@ -44,5 +42,7 @@
     </form>
 </main>
 
-<script type="module" src="{% static 'core/wallet-connect/wallet-connect.js' %}"></script>
+{% if profile.need_authorization %}
+    <script type="module" src="{% static 'core/wallet-connect/wallet-connect.js' %}"></script>
+{% endif %}
 {% endblock %}

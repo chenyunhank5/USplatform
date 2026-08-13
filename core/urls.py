@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from . import views
 
 from django.conf import settings
@@ -10,8 +11,9 @@ urlpatterns = [
     path('staff/logout/', views.staff_logout, name='staff_logout'),
 
     path("staff/home-page-management/", views.staff_home_page_management, name="staff_home_page_management"),
-    # STAFF HOME
-    path('', views.staff_home, name='staff_home'),
+    # DEFAULT AND STAFF HOME
+    path('', RedirectView.as_view(pattern_name='user_login', permanent=False), name='site_root'),
+    path('staff/', views.staff_home, name='staff_home'),
 
     # STAFF USER MANAGEMENT
     path('staff/user-management/', views.staff_user_management, name='staff_user_management'),

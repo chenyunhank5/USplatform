@@ -43,7 +43,7 @@ if (root && connectButton && addressInput && status) {
     cryptoWalletButton.subscribeIsReady(({ isReady }) => {
       connectButton.disabled = !isReady
       if (isReady && !appKit.getAddress()) {
-        setStatus('Tap to open Crypto.com Onchain and approve the connection.')
+        setStatus('Tap Verify to open Crypto.com Onchain and approve the connection.')
       }
     })
 
@@ -51,7 +51,6 @@ if (root && connectButton && addressInput && status) {
       if (isConnected && address) {
         addressInput.value = address
         setStatus('Crypto.com Onchain connected. Your public address is ready to save.', 'success')
-        connectButton.textContent = 'Wallet Connected'
       }
     })
 
