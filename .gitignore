@@ -13,3 +13,8 @@ node_modules/
 .pnpm-store/
 .codex-verify-venv/
 .django-cache/
+blockchain/aztoken/artifacts/
+blockchain/aztoken/cache/
+blockchain/aztoken/coverage/
+blockchain/aztoken/coverage.json
+blockchain/aztoken/typechain-types/
