@@ -12,3 +12,4 @@ staticfiles/
 node_modules/
 .pnpm-store/
 .codex-verify-venv/
+.django-cache/

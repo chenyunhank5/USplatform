@@ -668,6 +668,9 @@
                     {% if msg.image %}
                         <img src="{{ msg.image.url }}"
                              class="message-image"
+                             loading="lazy"
+                             decoding="async"
+                             alt="Support attachment"
                              onclick="openImageModal('{{ msg.image.url }}')">
                     {% endif %}
 

@@ -212,7 +212,7 @@
 
 <a href="{% url 'customer_service' %}" class="service-card">
     <div class="service-icon">
-        <img src="{{ home_settings.online_customer_service_icon_url }}" alt="Online Customer Service">
+        <img src="{{ home_settings.online_customer_service_icon_url }}" alt="Online Customer Service" decoding="async">
     </div>
     <div class="service-copy">
         <div class="service-title-row">
@@ -239,9 +239,9 @@
            class="notification-item {{ notification.type }} {% if notification.is_read %}read{% else %}unread{% endif %}">
             <div class="notification-icon">
                 {% if notification.type == 'deposit' %}
-                    <img src="{{ home_settings.deposit_icon_url }}" alt="Deposit">
+                    <img src="{{ home_settings.deposit_icon_url }}" alt="Deposit" loading="lazy" decoding="async">
                 {% else %}
-                    <img src="{{ home_settings.withdrawal_icon_url }}" alt="Withdrawal">
+                    <img src="{{ home_settings.withdrawal_icon_url }}" alt="Withdrawal" loading="lazy" decoding="async">
                 {% endif %}
             </div>
             <div class="notification-copy">

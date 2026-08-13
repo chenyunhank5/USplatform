@@ -194,7 +194,7 @@ body{
             <div class="record-top">
 
                 {% if order.product and order.product.cover %}
-                    <img src="{{ order.product.cover }}" class="product-image">
+                    <img src="{{ order.product.cover }}" class="product-image" loading="lazy" decoding="async" alt="{{ order.product.name|default:'Product' }}">
                 {% else %}
                     <div class="product-image"></div>
                 {% endif %}

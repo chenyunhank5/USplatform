@@ -418,15 +418,15 @@ body{
 
     <div class="image-slider" id="imageSlider">
         {% if order.product.cover %}
-            <img src="{{ order.product.cover }}" class="slide-img active">
+            <img src="{{ order.product.cover }}" class="slide-img active" decoding="async" fetchpriority="high" alt="{{ order.product.name|default:'Product' }}">
         {% endif %}
 
         {% if order.product.goods_album_1 %}
-            <img src="{{ order.product.goods_album_1 }}" class="slide-img">
+            <img src="{{ order.product.goods_album_1 }}" class="slide-img" loading="lazy" decoding="async" alt="Product image">
         {% endif %}
 
         {% if order.product.goods_album_2 %}
-            <img src="{{ order.product.goods_album_2 }}" class="slide-img">
+            <img src="{{ order.product.goods_album_2 }}" class="slide-img" loading="lazy" decoding="async" alt="Product image">
         {% endif %}
     </div>
 

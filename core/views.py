@@ -1,3 +1,4 @@
+import random
 from decimal import Decimal
 from datetime import timedelta
 from functools import wraps
@@ -10,10 +11,41 @@ from django.contrib.auth import update_session_auth_hash, authenticate, login, l
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 from django.db import transaction
-from django.db.models import Count, Q, Max, Sum
+from django.db.models import Count, Q, Max, Min, Sum
 from django.urls import reverse
 
 from .models import UserProfile, VipLevel, Product, ProductEvaluation, WithdrawalRequest, DepositRecord, SupportMessage, UserOrder, LuckyReward, SuccessiveOrderPlan, HomePageSettings    
+
+
+def get_home_settings(request):
+    home_settings = getattr(request, "_home_page_settings", None)
+
+    if home_settings is None:
+        home_settings = HomePageSettings.load()
+        request._home_page_settings = home_settings
+
+    return home_settings
+
+
+def get_random_product():
+    """Choose a product without SQLite's expensive ORDER BY RANDOM()."""
+    product_bounds = Product.objects.aggregate(
+        minimum_id=Min("id"),
+        maximum_id=Max("id"),
+    )
+    minimum_id = product_bounds["minimum_id"]
+    maximum_id = product_bounds["maximum_id"]
+
+    if minimum_id is None or maximum_id is None:
+        return None
+
+    random_id = random.randint(minimum_id, maximum_id)
+    product = Product.objects.filter(id__gte=random_id).order_by("id").first()
+
+    if product is None:
+        product = Product.objects.order_by("id").first()
+
+    return product
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -71,7 +103,7 @@ def staff_logout(request):
 
 @staff_required
 def staff_home_page_management(request):
-    home_settings = HomePageSettings.load()
+    home_settings = get_home_settings(request)
 
     section_fields = {
         "home": (
@@ -1124,7 +1156,7 @@ def user_login(request):
 
 def terms_and_conditions(request):
     return render(request, 'user/terms_and_conditions.html', {
-        'home_settings': HomePageSettings.load(),
+        'home_settings': get_home_settings(request),
     })
 
 
@@ -1155,7 +1187,7 @@ def user_content_page(request, page_key):
         return redirect('user_home')
 
     page_title, content_field = page
-    home_settings = HomePageSettings.load()
+    home_settings = get_home_settings(request)
 
     return render(request, 'user/content_page.html', {
         'page_title': page_title,
@@ -1290,7 +1322,7 @@ def user_order_info_page(request, page_key):
         return redirect('user_order')
 
     page_title, content_field = page
-    home_settings = HomePageSettings.load()
+    home_settings = get_home_settings(request)
 
     return render(request, 'user/content_page.html', {
         'page_title': page_title,
@@ -1332,7 +1364,7 @@ def user_home(request):
     return render(
         request,
         "user/home.html",
-        {"home_settings": HomePageSettings.load()},
+        {"home_settings": get_home_settings(request)},
     )
 
 @login_required(login_url='user_login')
@@ -1463,7 +1495,7 @@ def user_order(request):
             "completed_orders": completed_orders,
             "remaining_frozen": remaining_frozen,
             "latest_lucky_reward": latest_lucky_reward,
-            "home_settings": HomePageSettings.load(),
+            "home_settings": get_home_settings(request),
         }
     )
 
@@ -1591,7 +1623,7 @@ def start_order(request):
             order_id=order.id
         )
 
-    product = Product.objects.order_by("?").first()
+    product = get_random_product()
 
     if not product:
         messages.error(

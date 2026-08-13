@@ -592,7 +592,7 @@
                 loop
                 playsinline
                 webkit-playsinline
-                preload="auto"
+                preload="metadata"
                 disablepictureinpicture
                 controlslist="nodownload noplaybackrate noremoteplayback"
                 aria-label="Order banner video"
@@ -605,6 +605,8 @@
                 src="{{ home_settings.order_banner_url }}"
                 class="order-banner-image"
                 alt="Order banner"
+                decoding="async"
+                fetchpriority="high"
             >
         {% endif %}
     {% else %}
@@ -612,6 +614,7 @@
             src="{{ home_settings.order_nav_active_url }}"
             class="center-logo-img"
             alt="Order banner"
+            decoding="async"
         >
     {% endif %}
 </div>

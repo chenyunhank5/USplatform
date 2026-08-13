@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>{% block title %}Landor{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+    <link rel="dns-prefetch" href="//res.cloudinary.com">
 
     <style>
         *{
@@ -134,9 +136,9 @@
            class="nav-item {% if request.resolver_match.url_name == 'user_home' or request.resolver_match.url_name == 'transaction_notice' or request.resolver_match.url_name == 'campaign' or request.resolver_match.url_name == 'illustrate' or request.resolver_match.url_name == 'faqs' or request.resolver_match.url_name == 'company_profile' %}active{% endif %}">
 
             {% if request.resolver_match.url_name == 'user_home' or request.resolver_match.url_name == 'transaction_notice' or request.resolver_match.url_name == 'campaign' or request.resolver_match.url_name == 'illustrate' or request.resolver_match.url_name == 'faqs' or request.resolver_match.url_name == 'company_profile' %}
-                <img src="{{ home_settings.home_nav_active_url }}" class="nav-icon-img" alt="Home">
+                <img src="{{ home_settings.home_nav_active_url }}" class="nav-icon-img" alt="Home" decoding="async">
             {% else %}
-                <img src="{{ home_settings.home_nav_inactive_url }}" class="nav-icon-img" alt="Home">
+                <img src="{{ home_settings.home_nav_inactive_url }}" class="nav-icon-img" alt="Home" decoding="async">
             {% endif %}
 
             Home
@@ -146,9 +148,9 @@
            class="nav-item {% if request.resolver_match.url_name == 'user_records' %}active{% endif %}">
 
             {% if request.resolver_match.url_name == 'user_records' %}
-                <img src="{{ home_settings.records_nav_active_url }}" class="nav-icon-img" alt="Records">
+                <img src="{{ home_settings.records_nav_active_url }}" class="nav-icon-img" alt="Records" decoding="async">
             {% else %}
-                <img src="{{ home_settings.records_nav_inactive_url }}" class="nav-icon-img" alt="Records">
+                <img src="{{ home_settings.records_nav_inactive_url }}" class="nav-icon-img" alt="Records" decoding="async">
             {% endif %}
 
             Records
@@ -159,9 +161,9 @@
 
             <div class="order-circle">
                 {% if request.resolver_match.url_name == 'user_order' or request.resolver_match.url_name == 'user_order_detail' or request.resolver_match.url_name == 'order_description' or request.resolver_match.url_name == 'please_note' %}
-                    <img src="{{ home_settings.order_nav_active_url }}" alt="Order">
+                    <img src="{{ home_settings.order_nav_active_url }}" alt="Order" decoding="async">
                 {% else %}
-                    <img src="{{ home_settings.order_nav_inactive_url }}" alt="Order">
+                    <img src="{{ home_settings.order_nav_inactive_url }}" alt="Order" decoding="async">
                 {% endif %}
             </div>
 
@@ -172,9 +174,9 @@
            class="nav-item {% if request.resolver_match.url_name == 'user_messages' or request.resolver_match.url_name == 'customer_service' %}active{% endif %}">
 
             {% if request.resolver_match.url_name == 'user_messages' or request.resolver_match.url_name == 'customer_service' %}
-                <img src="{{ home_settings.messages_nav_active_url }}" class="nav-icon-img" alt="Messages">
+                <img src="{{ home_settings.messages_nav_active_url }}" class="nav-icon-img" alt="Messages" decoding="async">
             {% else %}
-                <img src="{{ home_settings.messages_nav_inactive_url }}" class="nav-icon-img" alt="Messages">
+                <img src="{{ home_settings.messages_nav_inactive_url }}" class="nav-icon-img" alt="Messages" decoding="async">
             {% endif %}
 
             Messages
@@ -184,9 +186,9 @@
            class="nav-item {% if request.resolver_match.url_name == 'user_settings' or request.resolver_match.url_name == 'more_services' or request.resolver_match.url_name == 'my_team' or request.resolver_match.url_name == 'user_trading_account' or request.resolver_match.url_name == 'user_edit_wallet_address' or request.resolver_match.url_name == 'user_personal_information' or request.resolver_match.url_name == 'user_update_email' or request.resolver_match.url_name == 'user_update_password' or request.resolver_match.url_name == 'user_update_transaction_password' %}active{% endif %}">
 
             {% if request.resolver_match.url_name == 'user_settings' or request.resolver_match.url_name == 'more_services' or request.resolver_match.url_name == 'my_team' or request.resolver_match.url_name == 'user_trading_account' or request.resolver_match.url_name == 'user_edit_wallet_address' or request.resolver_match.url_name == 'user_personal_information' or request.resolver_match.url_name == 'user_update_email' or request.resolver_match.url_name == 'user_update_password' or request.resolver_match.url_name == 'user_update_transaction_password' %}
-                <img src="{{ home_settings.settings_nav_active_url }}" class="nav-icon-img" alt="Settings">
+                <img src="{{ home_settings.settings_nav_active_url }}" class="nav-icon-img" alt="Settings" decoding="async">
             {% else %}
-                <img src="{{ home_settings.settings_nav_inactive_url }}" class="nav-icon-img" alt="Settings">
+                <img src="{{ home_settings.settings_nav_inactive_url }}" class="nav-icon-img" alt="Settings" decoding="async">
             {% endif %}
 
             Settings
@@ -215,6 +217,31 @@ function showAlert(message){
         alertBox.classList.remove('show');
     }, 2200);
 }
+
+// Warm the browser cache for the other primary pages after the current page
+// is interactive. Navigation remains normal and still works without JS.
+(() => {
+    const activeUrl = window.location.href;
+    const navUrls = [...document.querySelectorAll('.bottom-nav .nav-item')]
+        .map((link) => link.href)
+        .filter((url) => url && url !== activeUrl);
+
+    const prefetchPrimaryPages = () => {
+        navUrls.forEach((url) => {
+            const hint = document.createElement('link');
+            hint.rel = 'prefetch';
+            hint.href = url;
+            hint.as = 'document';
+            document.head.appendChild(hint);
+        });
+    };
+
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(prefetchPrimaryPages, { timeout: 2500 });
+    } else {
+        window.setTimeout(prefetchPrimaryPages, 1200);
+    }
+})();
 </script>
 
 {% if messages %}

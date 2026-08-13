@@ -244,7 +244,7 @@
             loop
             playsinline
             webkit-playsinline
-            preload="auto"
+            preload="metadata"
             disablepictureinpicture
             controlslist="nodownload noplaybackrate noremoteplayback"
             aria-label="Home banner video"
@@ -257,6 +257,8 @@
             class="hero-media"
             src="{{ home_settings.banner_url }}"
             alt="Home banner"
+            decoding="async"
+            fetchpriority="high"
         >
     {% endif %}
 {% else %}
@@ -264,6 +266,8 @@
         class="hero-media"
         src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=80"
         alt="Home banner"
+        decoding="async"
+        fetchpriority="high"
     >
 {% endif %}
 

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -32,6 +33,7 @@ def generate_product_id():
             return product_id
 
 class HomePageSettings(models.Model):
+    CACHE_KEY = "home-page-settings-v1"
     BANNER_TYPE_CHOICES = [
         ("image", "Image"),
         ("video", "Video"),
@@ -208,8 +210,23 @@ class HomePageSettings(models.Model):
 
     @classmethod
     def load(cls):
-        settings, _ = cls.objects.get_or_create(pk=1)
+        settings = cache.get(cls.CACHE_KEY)
+
+        if settings is None:
+            settings, _ = cls.objects.get_or_create(pk=1)
+            cache.set(cls.CACHE_KEY, settings, timeout=300)
+
         return settings
+
+    def save(self, *args, **kwargs):
+        result = super().save(*args, **kwargs)
+        cache.delete(self.CACHE_KEY)
+        return result
+
+    def delete(self, *args, **kwargs):
+        result = super().delete(*args, **kwargs)
+        cache.delete(self.CACHE_KEY)
+        return result
 
 class VipLevel(models.Model):
     level_name = models.CharField(max_length=20, unique=True)

@@ -344,7 +344,7 @@
 <div class="profile-row">
 
     <div class="avatar">
-        <img src="{{ home_settings.default_profile_icon_url }}" alt="Profile">
+        <img src="{{ home_settings.default_profile_icon_url }}" alt="Profile" decoding="async">
     </div>
 
     <div>
@@ -536,7 +536,7 @@
 
     <div class="menu-card">
         <div class="menu-icon">
-            <img src="{{ home_settings.settings_deposit_icon_url }}" alt="Deposit">
+            <img src="{{ home_settings.settings_deposit_icon_url }}" alt="Deposit" loading="lazy" decoding="async">
         </div>
         Deposit
     </div>
@@ -547,21 +547,21 @@
         onclick="openWithdrawPasswordModal('{% url 'user_withdraw' %}')"
     >
         <div class="menu-icon">
-            <img src="{{ home_settings.settings_withdraw_icon_url }}" alt="Withdraw">
+            <img src="{{ home_settings.settings_withdraw_icon_url }}" alt="Withdraw" loading="lazy" decoding="async">
         </div>
         Withdraw
     </a>
 
     <a href="javascript:void(0);" class="menu-card" onclick="openWithdrawPasswordModal('{% url 'user_trading_account' %}')">
         <div class="menu-icon">
-            <img src="{{ home_settings.trading_account_icon_url }}" alt="Trading Account">
+            <img src="{{ home_settings.trading_account_icon_url }}" alt="Trading Account" loading="lazy" decoding="async">
         </div>
         Trading Account
     </a>
 
     <a href="{% url 'user_personal_information' %}" class="menu-card">
         <div class="menu-icon">
-            <img src="{{ home_settings.personal_information_icon_url }}" alt="Personal Information">
+            <img src="{{ home_settings.personal_information_icon_url }}" alt="Personal Information" loading="lazy" decoding="async">
         </div>
         Personal Information
     </a>
@@ -607,7 +607,7 @@
 
     <div class="other-row">
 
-        <img src="{{ home_settings.official_announcement_icon_url }}" alt="Official Announcement">
+        <img src="{{ home_settings.official_announcement_icon_url }}" alt="Official Announcement" loading="lazy" decoding="async">
 
         <span>
             Official Announcement
@@ -621,7 +621,7 @@
 
     <a href="{% url 'more_services' %}" class="other-row">
 
-        <img src="{{ home_settings.more_services_icon_url }}" alt="More Services">
+        <img src="{{ home_settings.more_services_icon_url }}" alt="More Services" loading="lazy" decoding="async">
 
         <span>
             More Services
