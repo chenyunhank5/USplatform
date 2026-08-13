@@ -152,10 +152,9 @@
 
         {% block extra_css %}{% endblock %}
     </style>
-    {% include 'shared/mobile_design.html' %}
 </head>
 
-<body class="page-{{ request.resolver_match.url_name|default:'user' }}">
+<body>
 
 <div class="app">
 

@@ -70,8 +70,6 @@ class CustomerEntryAndWalletTests(TestCase):
     def test_customer_pages_include_navigation_loader(self):
         response = self.client.get(reverse("user_home"))
         self.assertContains(response, 'id="pageLoadingOverlay"')
-        self.assertContains(response, 'class="page-user_home"')
-        self.assertContains(response, "--mobile-accent:#0da34e")
 
     def test_login_page_includes_navigation_loader(self):
         self.client.logout()
