@@ -93,6 +93,10 @@ class CustomerEntryAndWalletTests(TestCase):
         self.assertContains(response, 'class="message-count-badge"')
         self.assertContains(response, "3 unread messages")
 
+        messages_response = self.client.get(reverse("user_messages"))
+        self.assertContains(messages_response, 'class="service-unread-badge"')
+        self.assertContains(messages_response, "1 unread customer service message")
+
     def test_messages_navigation_hides_badge_without_unread_messages(self):
         response = self.client.get(reverse("user_home"))
         self.assertNotContains(response, 'class="message-count-badge"')

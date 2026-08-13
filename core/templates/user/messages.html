@@ -71,6 +71,24 @@
 
     .service-subtitle { color: #6b7280; font-size: 12px; line-height: 1.4; }
 
+    .service-unread-badge {
+        min-width: 22px;
+        height: 22px;
+        padding: 0 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        color: #fff;
+        background: #ef4444;
+        border: 2px solid #fff;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1;
+        box-shadow: 0 2px 5px rgba(0,0,0,.18);
+    }
+
     .row-chevron {
         width: 9px;
         height: 9px;
@@ -221,6 +239,12 @@
         </div>
         <div class="service-subtitle">Chat with our support team for account assistance.</div>
     </div>
+    {% if unread_support_count %}
+        <span class="service-unread-badge"
+              aria-label="{{ unread_support_count }} unread customer service message{{ unread_support_count|pluralize }}">
+            {% if unread_support_count > 99 %}99+{% else %}{{ unread_support_count }}{% endif %}
+        </span>
+    {% endif %}
     <span class="row-chevron" aria-hidden="true"></span>
 </a>
 
