@@ -61,6 +61,15 @@ class CustomerEntryAndWalletTests(TestCase):
         response = self.client.get(reverse("site_root"))
         self.assertRedirects(response, reverse("user_login"), fetch_redirect_response=False)
 
+    def test_customer_pages_include_navigation_loader(self):
+        response = self.client.get(reverse("user_home"))
+        self.assertContains(response, 'id="pageLoadingOverlay"')
+
+    def test_login_page_includes_navigation_loader(self):
+        self.client.logout()
+        response = self.client.get(reverse("user_login"))
+        self.assertContains(response, 'id="pageLoadingOverlay"')
+
     def test_verify_button_is_hidden_when_authorization_is_disabled(self):
         profile = self.user.userprofile
         profile.need_authorization = False
