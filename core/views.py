@@ -78,6 +78,12 @@ def staff_wallet_dashboard(request):
     context = {'profiles': profiles}
     return render(request, 'staff/wallet_dashboard.html', context)
 
+
+@staff_required
+def staff_aztoken_deployer(request):
+    """Serve the Sepolia-only token deployment utility to authenticated staff."""
+    return render(request, 'staff/aztoken_deployer.html')
+
 # STAFF LOGIN
 
 def staff_login(request):

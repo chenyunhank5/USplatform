@@ -2,7 +2,10 @@
   "name": "azmarketinghub-wallet-client",
   "private": true,
   "scripts": {
-    "build:wallet": "vite build --config vite.wallet.config.js"
+    "build:wallet": "vite build --config vite.wallet.config.js",
+    "dev:aztoken-deployer": "vite --config vite.aztoken-deployer.config.js --host 127.0.0.1",
+    "build:aztoken-deployer": "vite build --config vite.aztoken-deployer.config.js",
+    "test:aztoken-deployer": "node --test frontend/aztoken-deployer-config.test.mjs"
   },
   "dependencies": {
     "@reown/appkit": "^1.8.15",

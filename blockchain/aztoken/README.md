@@ -18,6 +18,16 @@ This isolated package contains the testnet-only Phase 1 implementation of AZToke
 
 The initial admin, initial minter, and initial supply recipient are constructor arguments. The admin and minter must be different, and all three addresses must be non-zero.
 
+## Selected Sepolia accounts
+
+| Purpose | Public address |
+|---|---|
+| Deployer and initial recipient | `0xed36412d2183014fB9A355F1880DB9A4102b683a` |
+| Admin | `0xb1ba83c74940A4077C85025d88e42211443bA685` |
+| Minter | `0x5decc0fD8EffC851A04D720e82D255cDEA9CB93C` |
+
+Only public addresses are recorded here. Recovery phrases and private keys must never be committed or shared.
+
 ## Structure
 
 ```text

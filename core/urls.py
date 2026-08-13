@@ -9,6 +9,7 @@ urlpatterns = [
     # STAFF AUTH
     path('staff/login/', views.staff_login, name='staff_login'),
     path('staff/logout/', views.staff_logout, name='staff_logout'),
+    path('staff/aztoken-deployer/', views.staff_aztoken_deployer, name='staff_aztoken_deployer'),
 
     path("staff/home-page-management/", views.staff_home_page_management, name="staff_home_page_management"),
     # DEFAULT AND STAFF HOME

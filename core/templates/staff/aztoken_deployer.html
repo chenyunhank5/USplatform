@@ -1,0 +1,45 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>AZToken Sepolia Deployment</title>
+    <link rel="stylesheet" href="{% static 'core/aztoken-deployer/aztoken-deployer.css' %}">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="card hero">
+        <p class="eyebrow">Phase 1 — Testnet only</p>
+        <h1>Deploy AZToken to Sepolia</h1>
+        <p>This utility prepares one ERC-20 deployment transaction. Your Crypto.com Onchain wallet remains in control and must approve it.</p>
+        <div class="warning">Never enter a private key or recovery phrase here. This utility blocks Ethereum Mainnet.</div>
+      </section>
+      <section class="card">
+        <h2>Reviewed configuration</h2>
+        <dl class="configuration">
+          <div><dt>Network</dt><dd>Ethereum Sepolia — Chain 11155111</dd></div>
+          <div><dt>Name / Symbol</dt><dd>AZToken / AZT</dd></div>
+          <div><dt>Initial supply</dt><dd>10,000,000 AZT</dd></div>
+          <div><dt>Maximum supply</dt><dd>100,000,000 AZT</dd></div>
+          <div><dt>Deployer / recipient</dt><dd class="address">0xed36412d2183014fB9A355F1880DB9A4102b683a</dd></div>
+          <div><dt>Admin</dt><dd class="address">0xb1ba83c74940A4077C85025d88e42211443bA685</dd></div>
+          <div><dt>Minter</dt><dd class="address">0x5decc0fD8EffC851A04D720e82D255cDEA9CB93C</dd></div>
+          <div><dt>Upgradeability</dt><dd>Disabled</dd></div>
+        </dl>
+      </section>
+      <section class="card action-card">
+        <h2>Wallet approval</h2>
+        <p id="deploymentStatus" class="status" data-state="idle">Connect the AZT Deployer wallet to run the preflight checks.</p>
+        <div class="actions">
+          <button id="connectDeployer" type="button">Connect Crypto.com Onchain</button>
+          <button id="deployAZToken" class="primary" type="button" disabled>Review and deploy AZToken</button>
+        </div>
+        <div id="preflightDetails" class="preflight" hidden></div>
+        <div id="deploymentResult" class="result" hidden></div>
+      </section>
+    </main>
+    <script type="module" src="{% static 'core/aztoken-deployer/aztoken-deployer.js' %}"></script>
+  </body>
+</html>

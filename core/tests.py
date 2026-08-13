@@ -67,6 +67,7 @@ class CustomerEntryAndWalletTests(TestCase):
         response = self.client.get(reverse("site_root"))
         self.assertRedirects(response, reverse("user_login"), fetch_redirect_response=False)
 
+
     def test_customer_pages_include_navigation_loader(self):
         response = self.client.get(reverse("user_home"))
         self.assertContains(response, 'id="pageLoadingOverlay"')
@@ -117,3 +118,24 @@ class CustomerEntryAndWalletTests(TestCase):
         self.assertContains(response, 'id="connectCryptoWallet"')
         self.assertContains(response, "Verify")
         self.assertContains(response, "wallet-connect.js")
+
+
+class AZTokenDeployerAccessTests(TestCase):
+    def test_deployer_page_requires_staff_login(self):
+        response = self.client.get(reverse("staff_aztoken_deployer"))
+
+        self.assertRedirects(response, reverse("staff_login"), fetch_redirect_response=False)
+
+    def test_deployer_page_is_available_to_staff(self):
+        staff = User.objects.create_user(
+            username="token-admin",
+            password="test-password",
+            is_staff=True,
+        )
+        self.client.force_login(staff)
+
+        response = self.client.get(reverse("staff_aztoken_deployer"))
+
+        self.assertContains(response, "Deploy AZToken to Sepolia")
+        self.assertContains(response, "11155111")
+        self.assertContains(response, "aztoken-deployer.js")
