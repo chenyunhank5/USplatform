@@ -123,6 +123,39 @@
     max-height:360px;
 }
 
+.goods-search-bar{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin:12px 0;
+    flex-wrap:wrap;
+}
+
+.goods-search-bar input{
+    flex:1 1 220px;
+    min-width:180px;
+    background:#1a1a1a;
+    border:1px solid #555;
+    color:white;
+    padding:9px 12px;
+    border-radius:3px;
+}
+
+.goods-search-reset{
+    background:#555;
+    color:white;
+    border:0;
+    padding:9px 16px;
+    border-radius:3px;
+    cursor:pointer;
+}
+
+.goods-empty-row td{
+    text-align:center;
+    color:#aaa;
+    padding:18px;
+}
+
 .goods-table{
     width:100%;
     border-collapse:collapse;
@@ -336,6 +369,32 @@
 
                 </div>
 
+                <div class="goods-search-bar">
+                    <input
+                        id="goodsNameSearch"
+                        type="search"
+                        placeholder="Search order name"
+                        autocomplete="off"
+                    >
+
+                    <input
+                        id="goodsPriceSearch"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Price up to"
+                        autocomplete="off"
+                    >
+
+                    <button
+                        type="button"
+                        class="goods-search-reset"
+                        onclick="resetGoodsSearch()"
+                    >
+                        Reset
+                    </button>
+                </div>
+
                 <div class="goods-table-scroll">
 
                     <table class="goods-table">
@@ -351,11 +410,15 @@
 
                         </thead>
 
-                        <tbody>
+                        <tbody id="goodsTableBody">
 
                             {% for mission in missions %}
 
-                            <tr>
+                            <tr
+                                class="goods-row"
+                                data-name="{{ mission.name|lower|escapejs }}"
+                                data-price="{{ mission.price }}"
+                            >
 
                                 <td>
                                     {{ mission.product_id }}
@@ -509,6 +572,70 @@ function removeSelectedGoods(){
         currentSelectedButton.classList.remove('remove');
 
         currentSelectedButton = null;
+    }
+}
+
+const goodsNameSearch = document.getElementById('goodsNameSearch');
+const goodsPriceSearch = document.getElementById('goodsPriceSearch');
+const goodsTableBody = document.getElementById('goodsTableBody');
+
+if(goodsNameSearch && goodsPriceSearch && goodsTableBody){
+    goodsNameSearch.addEventListener('input', filterGoods);
+    goodsPriceSearch.addEventListener('input', filterGoods);
+}
+
+function filterGoods(){
+    const nameQuery = (goodsNameSearch.value || '').trim().toLowerCase();
+    const priceText = (goodsPriceSearch.value || '').trim();
+    const maxPrice = priceText === '' ? null : Number(priceText);
+    const rows = Array.from(goodsTableBody.querySelectorAll('.goods-row'));
+
+    rows.forEach(function(row){
+        const name = row.dataset.name || '';
+        const price = Number(row.dataset.price || 0);
+        const nameMatches = !nameQuery || name.includes(nameQuery);
+        const priceMatches = maxPrice === null || (Number.isFinite(maxPrice) && price <= maxPrice);
+
+        row.hidden = !(nameMatches && priceMatches);
+    });
+
+    if(maxPrice !== null && Number.isFinite(maxPrice)){
+        rows.sort(function(a, b){
+            return Number(b.dataset.price || 0) - Number(a.dataset.price || 0);
+        });
+
+        rows.forEach(function(row){
+            goodsTableBody.appendChild(row);
+        });
+    }
+
+    let emptyRow = goodsTableBody.querySelector('.goods-empty-row');
+    const visibleRows = rows.filter(function(row){ return !row.hidden; });
+
+    if(!visibleRows.length){
+        if(!emptyRow){
+            emptyRow = document.createElement('tr');
+            emptyRow.className = 'goods-empty-row';
+            emptyRow.innerHTML = '<td colspan="4">No matching orders found.</td>';
+            goodsTableBody.appendChild(emptyRow);
+        }
+        emptyRow.hidden = false;
+    }else if(emptyRow){
+        emptyRow.hidden = true;
+    }
+}
+
+function resetGoodsSearch(){
+    goodsNameSearch.value = '';
+    goodsPriceSearch.value = '';
+
+    Array.from(goodsTableBody.querySelectorAll('.goods-row')).forEach(function(row){
+        row.hidden = false;
+    });
+
+    const emptyRow = goodsTableBody.querySelector('.goods-empty-row');
+    if(emptyRow){
+        emptyRow.hidden = true;
     }
 }
 
