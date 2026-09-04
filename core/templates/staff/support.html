@@ -167,6 +167,21 @@
         flex-shrink:0;
     }
 
+    .chat-close{
+        margin-left:auto;
+        color:#d1d5db;
+        font-size:24px;
+        line-height:1;
+        text-decoration:none;
+        padding:4px 8px;
+        border-radius:4px;
+    }
+
+    .chat-close:hover{
+        color:white;
+        background:#333;
+    }
+
     .chat-header-info{
         color:white;
     }
@@ -492,10 +507,15 @@
                         {{ selected_user.username }}
                     </div>
 
-                    <div class="chat-header-status">
+                <div class="chat-header-status">
                         Customer support chat
                     </div>
                 </div>
+
+                <a href="{% url 'staff_support' %}"
+                   class="chat-close"
+                   aria-label="Close chat"
+                   title="Close chat">×</a>
 
             </div>
 
@@ -606,6 +626,19 @@
 
 <script>
     const selectedUserId = "{{ selected_user.id }}";
+
+    document.addEventListener("keydown", function(event){
+        if(event.key !== "Escape"){
+            return;
+        }
+
+        const imageModal = document.getElementById("staffImageModal");
+        if(imageModal && imageModal.classList.contains("show")){
+            return;
+        }
+
+        window.location.href = "{% url 'staff_support' %}";
+    });
 
     const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
 
