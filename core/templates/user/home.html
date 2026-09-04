@@ -654,6 +654,18 @@
         order_quantity_value: document.getElementById('orderQuantityValue'),
     };
 
+    const formatMetric = (value) => {
+        const text = String(value ?? '').toLowerCase();
+        const number = Number.parseFloat(text.replace(/[^0-9.]/g, '')) * (text.includes('k') ? 1000 : 1);
+        if (!Number.isFinite(number)) return value;
+        if (number < 1000) return String(Math.round(number));
+        return `${(number / 1000).toFixed(3).replace(/\.?(0+)$/, '')}k`;
+    };
+
+    Object.values(values).forEach((element) => {
+        if (element) element.textContent = formatMetric(element.textContent);
+    });
+
     const charts = {
         online_users_value: null,
         order_completion_value: [
@@ -698,7 +710,7 @@
         socket.onmessage = (event) => {
             const stats = JSON.parse(event.data);
             Object.entries(values).forEach(([key, element]) => {
-                if (element && stats[key] !== undefined) element.textContent = stats[key];
+                if (element && stats[key] !== undefined) element.textContent = formatMetric(stats[key]);
             });
             Object.entries(charts).forEach(([key, elements]) => animateChart(elements, stats.charts?.[key]));
         };
