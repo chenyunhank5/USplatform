@@ -1451,7 +1451,7 @@ def user_logout(request):
 
 @login_required(login_url="user_login")
 def user_home(request):
-    marquee_duration = 13
+    marquee_duration = 30
     marquee_offset = timezone.now().timestamp() % marquee_duration
     now = timezone.now()
     show_registration_bonus = request.session.pop('show_registration_bonus_popup', False)
