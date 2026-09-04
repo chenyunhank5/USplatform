@@ -65,6 +65,8 @@
 
     window.addEventListener('pageshow', hideLoader);
     window.addEventListener('load', hideLoader);
+    document.addEventListener('DOMContentLoaded', hideLoader);
+    window.setTimeout(hideLoader, 1500);
     window.addEventListener('beforeunload', showLoader);
 
     document.addEventListener('click', (event) => {
