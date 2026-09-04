@@ -41,7 +41,7 @@ class HomePageSettings(models.Model):
 
     brand_name = models.CharField(
         max_length=100,
-        default="LANDOR",
+        default="LAZAREV",
     )
 
     announcement = models.TextField(
@@ -125,7 +125,7 @@ class HomePageSettings(models.Model):
     terms_and_conditions_html = models.TextField(
         default=(
             "<h2>User Registration Agreement</h2>"
-            "<p>Welcome to Landor.</p>"
+            "<p>Welcome to Lazarev.</p>"
             "<p>Please read these Terms and Conditions carefully before using "
             "this website. By registering or continuing to use the platform, "
             "you confirm that you understand and accept these terms.</p>"

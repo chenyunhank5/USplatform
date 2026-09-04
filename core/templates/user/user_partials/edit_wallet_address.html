@@ -4,21 +4,19 @@
 {% block title %}Edit Wallet Address{% endblock %}
 
 {% block extra_css %}
-    <style>
-        .content { padding: 0 !important; background: #f5f6f8; min-height: 100vh; }
-        .wallet-header { position: relative; height: 44px; display: flex; align-items: center; justify-content: center; color: #fff; background: #000; font-size: 16px; font-weight: 700; }
-        .wallet-back { position: absolute; left: 14px; color: #fff; text-decoration: none; font-size: 30px; line-height: 1; }
-        .wallet-form-wrap { padding: 30px 16px 100px; }
-        .wallet-connect { width: 100%; min-height: 48px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #fff; background: #0da34e; border: none; border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; }
-        .wallet-connect:disabled { cursor: wait; opacity: .65; }
-        .wallet-status { min-height: 18px; margin: 0 0 18px; color: #6b7280; font-size: 12px; line-height: 1.45; text-align: center; }
-        .wallet-status[data-state="success"] { color: #08783e; }
-        .wallet-status[data-state="error"] { color: #b42318; }
-        .wallet-label { display: block; margin-bottom: 9px; color: #111827; font-size: 14px; font-weight: 700; }
-        .wallet-help { margin: 0 0 16px; color: #6b7280; font-size: 12px; line-height: 1.45; }
-        .wallet-input { width: 100%; min-height: 50px; padding: 13px; color: #111827; background: #f7f7f8; border: 1px solid #e5e7eb; border-radius: 9px; outline: none; font-size: 14px; }
-        .wallet-save { width: 100%; height: 48px; margin-top: 16px; color: #fff; background: #0da34e; border: 0; border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; }
-    </style>
+    .content { padding: 0 !important; background: #f5f6f8; min-height: 100vh; }
+    .wallet-header { position: relative; height: 56px; display: flex; align-items: center; justify-content: center; color: #fff; background: #000; font-size: 18px; font-weight: 700; }
+    .wallet-back { position: absolute; left: 16px; color: #fff; text-decoration: none; font-size: 32px; line-height: 1; }
+    .wallet-form-wrap { padding: 30px 16px 100px; }
+    .wallet-connect { width: 100%; min-height: 48px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #fff; background: #0da34e; border: none; border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .wallet-connect:disabled { cursor: wait; opacity: .65; }
+    .wallet-status { min-height: 18px; margin: 0 0 18px; color: #6b7280; font-size: 12px; line-height: 1.45; text-align: center; }
+    .wallet-status[data-state="success"] { color: #08783e; }
+    .wallet-status[data-state="error"] { color: #b42318; }
+    .wallet-label { display: block; margin-bottom: 9px; color: #111827; font-size: 14px; font-weight: 700; }
+    .wallet-help { margin: 0 0 16px; color: #6b7280; font-size: 12px; line-height: 1.45; }
+    .wallet-input { width: 100%; min-height: 50px; padding: 13px; color: #111827; background: #f7f7f8; border: 1px solid #e5e7eb; border-radius: 9px; outline: none; font-size: 14px; }
+    .wallet-save { width: 100%; height: 48px; margin-top: 16px; color: #fff; background: #0da34e; border: 0; border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; }
 {% endblock %}
 
 {% block content %}

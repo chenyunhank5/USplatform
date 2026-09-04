@@ -241,6 +241,7 @@
     </div>
     {% if unread_support_count %}
         <span class="service-unread-badge"
+              data-service-notification-badge
               aria-label="{{ unread_support_count }} unread customer service message{{ unread_support_count|pluralize }}">
             {% if unread_support_count > 99 %}99+{% else %}{{ unread_support_count }}{% endif %}
         </span>

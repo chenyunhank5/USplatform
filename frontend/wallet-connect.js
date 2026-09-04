@@ -26,10 +26,10 @@ if (root && connectButton && addressInput && status) {
       defaultNetwork: mainnet,
       projectId,
       metadata: {
-        name: 'AZ Marketing Hub',
+        name: 'Lazarev',
         description: 'Connect a wallet to save its public address.',
-        url: 'https://azmarketinghub.com',
-        icons: ['https://azmarketinghub.com/static/favicon.ico']
+        url: 'https://lazarevagency.com',
+        icons: ['https://lazarevagency.com/static/favicon.ico']
       },
       features: {
         analytics: false,

@@ -499,7 +499,8 @@
 
             </div>
 
-            <div class="messages-area" id="messagesArea">
+            <div class="messages-area" id="messagesArea"
+                 data-last-message-id="{{ messages_list.last.id|default:0 }}">
 
                 {% for msg in messages_list %}
 
@@ -678,6 +679,51 @@
         return div.innerHTML;
     }
 
+    function appendMessage(data){
+        if(data.id && messagesArea.querySelector(`[data-message-id="${data.id}"]`)){
+            return;
+        }
+        const row = document.createElement("div");
+        row.dataset.messageId = data.id || "";
+
+        row.className = data.sender_is_staff
+            ? "message-row staff"
+            : "message-row user";
+
+        const image = data.image_url
+            ? `<img src="${data.image_url}" class="message-image" alt="Support attachment" loading="lazy">`
+            : "";
+        const text = data.message ? `<div>${escapeHtml(data.message)}</div>` : "";
+
+        row.innerHTML = `
+            <div class="bubble">${image}${text}<div class="message-time">${data.created_at}</div></div>
+        `;
+
+        messagesArea.appendChild(row);
+        if(data.id){
+            messagesArea.dataset.lastMessageId = data.id;
+        }
+        scrollBottom();
+    }
+
+    function submitChatFormWithoutRefresh(){
+        const socketWasOpen = chatSocket.readyState === WebSocket.OPEN;
+
+        return fetch(window.location.href, {
+            method: "POST",
+            body: new FormData(chatForm),
+            headers: {"X-Requested-With": "XMLHttpRequest"}
+        })
+        .then(response => response.ok ? response.json() : Promise.reject(response))
+        .then(data => {
+            if(!socketWasOpen){
+                appendMessage({...data, sender_is_staff: true});
+            }
+            messageInput.value = "";
+            clearImagePreview();
+        });
+    }
+
     scrollBottom();
 
     chatSocket.onopen = function(){
@@ -693,29 +739,26 @@
     };
 
     chatSocket.onmessage = function(e){
-        const data = JSON.parse(e.data);
-
-        const row = document.createElement("div");
-
-        row.className = data.sender_is_staff
-            ? "message-row staff"
-            : "message-row user";
-
-        row.innerHTML = `
-            <div class="bubble">
-                <div>${escapeHtml(data.message)}</div>
-                <div class="message-time">${data.created_at}</div>
-            </div>
-        `;
-
-        messagesArea.appendChild(row);
-        scrollBottom();
+        appendMessage(JSON.parse(e.data));
     };
+
+    function pollMessages(){
+        const after = messagesArea.dataset.lastMessageId || 0;
+        fetch(`/staff/support/${selectedUserId}/poll/?after=${after}`, {cache:"no-store"})
+            .then(response => response.ok ? response.json() : Promise.reject(response))
+            .then(data => (data.messages || []).forEach(appendMessage))
+            .catch(() => {});
+    }
+
+    window.setInterval(pollMessages, 2500);
 
     chatForm.addEventListener("submit", function(e){
         const hasFile = chatForm.querySelector('input[type="file"]').files.length > 0;
 
         if(hasFile){
+            e.preventDefault();
+            submitChatFormWithoutRefresh()
+            .catch(() => alert("Could not send the message. Please try again."));
             return;
         }
 
@@ -731,7 +774,8 @@
 
                 messageInput.value = "";
             }else{
-                chatForm.submit();
+                submitChatFormWithoutRefresh()
+                .catch(() => alert("Chat is reconnecting. Please try again."));
             }
         }
     });

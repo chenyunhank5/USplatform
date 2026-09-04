@@ -22,6 +22,7 @@
             max-width:430px;
             margin:0 auto;
             height:100vh;
+            height:100dvh;
             background:#f5f5f5;
             display:flex;
             flex-direction:column;
@@ -36,7 +37,7 @@
             transform:translateX(-50%);
             width:100%;
             max-width:430px;
-            height:58px;
+            height:56px;
             background:white;
             display:flex;
             align-items:center;
@@ -52,12 +53,12 @@
             transform:translateY(-50%);
             text-decoration:none;
             color:#222;
-            font-size:28px;
+            font-size:32px;
             font-weight:300;
         }
 
         .title{
-            font-size:17px;
+            font-size:18px;
             font-weight:700;
             color:#222;
         }
@@ -193,6 +194,8 @@
             overflow-y:auto;
             padding:78px 14px 90px;
             transition:padding-top .25s ease;
+            overscroll-behavior:contain;
+            -webkit-overflow-scrolling:touch;
         }
 
         .chat-body.with-support{
@@ -400,7 +403,8 @@
             border-radius:999px;
             padding:0 15px;
             color:#222;
-            font-size:14px;
+            /* iOS Safari zooms focused inputs below 16px. */
+            font-size:16px;
         }
 
         .send-btn{
@@ -642,7 +646,8 @@
 
     <div class="chat-body {% if show_support_card %}with-support{% endif %}"
          id="messagesArea"
-         data-last-date="{{ messages_list.last.created_at|date:'Y-m-d' }}">
+         data-last-date="{{ messages_list.last.created_at|date:'Y-m-d' }}"
+         data-last-message-id="{{ messages_list.last.id|default:0 }}">
 
         {% for msg in messages_list %}
 
@@ -782,7 +787,9 @@
     let attachmentObjectUrl = "";
 
     function scrollBottom(){
-        messagesArea.scrollTop = messagesArea.scrollHeight;
+        requestAnimationFrame(function(){
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        });
     }
 
     function escapeHtml(text){
@@ -875,11 +882,13 @@
         }, 250);
     }
 
-    scrollBottom();
-
-    chatSocket.onmessage = function(e){
-        const data = JSON.parse(e.data);
-
+    function appendMessage(data){
+        if(data.id && messagesArea.querySelector(`[data-message-id="${data.id}"]`)){
+            return;
+        }
+        if(data.sender_is_staff && typeof window.playNotificationSound === "function"){
+            window.playNotificationSound();
+        }
         if(data.created_date && data.created_date !== messagesArea.dataset.lastDate){
             const dateChip = document.createElement("div");
             dateChip.className = "date-chip";
@@ -889,33 +898,66 @@
         }
 
         const row = document.createElement("div");
+        row.dataset.messageId = data.id || "";
+        row.className = data.sender_is_staff ? "message-row staff" : "message-row user";
 
-        row.className =
-            data.sender_is_staff
-            ? "message-row staff"
-            : "message-row user";
+        const image = data.image_url
+            ? `<img src="${data.image_url}" class="message-image" alt="Support attachment" loading="lazy" decoding="async" onclick="openImageModal('${data.image_url}')">`
+            : "";
+        const text = data.message
+            ? `<div class="copy-text">${escapeHtml(data.message)}</div>`
+            : "";
+        const menu = data.message
+            ? `<button type="button" class="message-menu-btn" aria-label="Message options" onclick="showMessageMenu(event, this)">&#8942;</button>`
+            : "";
 
-        row.innerHTML = `
-            <div class="message-bubble">
-                <button type="button"
-                        class="message-menu-btn"
-                        aria-label="Message options"
-                        onclick="showMessageMenu(event, this)">
-                    &#8942;
-                </button>
-
-                <div class="copy-text">
-                    ${escapeHtml(data.message)}
-                </div>
-
-                <div class="message-time">
-                    ${data.created_at}
-                </div>
-            </div>
-        `;
-
+        row.innerHTML = `<div class="message-bubble">${menu}${image}${text}<div class="message-time">${data.created_at}</div></div>`;
         messagesArea.appendChild(row);
+        if(data.id){
+            messagesArea.dataset.lastMessageId = data.id;
+        }
+        row.querySelectorAll("img").forEach(function(image){
+            image.addEventListener("load", scrollBottom, {once:true});
+        });
         scrollBottom();
+    }
+
+    function submitChatFormWithoutRefresh(){
+        const socketWasOpen = chatSocket.readyState === WebSocket.OPEN;
+
+        return fetch(window.location.href, {
+            method: "POST",
+            body: new FormData(chatForm),
+            headers: {"X-Requested-With": "XMLHttpRequest"}
+        })
+        .then(response => response.ok ? response.json() : Promise.reject(response))
+        .then(data => {
+            if(!socketWasOpen){
+                appendMessage({...data, sender_is_staff: false});
+            }
+            clearAttachment();
+            messageInput.value = "";
+        });
+    }
+
+    scrollBottom();
+
+    chatSocket.onmessage = function(e){
+        appendMessage(JSON.parse(e.data));
+    };
+
+    function pollMessages(){
+        const after = messagesArea.dataset.lastMessageId || 0;
+        fetch(`{% url 'user_support_poll' %}?after=${after}`, {cache:"no-store"})
+            .then(response => response.ok ? response.json() : Promise.reject(response))
+            .then(data => (data.messages || []).forEach(appendMessage))
+            .catch(() => {});
+    }
+
+    window.setInterval(pollMessages, 2500);
+
+    chatSocket.onclose = function(){
+        console.log("WebSocket closed; messages will use the live HTTP fallback.");
     };
 
     chatForm.addEventListener("submit", function(e){
@@ -923,9 +965,16 @@
             chatForm.querySelector('input[type="file"]').files.length > 0;
 
         if(hasFile){
+            e.preventDefault();
             closeSupportCard();
             sendButton.disabled = true;
             sendButton.textContent = "Sending...";
+            submitChatFormWithoutRefresh()
+            .catch(() => showToast("Could not send the message. Please try again."))
+            .finally(() => {
+                sendButton.disabled = false;
+                sendButton.textContent = "Send";
+            });
             return;
         }
 
@@ -942,10 +991,16 @@
 
                 messageInput.value = "";
             }else{
-                chatForm.submit();
+                submitChatFormWithoutRefresh()
+                .catch(() => showToast("Chat is reconnecting. Please try again."));
             }
         }
     });
+
+    messagesArea.querySelectorAll("img").forEach(function(image){
+        image.addEventListener("load", scrollBottom, {once:true});
+    });
+    window.addEventListener("resize", scrollBottom);
 
     let selectedMessageText = "";
     let copyToastTimer;

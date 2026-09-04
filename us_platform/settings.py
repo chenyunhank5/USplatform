@@ -36,13 +36,19 @@ if not SECRET_KEY:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 ALLOWED_HOSTS = [
-    'azmarketinghub.com',
-    'www.azmarketinghub.com',
+    'lazarevagency.com',
+    'www.lazarevagency.com',
+    '127.0.0.1',
+    'localhost',
+    '192.168.110.252',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://azmarketinghub.com',
-    'https://www.azmarketinghub.com',
+    'https://lazarevagency.com',
+    'https://www.lazarevagency.com',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+    'http://192.168.110.252:8000',
 ]
 
 # Public application identifier used by the Reown browser client.
@@ -139,11 +145,23 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    },
-}
+REDIS_URL = os.environ.get('REDIS_URL')
+
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [REDIS_URL],
+            },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        },
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

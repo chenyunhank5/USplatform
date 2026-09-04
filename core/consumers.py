@@ -51,6 +51,7 @@ class SupportChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'chat_message',
+                'id': saved_message['id'],
                 'message': saved_message['message'],
                 'sender_id': saved_message['sender_id'],
                 'sender_username': saved_message['sender_username'],
@@ -58,6 +59,7 @@ class SupportChatConsumer(AsyncWebsocketConsumer):
                 'created_at': saved_message['created_at'],
                 'created_date': saved_message['created_date'],
                 'created_date_display': saved_message['created_date_display'],
+                'image_url': '',
             }
         )
 
@@ -70,6 +72,8 @@ class SupportChatConsumer(AsyncWebsocketConsumer):
             'created_at': event['created_at'],
             'created_date': event['created_date'],
             'created_date_display': event['created_date_display'],
+            'image_url': event.get('image_url', ''),
+            'id': event.get('id'),
         }))
 
     @database_sync_to_async
@@ -88,6 +92,7 @@ class SupportChatConsumer(AsyncWebsocketConsumer):
         local_created_at = timezone.localtime(obj.created_at)
 
         return {
+            'id': obj.id,
             'message': obj.message,
             'sender_id': sender.id,
             'sender_username': sender.username,

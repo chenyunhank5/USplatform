@@ -60,7 +60,7 @@ const appKit = createAppKit({
     name: 'AZToken Sepolia Deployer',
     description: 'Deploy the reviewed Phase 1 AZToken contract to Ethereum Sepolia.',
     url: window.location.origin,
-    icons: ['https://azmarketinghub.com/static/favicon.ico']
+    icons: ['https://lazarevagency.com/static/favicon.ico']
   },
   features: {
     analytics: false,

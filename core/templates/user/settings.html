@@ -3,8 +3,6 @@
 {% block title %}Settings{% endblock %}
 
 {% block extra_css %}
-<style>
-
     body{
         background:#f5f5f5;
     }
@@ -336,7 +334,6 @@
         font-weight:500;
     }
 
-</style>
 {% endblock %}
 
 {% block content %}
@@ -605,7 +602,7 @@
 
 <div class="other-box">
 
-    <div class="other-row">
+    <a href="{% url 'official_announcement' %}" class="other-row">
 
         <img src="{{ home_settings.official_announcement_icon_url }}" alt="Official Announcement" loading="lazy" decoding="async">
 
@@ -617,7 +614,7 @@
             ›
         </div>
 
-    </div>
+    </a>
 
     <a href="{% url 'more_services' %}" class="other-row">
 
@@ -640,7 +637,7 @@
 </a>
 
 <div class="copyright">
-    Landor. All Rights Reserved.
+    Lazarev. All Rights Reserved.
 </div>
 
 <script>

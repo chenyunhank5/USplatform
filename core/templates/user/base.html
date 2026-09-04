@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Landor{% endblock %}</title>
+    <title>{% block title %}Lazarev{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
     <link rel="dns-prefetch" href="//res.cloudinary.com">
@@ -213,7 +213,7 @@
                 {% endif %}
 
                 {% if unread_message_count %}
-                    <span class="message-count-badge" aria-label="{{ unread_message_count }} unread messages">
+                    <span class="message-count-badge" data-notification-badge aria-label="{{ unread_message_count }} unread messages">
                         {% if unread_message_count > 99 %}99+{% else %}{{ unread_message_count }}{% endif %}
                     </span>
                 {% endif %}
@@ -257,6 +257,90 @@ function showAlert(message){
         alertBox.classList.remove('show');
     }, 2200);
 }
+
+// Keep the unread notification badge current while the user stays on a page.
+(() => {
+    const messagesLink = document.querySelector('.bottom-nav a[href$="/user/messages/"]');
+    const badgeHost = messagesLink?.querySelector('.nav-icon-wrap');
+    const endpoint = '{% url "user_unread_count" %}';
+    let previousUnreadCount = null;
+    let notificationAudioContext = null;
+
+    if (!badgeHost) return;
+
+    const prepareNotificationSound = () => {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        notificationAudioContext ||= new AudioContext();
+        if (notificationAudioContext.state === 'suspended') {
+            notificationAudioContext.resume().catch(() => {});
+        }
+    };
+
+    const playNotificationSound = () => {
+        if (!notificationAudioContext || notificationAudioContext.state !== 'running') return;
+        const oscillator = notificationAudioContext.createOscillator();
+        const gain = notificationAudioContext.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, notificationAudioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(660, notificationAudioContext.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.0001, notificationAudioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.12, notificationAudioContext.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, notificationAudioContext.currentTime + 0.18);
+        oscillator.connect(gain);
+        gain.connect(notificationAudioContext.destination);
+        oscillator.start();
+        oscillator.stop(notificationAudioContext.currentTime + 0.2);
+    };
+
+    window.playNotificationSound = playNotificationSound;
+
+    ['pointerdown', 'touchstart', 'keydown'].forEach((eventName) => {
+        window.addEventListener(eventName, prepareNotificationSound, { once: true, passive: true });
+    });
+
+    const updateBadge = (count) => {
+        let badge = badgeHost.querySelector('[data-notification-badge]');
+        if (!count) {
+            badge?.remove();
+            return;
+        }
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'message-count-badge';
+            badge.dataset.notificationBadge = '';
+            badgeHost.appendChild(badge);
+        }
+        const label = `${count} unread messages`;
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.setAttribute('aria-label', label);
+    };
+
+    const updateServiceBadge = (count) => {
+        const serviceBadge = document.querySelector('[data-service-notification-badge]');
+        if (!serviceBadge) return;
+        serviceBadge.textContent = count > 99 ? '99+' : count;
+        serviceBadge.hidden = !count;
+    };
+
+    const refreshUnreadCount = () => {
+        fetch(endpoint, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, cache: 'no-store' })
+            .then((response) => response.ok ? response.json() : null)
+            .then((data) => {
+                if (!data) return;
+                if (previousUnreadCount !== null && data.count > previousUnreadCount) {
+                    playNotificationSound();
+                }
+                previousUnreadCount = data.count;
+                updateBadge(data.count);
+                updateServiceBadge(data.support_count);
+            })
+            .catch(() => {});
+    };
+
+    refreshUnreadCount();
+    window.setInterval(refreshUnreadCount, 3000);
+})();
 
 // Warm the browser cache for the other primary pages after the current page
 // is interactive. Navigation remains normal and still works without JS.

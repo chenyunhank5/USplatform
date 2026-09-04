@@ -1,0 +1,83 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Deposit{% endblock %}
+
+{% block extra_css %}
+    .content { padding: 0 !important; background: #f5f6f8; min-height: 100vh; }
+    .deposit-topbar { height: 56px; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; position: relative; font-size: 18px; font-weight: 700; }
+    .back-btn { position: absolute; left: 16px; color: #fff; text-decoration: none; font-size: 32px; line-height: 1; }
+    .deposit-page { padding: 16px 10px 100px; }
+    .wallet-card { position: relative; overflow: hidden; padding: 20px 16px; margin-bottom: 20px; color: #fff; background: linear-gradient(135deg, #0da34e, #0f9549); border-radius: 14px; box-shadow: 0 10px 24px rgba(13,163,78,.25); }
+    .wallet-card::before { content: ''; position: absolute; left: -40px; top: 30px; width: 180px; height: 180px; background: rgba(255,255,255,.08); border-radius: 50%; }
+    .wallet-card::after { content: ''; position: absolute; right: -50px; bottom: -50px; width: 170px; height: 170px; background: rgba(255,255,255,.06); border-radius: 50%; }
+    .wallet-title { position: relative; z-index: 2; margin-bottom: 8px; font-size: 14px; font-weight: 700; }
+    .wallet-amount { position: relative; z-index: 2; margin-bottom: 16px; font-size: 30px; font-weight: 700; }
+    .wallet-amount span { font-size: 12px; font-weight: 400; }
+    .wallet-tabs { position: relative; z-index: 2; }
+    .wallet-tabs button { padding: 6px 10px; margin-right: 6px; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.7); border-radius: 20px; font-size: 12px; }
+    .wallet-tabs .active { color: #0da34e; background: #fff; border-color: #fff; font-weight: 700; }
+    .wallet-stats { position: relative; z-index: 2; display: flex; margin-top: 16px; }
+    .wallet-stat { flex: 1; padding-right: 8px; border-right: 1px solid rgba(255,255,255,.5); }
+    .wallet-stat:last-child { padding-left: 10px; border-right: 0; }
+    .wallet-stat small { display: block; font-size: 12px; }
+    .wallet-stat b { display: block; margin-top: 8px; font-size: 24px; }
+    .deposit-button { width: 100%; height: 48px; margin-top: 18px; color: #fff; background: #0da34e; border: 0; border-radius: 9px; font-size: 16px; font-weight: 700; text-align: center; text-decoration: none; line-height: 48px; display: block; }
+    .notice-text { margin-top: 16px; color: #000; font-size: 12px; text-align: center; }
+    .history-row { display: flex; align-items: center; justify-content: space-between; margin: 18px 0 8px; color: #111; font-size: 16px; font-weight: 700; }
+    .history-more { color: #000; font-size: 14px; text-decoration: none; }
+    .transfer-record-list { margin-top: 12px; }
+    .transfer-record-card { min-height: 98px; padding: 18px 14px; margin-bottom: 14px; background: #fff; border: 1px solid #f3f4f6; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.02); }
+    .transfer-record-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+    .transfer-record-amount { color: #000; font-size: 28px; font-weight: 800; line-height: 1; }
+    .transfer-record-amount span { margin-left: 2px; font-size: 13px; }
+    .transfer-record-status { padding: 5px 12px; color: #fff; background: #000; border-radius: 4px; font-size: 12px; font-weight: 700; }
+    .transfer-record-id { margin-bottom: 4px; color: #9ca3af; font-size: 13px; }
+    .transfer-record-date { color: #000; font-size: 13px; }
+    .transfer-record-empty { padding: 18px; color: #888; text-align: center; background: #fff; border-radius: 6px; }
+{% endblock %}
+
+{% block content %}
+<div class="deposit-topbar">
+    <a href="{% url 'user_home' %}" class="back-btn" aria-label="Back to home">&#8249;</a>
+    Deposit
+</div>
+
+<div class="deposit-page">
+    <div class="wallet-card">
+        <div class="wallet-title">Wallet Account</div>
+        <div class="wallet-amount">{{ profile.balance }} <span>USD</span></div>
+        <div class="wallet-tabs">
+            <button class="active" type="button">Todays Earnings</button>
+            <button type="button">Total Earnings</button>
+        </div>
+        <div class="wallet-stats">
+            <div class="wallet-stat"><small>Order Revenue</small><b>0</b></div>
+            <div class="wallet-stat"><small>Team</small><b>0</b></div>
+            <div class="wallet-stat"><small>Total Earnings</small><b>0</b></div>
+        </div>
+    </div>
+
+    <a href="{% url 'user_crypto_deposit' %}" class="deposit-button">Crypto Deposit</a>
+    <div class="notice-text">Contact Customer Service for deposit assistance.</div>
+
+    <div class="history-row">
+        <div>Deposit History</div>
+        <a href="{% url 'transaction_notice' %}?type=deposit" class="history-more">More &#8853;</a>
+    </div>
+
+    <div class="transfer-record-list">
+        {% for item in deposits %}
+            <div class="transfer-record-card">
+                <div class="transfer-record-top">
+                    <div class="transfer-record-amount">{{ item.amount }}<span>USD</span></div>
+                    <div class="transfer-record-status">{% if item.status == 'approved' or item.status == 'completed' %}Success{% elif item.status == 'pending' %}Pending{% else %}Rejected{% endif %}</div>
+                </div>
+                <div class="transfer-record-id">{{ item.transaction_id }}</div>
+                <div class="transfer-record-date">{{ item.created_at|date:"m-d-Y h:i:s a" }}</div>
+            </div>
+        {% empty %}
+            <div class="transfer-record-empty">No deposit history.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

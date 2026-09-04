@@ -69,6 +69,7 @@ urlpatterns = [
 
     # STAFF CUSTOMER SERVICE
     path('staff/support/', views.staff_support, name='staff_support'),
+    path('staff/support/<int:user_id>/poll/', views.staff_support_poll, name='staff_support_poll'),
 
     # USER AUTH
     path('login/', views.user_login, name='user_login'),
@@ -84,11 +85,16 @@ urlpatterns = [
     path('user/faqs/', views.user_content_page, {'page_key': 'faqs'}, name='faqs'),
     path('user/company-profile/', views.user_content_page, {'page_key': 'company_profile'}, name='company_profile'),
     path('user/withdraw/', views.user_withdraw, name='user_withdraw'),
+    path('user/deposit/', views.user_deposit, name='user_deposit'),
+    path('user/deposit/crypto/', views.user_crypto_deposit, name='user_crypto_deposit'),
+    path('user/official-announcement/', views.official_announcement, name='official_announcement'),
     path('user/records/', views.user_records, name='user_records'),
     path('user/order/', views.user_order, name='user_order'),
     path('user/order-description/', views.user_order_info_page, {'page_key': 'order_description'}, name='order_description'),
     path('user/please-note/', views.user_order_info_page, {'page_key': 'please_note'}, name='please_note'),
     path('user/messages/', views.user_messages, name='user_messages'),
+    path('user/messages/unread-count/', views.user_unread_count, name='user_unread_count'),
+    path('user/customer-service/poll/', views.user_support_poll, name='user_support_poll'),
     path('user/messages/transaction/<str:transaction_type>/<int:record_id>/', views.user_transaction_notification, name='user_transaction_notification'),
     path('user/customer-service/', views.customer_service, name='customer_service'),
     path('user/settings/', views.user_settings, name='user_settings'),

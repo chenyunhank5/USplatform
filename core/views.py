@@ -13,8 +13,46 @@ from django.utils import timezone
 from django.db import transaction
 from django.db.models import Count, Q, Max, Min, Sum
 from django.urls import reverse
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 from .models import UserProfile, VipLevel, Product, ProductEvaluation, WithdrawalRequest, DepositRecord, SupportMessage, UserOrder, LuckyReward, SuccessiveOrderPlan, HomePageSettings    
+
+
+def broadcast_support_message(support_message):
+    payload = support_message_payload(support_message)
+    async_to_sync(get_channel_layer().group_send)(
+        f"support_chat_{support_message.user_id}",
+        {
+            'type': 'chat_message',
+            **payload,
+        },
+    )
+
+
+def support_message_payload(support_message):
+    local_created_at = timezone.localtime(support_message.created_at)
+    return {
+        'id': support_message.id,
+        'message': support_message.message,
+        'sender_id': support_message.sender_id,
+        'sender_username': support_message.sender.username,
+        'sender_is_staff': support_message.sender.is_staff,
+        'created_at': local_created_at.strftime('%H:%M'),
+        'created_date': local_created_at.strftime('%Y-%m-%d'),
+        'created_date_display': local_created_at.strftime('%B %d, %Y'),
+        'image_url': support_message.image.url if support_message.image else '',
+    }
+
+
+def support_messages_after(user, message_id):
+    return [
+        support_message_payload(item)
+        for item in SupportMessage.objects.filter(
+            user=user,
+            id__gt=message_id,
+        ).select_related('sender').order_by('id')
+    ]
 
 
 def get_home_settings(request):
@@ -1020,7 +1058,7 @@ def staff_support(request):
             image = request.FILES.get('image')
 
             if message or image:
-                SupportMessage.objects.create(
+                support_message = SupportMessage.objects.create(
                     user=selected_user,
                     sender=request.user,
                     message=message,
@@ -1029,6 +1067,10 @@ def staff_support(request):
                     is_read_by_staff=True,
                     is_read_by_user=False
                 )
+                broadcast_support_message(support_message)
+
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'ok': True, **support_message_payload(support_message)})
 
             return redirect(f'/staff/support/?user_id={selected_user.id}')
 
@@ -1430,6 +1472,27 @@ def user_withdraw(request):
 
 
 @login_required(login_url='user_login')
+def user_deposit(request):
+    profile = get_object_or_404(UserProfile, user=request.user)
+    deposits = DepositRecord.objects.filter(user=request.user).order_by('-id')[:10]
+
+    return render(request, 'user/user_partials/deposit.html', {
+        'profile': profile,
+        'deposits': deposits,
+    })
+
+
+@login_required(login_url='user_login')
+def user_crypto_deposit(request):
+    return render(request, 'user/user_partials/crypto_deposit.html')
+
+
+@login_required(login_url='user_login')
+def official_announcement(request):
+    return render(request, 'user/official_announcement.html')
+
+
+@login_required(login_url='user_login')
 def user_records(request):
     current_status = request.GET.get("status", "all")
 
@@ -1813,6 +1876,42 @@ def user_messages(request):
 
 
 @login_required(login_url='user_login')
+def user_unread_count(request):
+    support_count = SupportMessage.objects.filter(
+        user=request.user,
+        is_read_by_user=False,
+    ).count()
+    system_count = (
+        DepositRecord.objects.filter(user=request.user, is_read_by_user=False).count()
+        + WithdrawalRequest.objects.filter(user=request.user, is_read_by_user=False).count()
+    )
+    return JsonResponse({
+        'count': support_count + system_count,
+        'support_count': support_count,
+        'system_count': system_count,
+    })
+
+
+@login_required(login_url='user_login')
+def user_support_poll(request):
+    try:
+        message_id = max(0, int(request.GET.get('after', 0)))
+    except (TypeError, ValueError):
+        message_id = 0
+    return JsonResponse({'messages': support_messages_after(request.user, message_id)})
+
+
+@staff_required
+def staff_support_poll(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    try:
+        message_id = max(0, int(request.GET.get('after', 0)))
+    except (TypeError, ValueError):
+        message_id = 0
+    return JsonResponse({'messages': support_messages_after(user, message_id)})
+
+
+@login_required(login_url='user_login')
 def user_transaction_notification(request, transaction_type, record_id):
     if transaction_type == 'deposit':
         record = get_object_or_404(DepositRecord, id=record_id, user=request.user)
@@ -1967,7 +2066,7 @@ def customer_service(request):
                 return redirect(f"{reverse('customer_service')}?sent=1")
 
         if message or image:
-            SupportMessage.objects.create(
+            support_message = SupportMessage.objects.create(
                 user=request.user,
                 sender=request.user,
                 message=message,
@@ -1976,6 +2075,10 @@ def customer_service(request):
                 is_read_by_user=True,
                 is_read_by_staff=False
             )
+            broadcast_support_message(support_message)
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'ok': True, **support_message_payload(support_message)})
 
         return redirect(f"{reverse('customer_service')}?sent=1")
 

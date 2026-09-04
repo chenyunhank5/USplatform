@@ -224,7 +224,7 @@
 
 <div class="logo-area">
     <div class="logo-text">
-        {{ home_settings.brand_name|default:"LANDOR"|linebreaksbr }}
+        {{ home_settings.brand_name|default:"LAZAREV"|linebreaksbr }}
     </div>
 </div>
 
@@ -326,6 +326,7 @@
     </div>
 
     <div class="menu-item">
+        <a href="{% url 'user_deposit' %}" class="menu-link">
         <div class="menu-icon">
             <img
                 src="{{ home_settings.deposit_icon_url }}"
@@ -334,6 +335,7 @@
         </div>
 
         Deposit
+        </a>
     </div>
 
     <div class="menu-item">
