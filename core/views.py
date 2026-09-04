@@ -1139,6 +1139,7 @@ def user_register(request):
         profile.gender = gender
         profile.transaction_password = make_password(transaction_password)
         profile.invited_by = invited_by_profile
+        profile.balance = Decimal('10.00')
         profile.ip_address = get_client_ip(request)
         profile.vip_level = vip1
         profile.save()
