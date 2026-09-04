@@ -1,6 +1,8 @@
 import random
 import re
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.core.management.base import BaseCommand
 
 from core.models import HomePageSettings
@@ -31,6 +33,13 @@ class Command(BaseCommand):
             changed.append(field)
 
         settings.save(update_fields=[*changed, 'updated_at'])
+        async_to_sync(get_channel_layer().group_send)(
+            'homepage_stats',
+            {
+                'type': 'homepage_stats',
+                'stats': {field: getattr(settings, field) for field in self.fields},
+            },
+        )
         self.stdout.write(self.style.SUCCESS('Homepage simulated metrics updated.'))
 
     @staticmethod

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from .models import SupportMessage
+from .models import HomePageSettings
 
 
 class SupportChatConsumer(AsyncWebsocketConsumer):
@@ -100,4 +101,38 @@ class SupportChatConsumer(AsyncWebsocketConsumer):
             'created_at': local_created_at.strftime('%H:%M'),
             'created_date': local_created_at.strftime('%Y-%m-%d'),
             'created_date_display': local_created_at.strftime('%B %d, %Y'),
+        }
+
+
+class HomeStatsConsumer(AsyncWebsocketConsumer):
+    group_name = 'homepage_stats'
+
+    async def connect(self):
+        if self.scope['user'].is_anonymous:
+            await self.close()
+            return
+
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self.accept()
+        await self.send_stats()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+    async def homepage_stats(self, event):
+        await self.send_stats(event.get('stats'))
+
+    async def send_stats(self, stats=None):
+        if stats is None:
+            stats = await self.get_stats()
+        await self.send(text_data=json.dumps(stats))
+
+    @database_sync_to_async
+    def get_stats(self):
+        settings = HomePageSettings.objects.first()
+        return {
+            'online_users_value': settings.online_users_value,
+            'order_completion_value': settings.order_completion_value,
+            'optimize_demand_value': settings.optimize_demand_value,
+            'order_quantity_value': settings.order_quantity_value,
         }

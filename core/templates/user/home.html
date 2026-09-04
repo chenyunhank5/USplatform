@@ -436,7 +436,7 @@
             </div>
 
             <div class="stats-value">
-                {{ home_settings.online_users_value|default:"3.015k" }}
+                <span id="onlineUsersValue">{{ home_settings.online_users_value|default:"3.015k" }}</span>
             </div>
 
             <div class="stats-sub">
@@ -450,7 +450,7 @@
             </div>
 
             <div class="stats-value">
-                {{ home_settings.order_completion_value|default:"5.016k" }}
+                <span id="orderCompletionValue">{{ home_settings.order_completion_value|default:"5.016k" }}</span>
             </div>
 
             <div class="stats-sub">
@@ -481,7 +481,7 @@
         </div>
 
         <div class="stats-value">
-            {{ home_settings.optimize_demand_value|default:"305k" }}
+            <span id="optimizeDemandValue">{{ home_settings.optimize_demand_value|default:"305k" }}</span>
         </div>
 
         <div class="stats-sub">
@@ -514,7 +514,7 @@
         </div>
 
         <div class="stats-value">
-            {{ home_settings.order_quantity_value|default:"5.164k" }}
+            <span id="orderQuantityValue">{{ home_settings.order_quantity_value|default:"5.164k" }}</span>
         </div>
 
         <div class="stats-sub">
@@ -574,5 +574,33 @@
         Enter ›
     </div>
 </div>
+
+<script>
+(() => {
+    const values = {
+        online_users_value: document.getElementById('onlineUsersValue'),
+        order_completion_value: document.getElementById('orderCompletionValue'),
+        optimize_demand_value: document.getElementById('optimizeDemandValue'),
+        order_quantity_value: document.getElementById('orderQuantityValue'),
+    };
+
+    const connect = () => {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const socket = new WebSocket(`${protocol}//${window.location.host}/ws/home-stats/`);
+
+        socket.onmessage = (event) => {
+            const stats = JSON.parse(event.data);
+            Object.entries(values).forEach(([key, element]) => {
+                if (element && stats[key] !== undefined) element.textContent = stats[key];
+            });
+        };
+
+        socket.onclose = () => window.setTimeout(connect, 3000);
+        socket.onerror = () => socket.close();
+    };
+
+    connect();
+})();
+</script>
 
 {% endblock %}
