@@ -1417,10 +1417,15 @@ def user_logout(request):
 
 @login_required(login_url="user_login")
 def user_home(request):
+    marquee_duration = 13
+    marquee_offset = timezone.now().timestamp() % marquee_duration
     return render(
         request,
         "user/home.html",
-        {"home_settings": get_home_settings(request)},
+        {
+            "home_settings": get_home_settings(request),
+            "marquee_offset": marquee_offset,
+        },
     )
 
 @login_required(login_url='user_login')
