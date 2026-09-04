@@ -5,20 +5,25 @@
 {% block extra_css %}
 <style>
     .campaign-modal {
-        position: fixed;
-        inset: 0;
-        z-index: 10000;
-        display: flex;
+        position: fixed !important;
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 2147483647 !important;
+        display: flex !important;
         align-items: center;
         justify-content: center;
         padding: 24px;
         background: rgba(0, 0, 0, .62);
     }
 
-    .campaign-modal[hidden] { display: none; }
+    .campaign-modal[hidden] { display: none !important; }
 
     .campaign-modal-card {
-        position: relative;
+        position: relative !important;
         width: min(100%, 390px);
         max-height: 90vh;
         overflow: auto;
