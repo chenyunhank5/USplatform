@@ -1451,7 +1451,9 @@ def user_logout(request):
 
 @login_required(login_url="user_login")
 def user_home(request):
-    marquee_duration = 30
+    home_settings = get_home_settings(request)
+    announcement_length = len(home_settings.announcement or '')
+    marquee_duration = max(30, (announcement_length * 35 + 99) // 100)
     marquee_offset = timezone.now().timestamp() % marquee_duration
     now = timezone.now()
     show_registration_bonus = request.session.pop('show_registration_bonus_popup', False)
@@ -1471,7 +1473,8 @@ def user_home(request):
         request,
         "user/home.html",
         {
-            "home_settings": get_home_settings(request),
+            "home_settings": home_settings,
+            "marquee_duration": marquee_duration,
             "marquee_offset": marquee_offset,
             "show_registration_bonus": show_registration_bonus,
             "show_campaign": show_campaign,
