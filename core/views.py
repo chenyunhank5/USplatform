@@ -222,6 +222,12 @@ def staff_home_page_management(request):
             value = request.POST.get(field, "").strip()
             setattr(home_settings, field, value)
 
+        if section == "home":
+            for field in ("registration_bonus_image", "campaign_announcement_image"):
+                image = request.FILES.get(field)
+                if image:
+                    setattr(home_settings, field, image)
+
         home_settings.save()
         messages.success(request, "Content updated successfully.")
 
@@ -1153,6 +1159,7 @@ def user_register(request):
         )
 
         login(request, user)
+        request.session['show_registration_bonus_popup'] = True
 
         messages.success(request, 'Registration successful.')
 
@@ -1194,6 +1201,7 @@ def user_login(request):
 
         if user is not None:
             login(request, user)
+            request.session['show_campaign_popup'] = True
 
             profile = UserProfile.objects.filter(user=user).first()
 
@@ -1420,12 +1428,28 @@ def user_logout(request):
 def user_home(request):
     marquee_duration = 13
     marquee_offset = timezone.now().timestamp() % marquee_duration
+    now = timezone.now()
+    show_registration_bonus = request.session.pop('show_registration_bonus_popup', False)
+    show_campaign = request.session.pop('show_campaign_popup', False)
+    last_campaign = request.session.get('campaign_announcement_last_shown')
+
+    if not show_registration_bonus and not show_campaign:
+        try:
+            show_campaign = now.timestamp() - float(last_campaign) >= 4 * 60 * 60
+        except (TypeError, ValueError):
+            show_campaign = True
+
+    if show_registration_bonus or show_campaign:
+        request.session['campaign_announcement_last_shown'] = now.timestamp()
+
     return render(
         request,
         "user/home.html",
         {
             "home_settings": get_home_settings(request),
             "marquee_offset": marquee_offset,
+            "show_registration_bonus": show_registration_bonus,
+            "show_campaign": show_campaign,
         },
     )
 

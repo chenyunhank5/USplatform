@@ -59,6 +59,18 @@ class HomePageSettings(models.Model):
         blank=True,
     )
 
+    registration_bonus_image = models.ImageField(
+        upload_to='campaign_popups/',
+        blank=True,
+        null=True,
+    )
+
+    campaign_announcement_image = models.ImageField(
+        upload_to='campaign_popups/',
+        blank=True,
+        null=True,
+    )
+
     online_users_value = models.CharField(
         max_length=30,
         default="3.015k",

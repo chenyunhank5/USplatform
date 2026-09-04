@@ -4,6 +4,50 @@
 
 {% block extra_css %}
 <style>
+    .campaign-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(0, 0, 0, .62);
+    }
+
+    .campaign-modal[hidden] { display: none; }
+
+    .campaign-modal-card {
+        position: relative;
+        width: min(100%, 390px);
+        max-height: 90vh;
+        overflow: auto;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, .3);
+    }
+
+    .campaign-modal-card img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .campaign-modal-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 34px;
+        height: 34px;
+        border: 0;
+        border-radius: 50%;
+        color: #fff;
+        background: rgba(0, 0, 0, .65);
+        font-size: 24px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
     .logo-area {
         height: 52px;
         display: flex;
@@ -722,5 +766,53 @@
     connect();
 })();
 </script>
+
+{% if home_settings.registration_bonus_image or home_settings.campaign_announcement_image %}
+<div class="campaign-modal" id="registrationBonusModal" hidden>
+    <div class="campaign-modal-card">
+        <button type="button" class="campaign-modal-close" data-close-campaign aria-label="Close">&times;</button>
+        {% if home_settings.registration_bonus_image %}
+            <img src="{{ home_settings.registration_bonus_image.url }}" alt="Registration bonus">
+        {% endif %}
+    </div>
+</div>
+
+<div class="campaign-modal" id="campaignAnnouncementModal" hidden>
+    <div class="campaign-modal-card">
+        <button type="button" class="campaign-modal-close" data-close-campaign aria-label="Close">&times;</button>
+        {% if home_settings.campaign_announcement_image %}
+            <img src="{{ home_settings.campaign_announcement_image.url }}" alt="Campaign announcement">
+        {% endif %}
+    </div>
+</div>
+
+<script>
+(() => {
+    const bonusModal = document.getElementById('registrationBonusModal');
+    const campaignModal = document.getElementById('campaignAnnouncementModal');
+    const showCampaign = () => {
+        if (campaignModal && campaignModal.querySelector('img')) campaignModal.hidden = false;
+    };
+    const closeModal = (modal, next) => {
+        if (!modal) return;
+        modal.hidden = true;
+        if (next) next();
+    };
+
+    document.querySelectorAll('[data-close-campaign]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.campaign-modal');
+            closeModal(modal, modal === bonusModal ? showCampaign : null);
+        });
+    });
+
+    {% if show_registration_bonus and home_settings.registration_bonus_image %}
+        bonusModal.hidden = false;
+    {% elif show_campaign and home_settings.campaign_announcement_image %}
+        showCampaign();
+    {% endif %}
+})();
+</script>
+{% endif %}
 
 {% endblock %}

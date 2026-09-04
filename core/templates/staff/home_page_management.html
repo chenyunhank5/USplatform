@@ -296,7 +296,7 @@
         <h2 class="panel-heading">Home page</h2>
         <p class="panel-description">Edit branding, banners, announcements, and statistics.</p>
 
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="section" value="home">
 
@@ -326,6 +326,18 @@
                 <div class="field full">
                     <label for="announcement">Scrolling announcement</label>
                     <textarea id="announcement" name="announcement" required>{{ home_settings.announcement }}</textarea>
+                </div>
+
+                <div class="field">
+                    <label for="registration_bonus_image">Registration bonus image</label>
+                    <input id="registration_bonus_image" type="file" name="registration_bonus_image" accept="image/*">
+                    <small class="editor-help">Shown after a successful registration. Close it to show the campaign image.</small>
+                </div>
+
+                <div class="field">
+                    <label for="campaign_announcement_image">Campaign announcement image</label>
+                    <input id="campaign_announcement_image" type="file" name="campaign_announcement_image" accept="image/*">
+                    <small class="editor-help">Shown after login and again when returning after 4 hours.</small>
                 </div>
 
                 <div class="field"><label for="online_users_value">Online users value</label><input id="online_users_value" name="online_users_value" value="{{ home_settings.online_users_value }}"><small class="editor-help">Starts from your saved value and moves slightly every 5 seconds.</small></div>
