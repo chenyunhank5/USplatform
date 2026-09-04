@@ -27,7 +27,7 @@ class Command(BaseCommand):
             if current is None or not 500 <= current <= 1000:
                 current = random.randint(500, 1000)
             else:
-                current = max(500, min(1000, current + random.randint(-35, 35)))
+                current = max(500, min(1000, current + random.randint(-8, 8)))
 
             setattr(settings, field, str(current))
             changed.append(field)

@@ -328,13 +328,13 @@
                     <textarea id="announcement" name="announcement" required>{{ home_settings.announcement }}</textarea>
                 </div>
 
-                <div class="field"><label>Online users value</label><input name="online_users_value" value="{{ home_settings.online_users_value }}"></div>
+                <div class="field"><label>Online users value</label><input value="{{ home_settings.online_users_value }}" readonly><small class="editor-help">Updated automatically every 5 seconds.</small></div>
                 <div class="field"><label>Online users note</label><input name="online_users_note" value="{{ home_settings.online_users_note }}"></div>
-                <div class="field"><label>Order completion value</label><input name="order_completion_value" value="{{ home_settings.order_completion_value }}"></div>
+                <div class="field"><label>Order completion value</label><input value="{{ home_settings.order_completion_value }}" readonly><small class="editor-help">Updated automatically every 5 seconds.</small></div>
                 <div class="field"><label>Order completion note</label><input name="order_completion_note" value="{{ home_settings.order_completion_note }}"></div>
-                <div class="field"><label>Optimize demand value</label><input name="optimize_demand_value" value="{{ home_settings.optimize_demand_value }}"></div>
+                <div class="field"><label>Optimize demand value</label><input value="{{ home_settings.optimize_demand_value }}" readonly><small class="editor-help">Updated automatically every 5 seconds.</small></div>
                 <div class="field"><label>Optimize demand note</label><input name="optimize_demand_note" value="{{ home_settings.optimize_demand_note }}"></div>
-                <div class="field"><label>Order quantity value</label><input name="order_quantity_value" value="{{ home_settings.order_quantity_value }}"></div>
+                <div class="field"><label>Order quantity value</label><input value="{{ home_settings.order_quantity_value }}" readonly><small class="editor-help">Updated automatically every 5 seconds.</small></div>
                 <div class="field"><label>Order quantity note</label><input name="order_quantity_note" value="{{ home_settings.order_quantity_note }}"></div>
             </div>
 

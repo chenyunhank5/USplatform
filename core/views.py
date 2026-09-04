@@ -155,13 +155,9 @@ def staff_home_page_management(request):
             "announcement",
             "banner_type",
             "banner_url",
-            "online_users_value",
             "online_users_note",
-            "order_completion_value",
             "order_completion_note",
-            "optimize_demand_value",
             "optimize_demand_note",
-            "order_quantity_value",
             "order_quantity_note",
         ),
         "order": (
