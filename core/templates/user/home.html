@@ -182,14 +182,8 @@
     }
 
     .wave-shape {
-        transform-box: fill-box;
-        transform-origin: center;
-        animation: wave-bob 3.5s ease-in-out infinite;
-    }
-
-    @keyframes wave-bob {
-        0%, 100% { transform: translateY(2px); }
-        50% { transform: translateY(-3px); }
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
     .vip-title {
@@ -482,7 +476,14 @@
                     class="wave-shape"
                     stroke="#0da34e"
                     stroke-width="2"
-                />
+                >
+                    <animate
+                        attributeName="d"
+                        dur="3.5s"
+                        repeatCount="indefinite"
+                        values="M0 32 C20 25, 35 42, 55 32 C75 20, 88 42, 120 32;M0 30 C20 40, 35 20, 55 34 C75 45, 92 20, 120 30;M0 32 C20 25, 35 42, 55 32 C75 20, 88 42, 120 32"
+                    />
+                </path>
             </svg>
         </div>
     </div>
@@ -509,7 +510,14 @@
                 d="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48 L120 95 L0 95 Z"
                 class="wave-shape"
                 fill="#0da34e33"
-            />
+            >
+                <animate
+                    attributeName="d"
+                    dur="4s"
+                    repeatCount="indefinite"
+                    values="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48 L120 95 L0 95 Z;M0 48 C18 20, 32 75, 50 40 C68 12, 94 78, 120 35 L120 95 L0 95 Z;M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48 L120 95 L0 95 Z"
+                />
+            </path>
 
                 <path
                     d="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48"
@@ -517,7 +525,14 @@
                     class="wave-shape"
                 stroke="#0da34e"
                 stroke-width="2"
-            />
+            >
+                <animate
+                    attributeName="d"
+                    dur="4s"
+                    repeatCount="indefinite"
+                    values="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48;M0 48 C18 20, 32 75, 50 40 C68 12, 94 78, 120 35;M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48"
+                />
+            </path>
         </svg>
     </div>
 
@@ -545,7 +560,14 @@
                 d="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55 L120 95 L0 95 Z"
                 class="wave-shape"
                 fill="#0da34e33"
-            />
+            >
+                <animate
+                    attributeName="d"
+                    dur="4.5s"
+                    repeatCount="indefinite"
+                    values="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55 L120 95 L0 95 Z;M0 55 C18 35, 30 75, 42 48 C55 18, 68 70, 82 30 C98 10, 104 64, 120 45 L120 95 L0 95 Z;M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55 L120 95 L0 95 Z"
+                />
+            </path>
 
                 <path
                     d="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55"
@@ -553,7 +575,14 @@
                     class="wave-shape"
                 stroke="#0da34e"
                 stroke-width="2"
-            />
+            >
+                <animate
+                    attributeName="d"
+                    dur="4.5s"
+                    repeatCount="indefinite"
+                    values="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55;M0 55 C18 35, 30 75, 42 48 C55 18, 68 70, 82 30 C98 10, 104 64, 120 45;M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55"
+                />
+            </path>
         </svg>
     </div>
 </div>
