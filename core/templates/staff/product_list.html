@@ -146,27 +146,27 @@
 
 <div class="panel">
 
-    <div class="filter-bar">
+    <form class="filter-bar" method="get" action="{% url 'staff_product_list' %}">
 
         <label>Goods name:</label>
-        <input type="text" placeholder="Please enter goods name">
+        <input type="text" name="name" value="{{ product_filters.name }}" placeholder="Please enter goods name">
 
         <label>Price range:</label>
-        <input type="text" placeholder="Minimum price">
+        <input type="number" name="min_price" value="{{ product_filters.min_price }}" min="0" step="0.01" placeholder="Minimum price">
 
         <span>-</span>
 
-        <input type="text" placeholder="Maximum price">
+        <input type="number" name="max_price" value="{{ product_filters.max_price }}" min="0" step="0.01" placeholder="Maximum price">
 
-        <button class="query-btn">
+        <button type="submit" class="query-btn">
             ⌕ Query
         </button>
 
-        <button class="reset-btn">
+        <a class="reset-btn" href="{% url 'staff_product_list' %}">
             Reset
-        </button>
+        </a>
 
-    </div>
+    </form>
 
     <button type="button" class="add-btn" onclick="openAddProductModal()">
         ＋ Add goods

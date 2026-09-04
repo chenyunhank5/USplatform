@@ -1,7 +1,7 @@
 import random
 from decimal import Decimal
 from uuid import uuid4
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import wraps
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -323,6 +323,28 @@ def staff_user_management(request):
         'invited_by__user',
         'vip_level'
     ).all().order_by('-id')
+
+    keyword = request.GET.get('keyword', '').strip()
+    start_date = request.GET.get('start_date', '').strip()
+    end_date = request.GET.get('end_date', '').strip()
+
+    if keyword:
+        profiles = profiles.filter(
+            Q(user__username__icontains=keyword)
+            | Q(user__email__icontains=keyword)
+            | Q(phone_number__icontains=keyword)
+        )
+
+    for value, lookup in (
+        (start_date, 'registration_time__date__gte'),
+        (end_date, 'registration_time__date__lte'),
+    ):
+        try:
+            if value:
+                datetime.strptime(value, '%Y-%m-%d')
+                profiles = profiles.filter(**{lookup: value})
+        except ValueError:
+            pass
 
     vip_levels = VipLevel.objects.all().order_by('id')
 
@@ -907,8 +929,30 @@ def staff_delete_vip_level(request, vip_id):
 def staff_product_list(request):
     products = Product.objects.all().order_by('-id')
 
+    name = request.GET.get('name', '').strip()
+    min_price = request.GET.get('min_price', '').strip()
+    max_price = request.GET.get('max_price', '').strip()
+
+    if name:
+        products = products.filter(name__icontains=name)
+
+    for value, lookup in (
+        (min_price, 'price__gte'),
+        (max_price, 'price__lte'),
+    ):
+        try:
+            if value:
+                products = products.filter(**{lookup: Decimal(value)})
+        except (ArithmeticError, ValueError):
+            pass
+
     return render(request, 'staff/product_list.html', {
-        'products': products
+        'products': products,
+        'product_filters': {
+            'name': name,
+            'min_price': min_price,
+            'max_price': max_price,
+        },
     })
 
 

@@ -276,35 +276,27 @@ tr:hover .action-column{
 
 <div class="panel">
 
-    <div class="filter-bar">
+    <form class="filter-bar" method="get" action="{% url 'staff_user_management' %}">
 
         <label>Keyword:</label>
-        <input type="text" placeholder="Please enter keyword">
+        <input type="text" name="keyword" value="{{ request.GET.keyword|default:'' }}" placeholder="Please enter keyword">
 
         <label>Registration time:</label>
-        <input type="text" placeholder="Start time">
+        <input type="date" name="start_date" value="{{ request.GET.start_date|default:'' }}" aria-label="Start registration date">
 
         <span>To</span>
 
-        <input type="text" placeholder="End time">
+        <input type="date" name="end_date" value="{{ request.GET.end_date|default:'' }}" aria-label="End registration date">
 
-        <label>Is dummy or not:</label>
-
-        <select>
-            <option>Is dummy...</option>
-            <option>Yes</option>
-            <option>No</option>
-        </select>
-
-        <button class="filter-btn">
+        <button type="submit" class="filter-btn">
             Query
         </button>
 
-        <button class="filter-btn reset-btn">
+        <a class="filter-btn reset-btn" href="{% url 'staff_user_management' %}">
             Reset
-        </button>
+        </a>
 
-    </div>
+    </form>
 
     <button type="button" class="add-btn" onclick="openAddUserModal()">
         ＋ Add user
