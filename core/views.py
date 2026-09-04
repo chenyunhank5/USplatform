@@ -79,13 +79,18 @@ def get_user_earning_stats(user):
     referral_commissions = ReferralCommission.objects.filter(inviter=profile) if profile else ReferralCommission.objects.none()
     today_referrals = referral_commissions.filter(created_at__date=today)
 
+    today_order_earnings = today_orders.aggregate(total=Sum('commission'))['total'] or Decimal('0.00')
+    total_order_earnings = completed_orders.aggregate(total=Sum('commission'))['total'] or Decimal('0.00')
+    today_team_earnings = today_referrals.aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+    team_earnings = referral_commissions.aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+
     return {
-        'today_earnings': today_orders.aggregate(total=Sum('commission'))['total'] or Decimal('0.00'),
-        'total_earnings': completed_orders.aggregate(total=Sum('commission'))['total'] or Decimal('0.00'),
+        'today_earnings': today_order_earnings + today_team_earnings,
+        'total_earnings': total_order_earnings + team_earnings,
         'today_order_revenue': today_orders.aggregate(total=Sum('order_price'))['total'] or Decimal('0.00'),
         'order_revenue': completed_orders.aggregate(total=Sum('order_price'))['total'] or Decimal('0.00'),
-        'today_team_earnings': today_referrals.aggregate(total=Sum('amount'))['total'] or Decimal('0.00'),
-        'team_earnings': referral_commissions.aggregate(total=Sum('amount'))['total'] or Decimal('0.00'),
+        'today_team_earnings': today_team_earnings,
+        'team_earnings': team_earnings,
     }
 
 
