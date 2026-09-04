@@ -431,6 +431,30 @@ class UserOrder(models.Model):
         return f'{self.user.username} - {self.order_type}'
 
 
+class ReferralCommission(models.Model):
+    inviter = models.ForeignKey(
+        UserProfile,
+        on_delete=models.CASCADE,
+        related_name='referral_commissions',
+    )
+    invitee = models.ForeignKey(
+        UserProfile,
+        on_delete=models.CASCADE,
+        related_name='generated_referral_commissions',
+    )
+    order = models.OneToOneField(
+        UserOrder,
+        on_delete=models.CASCADE,
+        related_name='referral_commission',
+    )
+    rate = models.DecimalField(max_digits=5, decimal_places=2, default=20.00)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.inviter.user.username} - {self.amount}'
+
+
 class SuccessiveOrderPlan(models.Model):
     STATUS_CHOICES = (
         ("waiting", "Waiting"),

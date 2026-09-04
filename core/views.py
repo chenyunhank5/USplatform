@@ -17,7 +17,7 @@ from django.urls import reverse
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from .models import UserProfile, VipLevel, Product, ProductEvaluation, WithdrawalRequest, DepositRecord, SupportMessage, UserOrder, LuckyReward, SuccessiveOrderPlan, HomePageSettings    
+from .models import UserProfile, VipLevel, Product, ProductEvaluation, WithdrawalRequest, DepositRecord, SupportMessage, UserOrder, ReferralCommission, LuckyReward, SuccessiveOrderPlan, HomePageSettings
 
 
 def broadcast_support_message(support_message):
@@ -75,11 +75,17 @@ def get_user_earning_stats(user):
     today = timezone.localdate()
     today_orders = completed_orders.filter(completed_at__date=today)
 
+    profile = UserProfile.objects.filter(user=user).first()
+    referral_commissions = ReferralCommission.objects.filter(inviter=profile) if profile else ReferralCommission.objects.none()
+    today_referrals = referral_commissions.filter(created_at__date=today)
+
     return {
         'today_earnings': today_orders.aggregate(total=Sum('commission'))['total'] or Decimal('0.00'),
         'total_earnings': completed_orders.aggregate(total=Sum('commission'))['total'] or Decimal('0.00'),
         'today_order_revenue': today_orders.aggregate(total=Sum('order_price'))['total'] or Decimal('0.00'),
         'order_revenue': completed_orders.aggregate(total=Sum('order_price'))['total'] or Decimal('0.00'),
+        'today_team_earnings': today_referrals.aggregate(total=Sum('amount'))['total'] or Decimal('0.00'),
+        'team_earnings': referral_commissions.aggregate(total=Sum('amount'))['total'] or Decimal('0.00'),
     }
 
 
@@ -1349,10 +1355,7 @@ def my_team(request):
     total_earnings = earning_stats['total_earnings']
     order_revenue = earning_stats['order_revenue']
 
-    team_earnings = UserOrder.objects.filter(
-        user_id__in=team_user_ids,
-        status='completed',
-    ).aggregate(total=Sum('commission'))['total'] or Decimal('0.00')
+    team_earnings = earning_stats['team_earnings']
 
     register_url = reverse('user_register')
     invitation_link = request.build_absolute_uri(
@@ -1830,52 +1833,60 @@ def submit_order(request, order_id):
             reward_id=pending_reward.id
         )
 
-    order = get_object_or_404(
-        UserOrder,
-        id=order_id,
-        user=request.user,
-        status="matched"
-    )
+    if request.method != "POST":
+        return redirect("user_order_detail", order_id=order_id)
 
-    if request.method == "POST":
+    with transaction.atomic():
+        profile = get_object_or_404(
+            UserProfile.objects.select_for_update().select_related('invited_by'),
+            user=request.user,
+        )
+        order = get_object_or_404(
+            UserOrder.objects.select_for_update(),
+            id=order_id,
+            user=request.user,
+            status="matched",
+        )
 
         if profile.balance < order.order_price:
             remaining_topup = order.order_price - profile.balance
-
             messages.error(
                 request,
                 f"Insufficient balance. Please top up {remaining_topup} USD."
             )
-
-            return redirect(
-                "user_order_detail",
-                order_id=order.id
-            )
+            return redirect("user_order_detail", order_id=order.id)
 
         rating = int(request.POST.get("rating", 5))
+        rating = max(1, min(rating, 5))
         comment = request.POST.get("comment", "").strip()
 
         order.rating = rating
         order.comment = comment
         order.status = "completed"
         order.completed_at = timezone.now()
-        order.save()
+        order.save(update_fields=['rating', 'comment', 'status', 'completed_at'])
 
         profile.balance += order.commission
         profile.task_progress += 1
-        profile.save()
+        profile.save(update_fields=['balance', 'task_progress'])
 
-        messages.success(
-            request,
-            "Order submitted successfully."
-        )
+        inviter = profile.invited_by
+        if inviter:
+            referral_amount = (
+                order.commission * Decimal('20.00') / Decimal('100.00')
+            ).quantize(Decimal('0.01'))
+            inviter = UserProfile.objects.select_for_update().get(pk=inviter.pk)
+            ReferralCommission.objects.create(
+                inviter=inviter,
+                invitee=profile,
+                order=order,
+                amount=referral_amount,
+            )
+            inviter.balance += referral_amount
+            inviter.save(update_fields=['balance'])
 
-        return redirect("user_order")
-
-    return redirect(
-        "user_order_detail",
-        order_id=order.id
-    )
+    messages.success(request, "Order submitted successfully.")
+    return redirect("user_order")
 
 @login_required(login_url='user_login')
 def user_messages(request):
