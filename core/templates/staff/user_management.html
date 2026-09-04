@@ -651,6 +651,26 @@ document.addEventListener(
     }
 );
 
+const activeFilterQuery =
+    window.location.search.replace(/^\?/, '');
+
+if(activeFilterQuery){
+    document.querySelectorAll('form[method="POST"], form[method="post"]').forEach(
+        function(form){
+            let filterInput = form.querySelector('input[name="filter_query"]');
+
+            if(!filterInput){
+                filterInput = document.createElement('input');
+                filterInput.type = 'hidden';
+                filterInput.name = 'filter_query';
+                form.appendChild(filterInput);
+            }
+
+            filterInput.value = activeFilterQuery;
+        }
+    );
+}
+
 function openPaymentManagementPage(profileId){
 
     if(!profileId){

@@ -315,6 +315,15 @@ def staff_home(request):
 
 # USER MANAGEMENT
 
+def staff_user_management_redirect(request):
+    filter_query = request.POST.get('filter_query', '').strip()
+    if not filter_query and request.GET:
+        filter_query = request.GET.urlencode()
+
+    url = reverse('staff_user_management')
+    return redirect(f'{url}?{filter_query}' if filter_query else url)
+
+
 @staff_required
 def staff_user_management(request):
     profiles = UserProfile.objects.select_related(
@@ -379,11 +388,11 @@ def staff_add_user(request):
 
         if not username or not phone_number or not password or not transaction_password or not vip_level:
             messages.error(request, 'Please fill all required fields.')
-            return redirect('staff_user_management')
+            return staff_user_management_redirect(request)
 
         if User.objects.filter(username__iexact=username).exists():
             messages.error(request, 'Username already exists.')
-            return redirect('staff_user_management')
+            return staff_user_management_redirect(request)
 
         invited_by_profile = None
 
@@ -392,7 +401,7 @@ def staff_add_user(request):
 
             if not invited_by_profile:
                 messages.error(request, 'Upper level ID does not exist.')
-                return redirect('staff_user_management')
+                return staff_user_management_redirect(request)
 
         user = User.objects.create_user(
             username=username,
@@ -412,7 +421,7 @@ def staff_add_user(request):
 
         messages.success(request, 'User added successfully.')
 
-    return redirect('staff_user_management')
+    return staff_user_management_redirect(request)
 
 
 @staff_required
@@ -438,11 +447,11 @@ def staff_edit_user(request, profile_id):
 
         if not username:
             messages.error(request, 'Username is required.')
-            return redirect('staff_user_management')
+            return staff_user_management_redirect(request)
 
         if User.objects.filter(username__iexact=username).exclude(id=profile.user.id).exists():
             messages.error(request, 'Username already exists.')
-            return redirect('staff_user_management')
+            return staff_user_management_redirect(request)
 
         profile.user.username = username
         profile.user.email = email
@@ -468,7 +477,7 @@ def staff_edit_user(request, profile_id):
 
         messages.success(request, 'User updated successfully.')
 
-    return redirect('staff_user_management')
+    return staff_user_management_redirect(request)
 
 
 @staff_required
@@ -481,7 +490,7 @@ def staff_score_modify(request, profile_id):
 
         if amount <= 0:
             messages.error(request, 'Amount must be greater than 0.')
-            return redirect('staff_user_management')
+            return staff_user_management_redirect(request)
 
         if operation_type == 'plus':
             with transaction.atomic():
@@ -497,18 +506,18 @@ def staff_score_modify(request, profile_id):
         elif operation_type == 'minus':
             if profile.balance < amount:
                 messages.error(request, 'Insufficient balance.')
-                return redirect('staff_user_management')
+                return staff_user_management_redirect(request)
 
             profile.balance -= amount
             profile.save(update_fields=['balance'])
 
         else:
             messages.error(request, 'Invalid balance operation.')
-            return redirect('staff_user_management')
+            return staff_user_management_redirect(request)
 
         messages.success(request, 'Balance updated successfully.')
 
-    return redirect('staff_user_management')
+    return staff_user_management_redirect(request)
 
 
 # USER SECURITY
@@ -528,7 +537,7 @@ def staff_update_login_password(request, profile_id):
             profile.user.save()
             messages.success(request, 'Login password updated successfully.')
 
-    return redirect('staff_user_management')
+    return staff_user_management_redirect(request)
 
 
 @staff_required
@@ -543,7 +552,7 @@ def staff_update_withdrawal_password(request, profile_id):
             profile.save()
             messages.success(request, 'Withdrawal password updated successfully.')
 
-    return redirect('staff_user_management')
+    return staff_user_management_redirect(request)
 
 
 @staff_required
@@ -558,7 +567,7 @@ def staff_update_wallet_address(request, profile_id):
 
         messages.success(request, 'Wallet address updated successfully.')
 
-    return redirect('staff_user_management')
+    return staff_user_management_redirect(request)
 
 
 @staff_required
@@ -598,7 +607,7 @@ def staff_add_successive_order(request):
 
         return redirect("staff_successive_order_page", profile.id)
 
-    return redirect("staff_user_management")
+    return staff_user_management_redirect(request)
 
 @staff_required
 def staff_edit_successive_order_frozen(request, order_id):
@@ -666,7 +675,7 @@ def staff_add_lucky_reward(request):
 
         return redirect("lucky_reward_page", profile_id=profile.id)
 
-    return redirect("staff_user_management")
+    return staff_user_management_redirect(request)
 
 @staff_required
 def confirm_lucky_reward(request, reward_id):
@@ -1706,7 +1715,7 @@ def staff_reset_user_tasks(request, profile_id):
             "Task progress reset successfully."
         )
 
-    return redirect("staff_user_management")
+    return staff_user_management_redirect(request)
 
 
 @login_required(login_url="user_login")
