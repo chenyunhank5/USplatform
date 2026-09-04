@@ -1144,6 +1144,13 @@ def user_register(request):
         profile.vip_level = vip1
         profile.save()
 
+        DepositRecord.objects.create(
+            user=user,
+            amount=Decimal('10.00'),
+            status='completed',
+            remark='Registration bonus',
+        )
+
         login(request, user)
 
         messages.success(request, 'Registration successful.')
@@ -1838,7 +1845,7 @@ def user_messages(request):
     notifications.extend({
         'id': item.id,
         'type': 'deposit',
-        'title': 'Deposit credited',
+        'title': 'Registration bonus' if item.remark == 'Registration bonus' else 'Deposit credited',
         'amount': item.amount,
         'status': 'Success',
         'created_at': item.created_at,
