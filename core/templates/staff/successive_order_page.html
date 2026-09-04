@@ -236,6 +236,7 @@
                 <tr>
                     <th>ID</th>
                     <th>The N order</th>
+                    <th>Quantity</th>
                     <th>Product information</th>
                     <th>Frozen Amount</th>
                     <th>Created by</th>
@@ -258,6 +259,10 @@
 
                     <td>
                         {{ order.target_order_number }}
+                    </td>
+
+                    <td>
+                        {{ order.quantity }}
                     </td>
 
                     <td>

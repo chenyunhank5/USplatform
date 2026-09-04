@@ -600,6 +600,7 @@ def staff_add_successive_order(request):
             profile=profile,
             product=product,
             target_order_number=int(request.POST.get("target_turn")),
+            quantity=max(1, int(request.POST.get("quantity") or "1")),
             negative_amount=Decimal(request.POST.get("negative_amount") or "0"),
             status="waiting",
             created_by=request.user

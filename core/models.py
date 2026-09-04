@@ -465,6 +465,7 @@ class SuccessiveOrderPlan(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="successive_order_plans")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     target_order_number = models.IntegerField(default=0)
+    quantity = models.PositiveIntegerField(default=1)
     negative_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="waiting")
     matched_order = models.ForeignKey(UserOrder, on_delete=models.SET_NULL, null=True, blank=True)
