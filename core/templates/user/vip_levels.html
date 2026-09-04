@@ -81,6 +81,7 @@
             {% widthratio vip.maximum_task 1 3 as daily_points %}
             <div class="vip-level-description">
                 <p>&bull; Deposit return activities</p>
+                <p>&bull; Optimize data to receive a {{ vip.commission_rate|floatformat:'-4' }}% commission</p>
                 <p>&bull; {{ vip.maximum_task }} data points per set, with special data rewards increased to {{ vip.successive_order_commission_rate|floatformat:'-4' }}%</p>
                 <p>&bull; {{ vip.level_name }} members can submit up to 3 sets of {{ vip.maximum_task }} data points per day ({{ daily_points }} data points total).</p>
                 {% if vip.description %}
