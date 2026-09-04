@@ -5,6 +5,7 @@ from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from .home_stats import build_chart_paths
 from .models import SupportMessage
 from .models import HomePageSettings
 
@@ -130,9 +131,26 @@ class HomeStatsConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_stats(self):
         settings = HomePageSettings.objects.first()
+        values = {
+            'online_users_value': self.parse_value(settings.online_users_value),
+            'order_completion_value': self.parse_value(settings.order_completion_value),
+            'optimize_demand_value': self.parse_value(settings.optimize_demand_value),
+            'order_quantity_value': self.parse_value(settings.order_quantity_value),
+        }
         return {
             'online_users_value': settings.online_users_value,
             'order_completion_value': settings.order_completion_value,
             'optimize_demand_value': settings.optimize_demand_value,
             'order_quantity_value': settings.order_quantity_value,
+            'charts': build_chart_paths(values),
         }
+
+    @staticmethod
+    def parse_value(value):
+        text = str(value or '').lower()
+        multiplier = 1000 if 'k' in text else 1
+        number = ''.join(character for character in text if character.isdigit() or character == '.')
+        try:
+            return round(float(number) * multiplier)
+        except ValueError:
+            return 0

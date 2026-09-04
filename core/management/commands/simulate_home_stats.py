@@ -5,6 +5,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.core.management.base import BaseCommand
 
+from core.home_stats import build_chart_paths
 from core.models import HomePageSettings
 
 
@@ -21,9 +22,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         settings, _ = HomePageSettings.objects.get_or_create(pk=1)
         changed = []
+        previous_values = {}
+        current_values = {}
 
         for field in self.fields:
             current = self.parse_value(getattr(settings, field))
+            previous_values[field] = current or 0
             if current is None:
                 current = random.randint(500, 1000)
             elif field == 'order_completion_value':
@@ -32,6 +36,7 @@ class Command(BaseCommand):
                 current += random.randint(-8, 8)
 
             setattr(settings, field, str(current))
+            current_values[field] = current
             changed.append(field)
 
         settings.save(update_fields=[*changed, 'updated_at'])
@@ -40,6 +45,7 @@ class Command(BaseCommand):
             {
                 'type': 'homepage_stats',
                 'stats': {field: getattr(settings, field) for field in self.fields},
+                'charts': build_chart_paths(current_values, previous_values),
             },
         )
         self.stdout.write(self.style.SUCCESS('Homepage simulated metrics updated.'))
