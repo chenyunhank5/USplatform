@@ -463,13 +463,13 @@
 
     {% endif %}
 
-    <div class="wallet-tabs">
+    <div class="wallet-tabs" data-wallet-tabs>
 
         <button
             type="button"
             class="wallet-tab-btn active"
             id="todayTabBtn"
-            onclick="showWalletTab('today')"
+            data-wallet-tab="today"
         >
             Todays Earnings
         </button>
@@ -478,14 +478,14 @@
             type="button"
             class="wallet-tab-btn"
             id="totalTabBtn"
-            onclick="showWalletTab('total')"
+            data-wallet-tab="total"
         >
             Total Earnings
         </button>
 
     </div>
 
-    <div class="wallet-stats" id="todayStats">
+    <div class="wallet-stats" id="todayStats" data-wallet-panel="today">
 
         <div class="wallet-stat">
             <small>Order Revenue</small>
@@ -504,7 +504,7 @@
 
     </div>
 
-    <div class="wallet-stats" id="totalStats" style="display:none;">
+    <div class="wallet-stats" id="totalStats" data-wallet-panel="total" hidden>
 
         <div class="wallet-stat">
             <small>Total Balance</small>

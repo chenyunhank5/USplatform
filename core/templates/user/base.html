@@ -380,5 +380,23 @@ function showAlert(message){
 
 {% block body_overlays %}{% endblock %}
 
+<script>
+document.querySelectorAll('[data-wallet-tabs]').forEach((tabs) => {
+    const card = tabs.closest('.wallet-card');
+    if (!card) return;
+    const buttons = tabs.querySelectorAll('[data-wallet-tab]');
+    const panels = card.querySelectorAll('[data-wallet-panel]');
+    buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+            const selected = button.dataset.walletTab;
+            buttons.forEach((item) => item.classList.toggle('active', item === button));
+            panels.forEach((panel) => {
+                panel.hidden = panel.dataset.walletPanel !== selected;
+            });
+        });
+    });
+});
+</script>
+
 </body>
 </html>
