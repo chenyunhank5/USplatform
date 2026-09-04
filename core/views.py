@@ -1389,6 +1389,7 @@ def user_vip_levels(request):
     return render(request, 'user/vip_levels.html', {
         'profile': profile,
         'vip_levels': VipLevel.objects.order_by('id'),
+        'home_settings': get_home_settings(request),
     })
 
 
