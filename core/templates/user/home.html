@@ -772,6 +772,9 @@
 })();
 </script>
 
+{% endblock %}
+
+{% block body_overlays %}
 {% if home_settings.registration_bonus_image or home_settings.campaign_announcement_image %}
 <div class="campaign-modal" id="registrationBonusModal" hidden>
     <div class="campaign-modal-card">
@@ -819,5 +822,4 @@
 })();
 </script>
 {% endif %}
-
 {% endblock %}
