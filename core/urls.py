@@ -100,6 +100,7 @@ urlpatterns = [
     path('user/settings/', views.user_settings, name='user_settings'),
     path('user/more-services/', views.more_services, name='more_services'),
     path('user/my-team/', views.my_team, name='my_team'),
+    path('user/vip-levels/', views.user_vip_levels, name='user_vip_levels'),
     path('user/trading-account/', views.user_trading_account, name='user_trading_account'),
     path('user/trading-account/edit/', views.user_edit_wallet_address, name='user_edit_wallet_address'),
     path('user/personal-information/', views.user_personal_information, name='user_personal_information'),

@@ -255,6 +255,7 @@
         padding:0 14px;
         font-weight:bold;
         font-size:18px;
+        text-decoration:none;
         box-shadow:0 6px 18px rgba(13,163,78,.25);
     }
 
@@ -569,7 +570,7 @@
     VIP Levels
 </div>
 
-<div class="vip-card">
+<a href="{% url 'user_vip_levels' %}" class="vip-card">
 
     {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
 
@@ -594,7 +595,7 @@
         Current VIP Level
     </div>
 
-</div>
+</a>
 
 <div class="section-title">
     Other

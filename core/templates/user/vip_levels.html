@@ -1,0 +1,92 @@
+{% extends 'user/base.html' %}
+
+{% block title %}VIP Levels{% endblock %}
+
+{% block extra_css %}
+    .vip-level-page { padding: 0 0 24px; background: #f5f7fb; }
+    .vip-level-header { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: center; height: 56px; color: #fff; background: #0da34e; font-size: 19px; font-weight: 700; }
+    .vip-level-back { position: absolute; left: 12px; display: flex; align-items: center; justify-content: center; width: 36px; height: 40px; color: #fff; font-size: 30px; line-height: 1; text-decoration: none; }
+    .vip-level-hint { margin: 16px 16px 10px; color: #4b5563; font-size: 13px; text-align: center; }
+    .vip-level-scroller { display: flex; gap: 14px; padding: 8px 16px 20px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+    .vip-level-scroller::-webkit-scrollbar { display: none; }
+    .vip-level-card { flex: 0 0 calc(100% - 20px); scroll-snap-align: center; overflow: hidden; color: #fff; background: linear-gradient(155deg, #0da34e, #08783e); border: 1px solid rgba(255,255,255,.5); border-radius: 18px; box-shadow: 0 10px 24px rgba(13,163,78,.22); }
+    .vip-level-card.is-current { border: 3px solid #facc15; }
+    .vip-level-card-top { display: flex; align-items: center; gap: 12px; padding: 18px 16px 14px; }
+    .vip-level-icon { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; flex: 0 0 48px; overflow: hidden; color: #facc15; background: #111827; border-radius: 12px; font-size: 16px; font-weight: 800; }
+    .vip-level-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .vip-level-name { font-size: 23px; font-weight: 800; }
+    .vip-level-status { margin-left: auto; padding: 7px 10px; color: #08783e; background: #fff; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .vip-level-range { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 16px; padding: 13px 0; border-top: 1px solid rgba(255,255,255,.65); border-bottom: 1px solid rgba(255,255,255,.65); }
+    .vip-level-range div:last-child { text-align: right; }
+    .vip-level-range small { display: block; margin-bottom: 4px; color: rgba(255,255,255,.78); font-size: 11px; }
+    .vip-level-range strong { font-size: 18px; }
+    .vip-level-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px; }
+    .vip-level-fact { padding: 10px; background: rgba(255,255,255,.13); border-radius: 10px; }
+    .vip-level-fact small { display: block; margin-bottom: 4px; color: rgba(255,255,255,.78); font-size: 11px; }
+    .vip-level-fact strong { font-size: 15px; }
+    .vip-level-description { margin: 0 16px 18px; padding: 14px; color: #123c27; background: #f0fff5; border-radius: 12px; line-height: 1.55; }
+    .vip-level-description h1, .vip-level-description h2, .vip-level-description h3 { margin: 0 0 8px; color: #08783e; font-size: 17px; }
+    .vip-level-description p { margin: 6px 0; }
+    .vip-level-description ul { margin: 6px 0; padding-left: 20px; }
+    .vip-level-action { display: block; margin: 0 16px 18px; padding: 13px; color: #08783e; background: #fff; border-radius: 10px; text-align: center; font-weight: 800; }
+{% endblock %}
+
+{% block content %}
+<div class="vip-level-page">
+    <header class="vip-level-header">
+        <a href="{% url 'user_home' %}" class="vip-level-back" aria-label="Back">&#8249;</a>
+        VIP Levels
+    </header>
+
+    <p class="vip-level-hint">Swipe left or right to view each VIP level.</p>
+
+    <div class="vip-level-scroller" id="vipLevelScroller">
+        {% for vip in vip_levels %}
+        <article class="vip-level-card {% if profile.vip_level_id == vip.id %}is-current{% endif %}" {% if profile.vip_level_id == vip.id %}data-current="true"{% endif %}>
+            <div class="vip-level-card-top">
+                <div class="vip-level-icon">
+                    {% if vip.icon %}
+                        <img src="{{ vip.icon.url }}" alt="{{ vip.level_name }}">
+                    {% else %}
+                        {{ vip.level_name }}
+                    {% endif %}
+                </div>
+                <div class="vip-level-name">{{ vip.level_name }}</div>
+                {% if profile.vip_level_id == vip.id %}
+                    <div class="vip-level-status">Current Level</div>
+                {% endif %}
+            </div>
+
+            <div class="vip-level-range">
+                <div><small>Minimum withdrawal</small><strong>${{ vip.minimum_withdrawal|floatformat:2 }}</strong></div>
+                <div><small>Maximum withdrawal</small><strong>${{ vip.maximum_withdrawal|floatformat:2 }}</strong></div>
+            </div>
+
+            <div class="vip-level-facts">
+                <div class="vip-level-fact"><small>Commission rate</small><strong>{{ vip.commission_rate|floatformat:'-4' }}%</strong></div>
+                <div class="vip-level-fact"><small>Successive rate</small><strong>{{ vip.successive_order_commission_rate|floatformat:'-4' }}%</strong></div>
+                <div class="vip-level-fact"><small>Maximum tasks</small><strong>{{ vip.maximum_task }}</strong></div>
+                <div class="vip-level-fact"><small>Minimum amount</small><strong>${{ vip.minimum_amount|floatformat:2 }}</strong></div>
+            </div>
+
+            {% if vip.description %}
+                <div class="vip-level-description">{{ vip.description|safe }}</div>
+            {% endif %}
+
+            <div class="vip-level-action">
+                {% if profile.vip_level_id == vip.id %}Current VIP Level{% else %}VIP Level Details{% endif %}
+            </div>
+        </article>
+        {% empty %}
+            <p>No VIP levels are available yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    const currentVipCard = document.querySelector('[data-current="true"]');
+    if (currentVipCard) {
+        currentVipCard.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
+    }
+</script>
+{% endblock %}

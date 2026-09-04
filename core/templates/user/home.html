@@ -250,6 +250,7 @@
         margin-bottom: 18px;
         padding: 0 12px;
         color: white;
+        text-decoration: none;
         background: #0da34e;
         border-radius: 8px;
         font-size: 18px;
@@ -666,7 +667,7 @@
     VIP Levels
 </div>
 
-<div class="vip-card">
+<a href="{% url 'user_vip_levels' %}" class="vip-card">
     <div class="vip-icon">
         {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
             <img
@@ -691,7 +692,7 @@
     <div class="vip-enter">
         Enter ›
     </div>
-</div>
+</a>
 
 <script>
 (() => {

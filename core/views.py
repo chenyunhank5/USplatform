@@ -1381,6 +1381,18 @@ def my_team(request):
 
 
 @login_required(login_url='user_login')
+def user_vip_levels(request):
+    profile = get_object_or_404(
+        UserProfile.objects.select_related('vip_level'),
+        user=request.user,
+    )
+    return render(request, 'user/vip_levels.html', {
+        'profile': profile,
+        'vip_levels': VipLevel.objects.order_by('id'),
+    })
+
+
+@login_required(login_url='user_login')
 def user_order_info_page(request, page_key):
     pages = {
         'order_description': (
