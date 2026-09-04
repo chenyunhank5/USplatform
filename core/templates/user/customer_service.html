@@ -763,6 +763,18 @@
 <div class="copy-toast" id="copyToast" role="status" aria-live="polite">Message copied</div>
 
 <script>
+    document.addEventListener("keydown", function(event){
+        if(event.key !== "Escape"){
+            return;
+        }
+
+        if(window.history.length > 1){
+            window.history.back();
+        }else{
+            window.location.href = "{% if is_guest %}{% url 'user_login' %}{% else %}{% url 'user_messages' %}{% endif %}";
+        }
+    });
+
     const selectedUserId = "{{ support_user.id }}";
     const isGuest = {{ is_guest|yesno:"true,false" }};
 
