@@ -1453,7 +1453,7 @@ def user_logout(request):
 def user_home(request):
     home_settings = get_home_settings(request)
     announcement_length = len(home_settings.announcement or '')
-    marquee_duration = max(30, (announcement_length * 35 + 99) // 100)
+    marquee_duration = max(30, (announcement_length * 20 + 99) // 100)
     marquee_offset = timezone.now().timestamp() % marquee_duration
     now = timezone.now()
     show_registration_bonus = request.session.pop('show_registration_bonus_popup', False)
