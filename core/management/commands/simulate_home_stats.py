@@ -26,6 +26,8 @@ class Command(BaseCommand):
             current = self.parse_value(getattr(settings, field))
             if current is None or not 500 <= current <= 1000:
                 current = random.randint(500, 1000)
+            elif field == 'order_completion_value':
+                current = min(1000, current + random.randint(1, 8))
             else:
                 current = max(500, min(1000, current + random.randint(-8, 8)))
 
