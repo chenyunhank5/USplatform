@@ -576,7 +576,7 @@
 <div class="page">
 
     <div class="topbar">
-        <a href="{% url 'user_messages' %}" class="back-btn">&#8249;</a>
+        <a href="{% if is_guest %}{% url 'user_login' %}{% else %}{% url 'user_messages' %}{% endif %}" class="back-btn">&#8249;</a>
         <div class="title">Customer Service</div>
     </div>
 
@@ -657,7 +657,7 @@
                 </div>
             {% endifchanged %}
 
-            <div class="message-row {% if msg.sender == request.user %}user{% else %}staff{% endif %}">
+            <div class="message-row {% if msg.sender == support_user %}user{% else %}staff{% endif %}">
 
                 <div class="message-bubble">
 
@@ -763,14 +763,15 @@
 <div class="copy-toast" id="copyToast" role="status" aria-live="polite">Message copied</div>
 
 <script>
-    const selectedUserId = "{{ request.user.id }}";
+    const selectedUserId = "{{ support_user.id }}";
+    const isGuest = {{ is_guest|yesno:"true,false" }};
 
     const protocol =
         window.location.protocol === "https:"
         ? "wss://"
         : "ws://";
 
-    const chatSocket = new WebSocket(
+    const chatSocket = isGuest ? null : new WebSocket(
         protocol + window.location.host + "/ws/support/" + selectedUserId + "/"
     );
 
@@ -923,7 +924,7 @@
     }
 
     function submitChatFormWithoutRefresh(){
-        const socketWasOpen = chatSocket.readyState === WebSocket.OPEN;
+        const socketWasOpen = chatSocket && chatSocket.readyState === WebSocket.OPEN;
 
         return fetch(window.location.href, {
             method: "POST",
@@ -942,9 +943,11 @@
 
     scrollBottom();
 
-    chatSocket.onmessage = function(e){
-        appendMessage(JSON.parse(e.data));
-    };
+    if(chatSocket){
+        chatSocket.onmessage = function(e){
+            appendMessage(JSON.parse(e.data));
+        };
+    }
 
     function pollMessages(){
         const after = messagesArea.dataset.lastMessageId || 0;
@@ -956,9 +959,11 @@
 
     window.setInterval(pollMessages, 2500);
 
-    chatSocket.onclose = function(){
-        console.log("WebSocket closed; messages will use the live HTTP fallback.");
-    };
+    if(chatSocket){
+        chatSocket.onclose = function(){
+            console.log("WebSocket closed; messages will use the live HTTP fallback.");
+        };
+    }
 
     chatForm.addEventListener("submit", function(e){
         const hasFile =
@@ -983,7 +988,7 @@
         const message = messageInput.value.trim();
 
         if(message){
-            if(chatSocket.readyState === WebSocket.OPEN){
+            if(chatSocket && chatSocket.readyState === WebSocket.OPEN){
                 closeSupportCard();
                 chatSocket.send(JSON.stringify({
                     message:message

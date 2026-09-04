@@ -1,5 +1,6 @@
 import random
 from decimal import Decimal
+from uuid import uuid4
 from datetime import timedelta
 from functools import wraps
 from django.http import JsonResponse
@@ -1905,13 +1906,20 @@ def user_unread_count(request):
     })
 
 
-@login_required(login_url='user_login')
 def user_support_poll(request):
+    if request.user.is_authenticated:
+        support_user = request.user
+    else:
+        guest_user_id = request.session.get('guest_support_user_id')
+        support_user = User.objects.filter(id=guest_user_id, username__startswith='guest-').first()
+        if support_user is None:
+            return JsonResponse({'messages': []})
+
     try:
         message_id = max(0, int(request.GET.get('after', 0)))
     except (TypeError, ValueError):
         message_id = 0
-    return JsonResponse({'messages': support_messages_after(request.user, message_id)})
+    return JsonResponse({'messages': support_messages_after(support_user, message_id)})
 
 
 @staff_required
@@ -2060,8 +2068,20 @@ def user_update_transaction_password(request):
 
     return render(request, 'user/user_partials/update_transaction_password.html')
 
-@login_required(login_url='user_login')
 def customer_service(request):
+    support_user = request.user
+    is_guest = not request.user.is_authenticated
+    if is_guest:
+        guest_user_id = request.session.get('guest_support_user_id')
+        support_user = User.objects.filter(id=guest_user_id, username__startswith='guest-').first()
+        if support_user is None:
+            support_user = User.objects.create_user(
+                username=f'guest-{uuid4().hex[:20]}',
+                password=None,
+            )
+            support_user.set_unusable_password()
+            support_user.save(update_fields=['password'])
+            request.session['guest_support_user_id'] = support_user.id
 
     if request.method == 'POST':
         message = request.POST.get('message', '').strip()
@@ -2080,8 +2100,8 @@ def customer_service(request):
 
         if message or image:
             support_message = SupportMessage.objects.create(
-                user=request.user,
-                sender=request.user,
+                user=support_user,
+                sender=support_user,
                 message=message,
                 image=image,
                 message_type='image' if image else 'text',
@@ -2096,11 +2116,11 @@ def customer_service(request):
         return redirect(f"{reverse('customer_service')}?sent=1")
 
     messages_list = SupportMessage.objects.filter(
-        user=request.user
+        user=support_user
     ).order_by('created_at')
 
     SupportMessage.objects.filter(
-        user=request.user,
+        user=support_user,
         sender__is_staff=True,
         is_read_by_user=False
     ).update(is_read_by_user=True)
@@ -2108,4 +2128,6 @@ def customer_service(request):
     return render(request, 'user/customer_service.html', {
         'messages_list': messages_list,
         'show_support_card': request.GET.get('sent') != '1',
+        'support_user': support_user,
+        'is_guest': is_guest,
     })

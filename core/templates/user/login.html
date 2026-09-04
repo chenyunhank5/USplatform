@@ -47,6 +47,7 @@
             align-items:center;
             justify-content:center;
             font-size:18px;
+            text-decoration:none;
         }
 
         .lang-btn{
@@ -197,7 +198,7 @@
 <div class="mobile-page">
 
     <div class="top-actions">
-        <div class="circle-btn">🎧</div>
+        <a href="{% url 'customer_service' %}" class="circle-btn" aria-label="Customer Service">🎧</a>
 
         <div class="lang-btn">
             🌐 ENGLISH
