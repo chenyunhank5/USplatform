@@ -449,10 +449,10 @@ body{
     {{ order.product.description|safe }}
 </div>
 
+{% if reviews %}
 <div class="review-title-main">
     Customer Reviews
 </div>
-
 {% for review in reviews %}
 <div class="review-card">
     <div class="review-user">
@@ -476,6 +476,7 @@ body{
     </div>
 </div>
 {% endfor %}
+{% endif %}
 
 <div style="height:450px;"></div>
 
@@ -495,8 +496,8 @@ body{
             </div>
 
             <div class="qty">
-                Order Quantity :
-                {{ request.user.userprofile.vip_level.maximum_task }}
+                Quantity :
+                1
             </div>
         </div>
 

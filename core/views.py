@@ -1788,6 +1788,7 @@ def user_order_detail(request, order_id):
         id=order_id,
         user=request.user
     )
+    reviews = ProductEvaluation.objects.order_by('-created_at')[:10]
 
     remaining_frozen = Decimal("0.00")
     insufficient_balance = False
@@ -1808,6 +1809,7 @@ def user_order_detail(request, order_id):
     return render(request, "user/order_detail.html", {
         "order": order,
         "profile": profile,
+        "reviews": reviews,
         "remaining_frozen": remaining_frozen,
         "insufficient_balance": insufficient_balance,
     })
