@@ -155,9 +155,13 @@ def staff_home_page_management(request):
             "announcement",
             "banner_type",
             "banner_url",
+            "online_users_value",
             "online_users_note",
+            "order_completion_value",
             "order_completion_note",
+            "optimize_demand_value",
             "optimize_demand_note",
+            "order_quantity_value",
             "order_quantity_note",
         ),
         "order": (
@@ -206,12 +210,6 @@ def staff_home_page_management(request):
     }
 
     if request.method == "POST":
-        if request.POST.get("action") == "reset_order_completion":
-            home_settings.order_completion_value = "500"
-            home_settings.save(update_fields=["order_completion_value", "updated_at"])
-            messages.success(request, "Order completion reset to 500.")
-            return redirect("staff_home_page_management")
-
         section = request.POST.get("section", "home")
         fields = section_fields.get(section)
 

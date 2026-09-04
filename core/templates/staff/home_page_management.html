@@ -251,23 +251,6 @@
         background: #202bb5;
     }
 
-    .reset-button {
-        display: block;
-        margin-top: 10px;
-        padding: 8px 12px;
-        color: #fca5a5;
-        background: transparent;
-        border: 1px solid #7f1d1d;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 12px;
-    }
-
-    .reset-button:hover {
-        color: #fff;
-        background: #7f1d1d;
-    }
-
     .message {
         margin-bottom: 14px;
         padding: 12px 14px;
@@ -345,13 +328,13 @@
                     <textarea id="announcement" name="announcement" required>{{ home_settings.announcement }}</textarea>
                 </div>
 
-                <div class="field"><label>Online users value</label><input value="{{ home_settings.online_users_value }}" readonly><small class="editor-help">Updated automatically every 5 seconds.</small></div>
+                <div class="field"><label for="online_users_value">Online users value</label><input id="online_users_value" name="online_users_value" value="{{ home_settings.online_users_value }}"><small class="editor-help">Starts from your saved value and moves slightly every 5 seconds.</small></div>
                 <div class="field"><label>Online users note</label><input name="online_users_note" value="{{ home_settings.online_users_note }}"></div>
-                <div class="field"><label>Order completion value</label><input value="{{ home_settings.order_completion_value }}" readonly><small class="editor-help">Increases automatically every 5 seconds until 1000.</small><button type="submit" name="action" value="reset_order_completion" class="reset-button">Reset to 500</button></div>
+                <div class="field"><label for="order_completion_value">Order completion value</label><input id="order_completion_value" name="order_completion_value" value="{{ home_settings.order_completion_value }}"><small class="editor-help">Starts from your saved value and increases slightly every 5 seconds.</small></div>
                 <div class="field"><label>Order completion note</label><input name="order_completion_note" value="{{ home_settings.order_completion_note }}"></div>
-                <div class="field"><label>Optimize demand value</label><input value="{{ home_settings.optimize_demand_value }}" readonly><small class="editor-help">Updated automatically every 5 seconds.</small></div>
+                <div class="field"><label for="optimize_demand_value">Optimize demand value</label><input id="optimize_demand_value" name="optimize_demand_value" value="{{ home_settings.optimize_demand_value }}"><small class="editor-help">Starts from your saved value and moves slightly every 5 seconds.</small></div>
                 <div class="field"><label>Optimize demand note</label><input name="optimize_demand_note" value="{{ home_settings.optimize_demand_note }}"></div>
-                <div class="field"><label>Order quantity value</label><input value="{{ home_settings.order_quantity_value }}" readonly><small class="editor-help">Updated automatically every 5 seconds.</small></div>
+                <div class="field"><label for="order_quantity_value">Order quantity value</label><input id="order_quantity_value" name="order_quantity_value" value="{{ home_settings.order_quantity_value }}"><small class="editor-help">Starts from your saved value and moves slightly every 5 seconds.</small></div>
                 <div class="field"><label>Order quantity note</label><input name="order_quantity_note" value="{{ home_settings.order_quantity_note }}"></div>
             </div>
 

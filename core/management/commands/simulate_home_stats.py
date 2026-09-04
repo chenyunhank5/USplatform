@@ -24,12 +24,12 @@ class Command(BaseCommand):
 
         for field in self.fields:
             current = self.parse_value(getattr(settings, field))
-            if current is None or not 500 <= current <= 1000:
+            if current is None:
                 current = random.randint(500, 1000)
             elif field == 'order_completion_value':
-                current = min(1000, current + random.randint(1, 8))
+                current += random.randint(1, 8)
             else:
-                current = max(500, min(1000, current + random.randint(-8, 8)))
+                current += random.randint(-8, 8)
 
             setattr(settings, field, str(current))
             changed.append(field)
