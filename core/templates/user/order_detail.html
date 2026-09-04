@@ -244,6 +244,14 @@ body{
     font-weight:bold;
 }
 
+.vip-icon img{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:8px;
+}
+
 .qty{
     background:black;
     color:white;
@@ -486,9 +494,15 @@ body{
 
         <div class="vip-box">
             <div class="vip-left">
-                <div class="vip-icon">
-                    V2
-                </div>
+                {% if request.user.userprofile.vip_level and request.user.userprofile.vip_level.icon %}
+                    <div class="vip-icon">
+                        <img src="{{ request.user.userprofile.vip_level.icon.url }}" alt="{{ request.user.userprofile.vip_level.level_name }}">
+                    </div>
+                {% else %}
+                    <div class="vip-icon">
+                        {{ request.user.userprofile.vip_level.level_name|default:'VIP' }}
+                    </div>
+                {% endif %}
 
                 <span>
                     {{ request.user.userprofile.vip_level.level_name }}
