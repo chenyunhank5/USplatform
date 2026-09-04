@@ -127,12 +127,16 @@
     }
 
     .stats-title {
+        position: relative;
+        z-index: 1;
         margin-bottom: 6px;
         color: #000;
         font-size: 12px;
     }
 
     .stats-value {
+        position: relative;
+        z-index: 1;
         margin-bottom: 3px;
         color: #000;
         font-size: 22px;
@@ -140,6 +144,8 @@
     }
 
     .stats-sub {
+        position: relative;
+        z-index: 1;
         color: #000;
         font-size: 10px;
         line-height: 1.2;
@@ -161,6 +167,8 @@
         bottom: 0;
         width: 100%;
         height: 48px;
+        z-index: 0;
+        pointer-events: none;
     }
 
     .big-chart {
@@ -169,15 +177,19 @@
         bottom: 0;
         width: 100%;
         height: 95px;
+        z-index: 0;
+        pointer-events: none;
     }
 
-    .wave-line {
-        stroke-dasharray: 4 3;
-        animation: wave-flow 1.8s linear infinite;
+    .wave-shape {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: wave-bob 3.5s ease-in-out infinite;
     }
 
-    @keyframes wave-flow {
-        to { stroke-dashoffset: -28; }
+    @keyframes wave-bob {
+        0%, 100% { transform: translateY(2px); }
+        50% { transform: translateY(-3px); }
     }
 
     .vip-title {
@@ -467,7 +479,7 @@
                 <path
                     d="M0 32 C20 25, 35 42, 55 32 C75 20, 88 42, 120 32"
                     fill="none"
-                    class="wave-line"
+                    class="wave-shape"
                     stroke="#0da34e"
                     stroke-width="2"
                 />
@@ -495,13 +507,14 @@
         >
             <path
                 d="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48 L120 95 L0 95 Z"
+                class="wave-shape"
                 fill="#0da34e33"
             />
 
                 <path
                     d="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48"
                     fill="none"
-                    class="wave-line"
+                    class="wave-shape"
                 stroke="#0da34e"
                 stroke-width="2"
             />
@@ -530,13 +543,14 @@
         >
             <path
                 d="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55 L120 95 L0 95 Z"
+                class="wave-shape"
                 fill="#0da34e33"
             />
 
                 <path
                     d="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55"
                     fill="none"
-                    class="wave-line"
+                    class="wave-shape"
                 stroke="#0da34e"
                 stroke-width="2"
             />
