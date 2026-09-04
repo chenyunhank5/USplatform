@@ -79,7 +79,16 @@
                 <div class="vip-level-range"><div><small>Minimum withdrawal</small><strong>${{ vip.minimum_withdrawal|floatformat:2 }}</strong></div><div><small>Maximum withdrawal</small><strong>${{ vip.maximum_withdrawal|floatformat:2 }}</strong></div></div>
                 <div class="vip-level-action">{% if profile.vip_level_id == vip.id %}Current VIP Level{% else %}VIP Level Details{% endif %}</div>
             </div>
-            {% if vip.description %}<div class="vip-level-description">{{ vip.description|safe }}</div>{% endif %}
+            {% widthratio vip.maximum_task 1 3 as daily_points %}
+            <div class="vip-level-description">
+                <p>&bull; Deposit return activities</p>
+                <p>&bull; 1. Optimize data to receive a {{ vip.commission_rate|floatformat:'-4' }}% commission</p>
+                <p>&bull; {{ vip.maximum_task }} data points per set, with special data rewards increased to {{ vip.successive_order_commission_rate|floatformat:'-4' }}%</p>
+                <p>&bull; {{ vip.level_name }} members can submit up to 3 sets of {{ vip.maximum_task }} data points per day ({{ daily_points }} data points total).</p>
+                {% if vip.description %}
+                    <div>{{ vip.description|safe }}</div>
+                {% endif %}
+            </div>
             <div class="vip-level-facts">Commission: {{ vip.commission_rate|floatformat:'-4' }}%<br>Successive commission: {{ vip.successive_order_commission_rate|floatformat:'-4' }}%<br>Maximum tasks: {{ vip.maximum_task }}<br>Minimum amount: ${{ vip.minimum_amount|floatformat:2 }}</div>
         </article>
         {% empty %}<p style="padding:20px;color:#fff;">No VIP levels are available yet.</p>{% endfor %}
