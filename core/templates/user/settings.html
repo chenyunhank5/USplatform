@@ -489,7 +489,7 @@
 
         <div class="wallet-stat">
             <small>Order Revenue</small>
-            <b>{{ request.user.userprofile.today_profit|default:"0" }}</b>
+            <b>{{ today_order_revenue|floatformat:2 }}</b>
         </div>
 
         <div class="wallet-stat">
@@ -499,7 +499,7 @@
 
         <div class="wallet-stat">
             <small>Today Earnings</small>
-            <b>{{ request.user.userprofile.today_profit|default:"0" }}</b>
+            <b>{{ today_earnings|floatformat:2 }}</b>
         </div>
 
     </div>
@@ -508,7 +508,7 @@
 
         <div class="wallet-stat">
             <small>Total Balance</small>
-            <b>{{ request.user.userprofile.balance }}</b>
+            <b>{{ order_revenue|floatformat:2 }}</b>
         </div>
 
         <div class="wallet-stat">
@@ -518,7 +518,7 @@
 
         <div class="wallet-stat">
             <small>Total Earnings</small>
-            <b>{{ request.user.userprofile.balance }}</b>
+            <b>{{ total_earnings|floatformat:2 }}</b>
         </div>
 
     </div>

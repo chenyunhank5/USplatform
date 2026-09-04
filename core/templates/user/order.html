@@ -506,11 +506,7 @@
             </small>
 
             <b>
-                {% if active_order %}
-                    {{ active_order.commission|floatformat:2 }}
-                {% else %}
-                    0.00
-                {% endif %}
+                {{ today_order_revenue|floatformat:2 }}
             </b>
 
         </div>
@@ -522,7 +518,7 @@
             </small>
 
             <b>
-                0
+                {{ total_earnings|floatformat:2 }}
             </b>
 
         </div>

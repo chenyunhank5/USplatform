@@ -66,6 +66,23 @@ def get_home_settings(request):
     return home_settings
 
 
+def get_user_earning_stats(user):
+    """Return the shared earnings figures used by the wallet summary cards."""
+    completed_orders = UserOrder.objects.filter(
+        user=user,
+        status='completed',
+    )
+    today = timezone.localdate()
+    today_orders = completed_orders.filter(completed_at__date=today)
+
+    return {
+        'today_earnings': today_orders.aggregate(total=Sum('commission'))['total'] or Decimal('0.00'),
+        'total_earnings': completed_orders.aggregate(total=Sum('commission'))['total'] or Decimal('0.00'),
+        'today_order_revenue': today_orders.aggregate(total=Sum('order_price'))['total'] or Decimal('0.00'),
+        'order_revenue': completed_orders.aggregate(total=Sum('order_price'))['total'] or Decimal('0.00'),
+    }
+
+
 def get_random_product():
     """Choose a product without SQLite's expensive ORDER BY RANDOM()."""
     product_bounds = Product.objects.aggregate(
@@ -1327,23 +1344,10 @@ def my_team(request):
         id__in=team_profile_ids
     ).values_list('user_id', flat=True)
 
-    completed_orders = UserOrder.objects.filter(
-        user=request.user,
-        status='completed',
-    )
-
-    today = timezone.localdate()
-    today_earnings = completed_orders.filter(
-        completed_at__date=today
-    ).aggregate(total=Sum('commission'))['total'] or Decimal('0.00')
-
-    total_earnings = completed_orders.aggregate(
-        total=Sum('commission')
-    )['total'] or Decimal('0.00')
-
-    order_revenue = completed_orders.aggregate(
-        total=Sum('order_price')
-    )['total'] or Decimal('0.00')
+    earning_stats = get_user_earning_stats(request.user)
+    today_earnings = earning_stats['today_earnings']
+    total_earnings = earning_stats['total_earnings']
+    order_revenue = earning_stats['order_revenue']
 
     team_earnings = UserOrder.objects.filter(
         user_id__in=team_user_ids,
@@ -1506,6 +1510,7 @@ def user_withdraw(request):
     return render(request, 'user/user_partials/withdraw.html', {
         'profile': profile,
         'withdrawals': withdrawals,
+        **get_user_earning_stats(request.user),
     })
 
 
@@ -1517,6 +1522,7 @@ def user_deposit(request):
     return render(request, 'user/user_partials/deposit.html', {
         'profile': profile,
         'deposits': deposits,
+        **get_user_earning_stats(request.user),
     })
 
 
@@ -1603,6 +1609,7 @@ def user_order(request):
             "remaining_frozen": remaining_frozen,
             "latest_lucky_reward": latest_lucky_reward,
             "home_settings": get_home_settings(request),
+            **get_user_earning_stats(request.user),
         }
     )
 
@@ -1991,6 +1998,7 @@ def user_settings(request):
 
     return render(request, 'user/settings.html', {
         'latest_lucky_reward': latest_lucky_reward,
+        **get_user_earning_stats(request.user),
     })
 
 @login_required(login_url='user_login')

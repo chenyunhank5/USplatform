@@ -71,7 +71,7 @@
             <div class="wallet-head"><span>Wallet Account</span><a class="description-link" href="#inviteDescription">Team Description</a></div>
             <div class="wallet-amount">{{ profile.balance|floatformat:2 }} <small>USD</small></div>
             <div class="earnings-tabs"><span class="earning-pill active">Today's Earnings</span><span class="earning-pill">Total Earnings</span></div>
-            <div class="stats"><div class="stat"><small>Order Revenue</small><b>{{ order_revenue|floatformat:2 }}</b></div><div class="stat"><small>Team</small><b>{{ team_member_count }}</b></div><div class="stat"><small>Total Earnings</small><b>{{ total_earnings|floatformat:2 }}</b></div></div>
+            <div class="stats"><div class="stat"><small>Order Revenue</small><b>{{ today_order_revenue|floatformat:2 }}</b></div><div class="stat"><small>Team</small><b>0</b></div><div class="stat"><small>Today Earnings</small><b>{{ today_earnings|floatformat:2 }}</b></div></div>
         </section>
 
         <div class="friends-row"><span>Friends I Invited: {{ direct_invite_count }}</span><span class="team-count">Team earnings: {{ team_earnings|floatformat:2 }}</span></div>

@@ -51,9 +51,9 @@
             <button type="button">Total Earnings</button>
         </div>
         <div class="wallet-stats">
-            <div class="wallet-stat"><small>Order Revenue</small><b>0</b></div>
+            <div class="wallet-stat"><small>Order Revenue</small><b>{{ today_order_revenue|floatformat:2 }}</b></div>
             <div class="wallet-stat"><small>Team</small><b>0</b></div>
-            <div class="wallet-stat"><small>Total Earnings</small><b>0</b></div>
+            <div class="wallet-stat"><small>Total Earnings</small><b>{{ total_earnings|floatformat:2 }}</b></div>
         </div>
     </div>
 
