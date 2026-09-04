@@ -171,6 +171,15 @@
         height: 95px;
     }
 
+    .wave-line {
+        stroke-dasharray: 4 3;
+        animation: wave-flow 1.8s linear infinite;
+    }
+
+    @keyframes wave-flow {
+        to { stroke-dashoffset: -28; }
+    }
+
     .vip-title {
         margin: 8px 0 12px;
         color: #000;
@@ -458,6 +467,7 @@
                 <path
                     d="M0 32 C20 25, 35 42, 55 32 C75 20, 88 42, 120 32"
                     fill="none"
+                    class="wave-line"
                     stroke="#0da34e"
                     stroke-width="2"
                 />
@@ -488,9 +498,10 @@
                 fill="#0da34e33"
             />
 
-            <path
-                d="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48"
-                fill="none"
+                <path
+                    d="M0 40 C18 85, 30 15, 48 55 C65 88, 95 55, 120 48"
+                    fill="none"
+                    class="wave-line"
                 stroke="#0da34e"
                 stroke-width="2"
             />
@@ -522,9 +533,10 @@
                 fill="#0da34e33"
             />
 
-            <path
-                d="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55"
-                fill="none"
+                <path
+                    d="M0 65 C18 68, 28 55, 38 25 C52 0, 64 50, 78 42 C94 32, 100 70, 120 55"
+                    fill="none"
+                    class="wave-line"
                 stroke="#0da34e"
                 stroke-width="2"
             />

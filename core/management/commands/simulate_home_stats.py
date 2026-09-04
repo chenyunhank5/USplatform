@@ -1,0 +1,44 @@
+import random
+import re
+
+from django.core.management.base import BaseCommand
+
+from core.models import HomePageSettings
+
+
+class Command(BaseCommand):
+    help = 'Update simulated homepage metrics without resetting them on refresh.'
+
+    fields = (
+        'online_users_value',
+        'order_completion_value',
+        'optimize_demand_value',
+        'order_quantity_value',
+    )
+
+    def handle(self, *args, **options):
+        settings, _ = HomePageSettings.objects.get_or_create(pk=1)
+        changed = []
+
+        for field in self.fields:
+            current = self.parse_value(getattr(settings, field))
+            if current is None or not 500 <= current <= 1000:
+                current = random.randint(500, 1000)
+            else:
+                current = max(500, min(1000, current + random.randint(-35, 35)))
+
+            setattr(settings, field, str(current))
+            changed.append(field)
+
+        settings.save(update_fields=[*changed, 'updated_at'])
+        self.stdout.write(self.style.SUCCESS('Homepage simulated metrics updated.'))
+
+    @staticmethod
+    def parse_value(value):
+        match = re.search(r'\d+(?:\.\d+)?', str(value or ''))
+        if not match:
+            return None
+        number = float(match.group())
+        if str(value).lower().find('k') >= 0:
+            number *= 1000
+        return round(number)
