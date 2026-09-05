@@ -437,6 +437,14 @@ body{
         {% if order.product.goods_album_2 %}
             <img src="{{ order.product.goods_album_2 }}" class="slide-img" loading="lazy" decoding="async" alt="Product image">
         {% endif %}
+
+        {% if order.product.goods_album_3 %}
+            <img src="{{ order.product.goods_album_3 }}" class="slide-img" loading="lazy" decoding="async" alt="Product image">
+        {% endif %}
+
+        {% if order.product.goods_album_4 %}
+            <img src="{{ order.product.goods_album_4 }}" class="slide-img" loading="lazy" decoding="async" alt="Product image">
+        {% endif %}
     </div>
 
     <div class="slider-dots" id="sliderDots"></div>
@@ -742,6 +750,27 @@ slides.forEach(function(slide, index){
 });
 
 const dots = document.querySelectorAll(".slider-dot");
+const imageSlider = document.getElementById("imageSlider");
+let touchStartX = 0;
+
+if(imageSlider){
+    imageSlider.addEventListener("touchstart", function(event){
+        touchStartX = event.changedTouches[0].screenX;
+    }, {passive:true});
+
+    imageSlider.addEventListener("touchend", function(event){
+        const touchEndX = event.changedTouches[0].screenX;
+        const swipeDistance = touchEndX - touchStartX;
+
+        if(Math.abs(swipeDistance) < 40 || slides.length < 2){
+            return;
+        }
+
+        const direction = swipeDistance < 0 ? 1 : -1;
+        const nextSlide = (currentSlide + direction + slides.length) % slides.length;
+        showSlide(nextSlide);
+    }, {passive:true});
+}
 
 function showSlide(index){
     if(slides.length === 0){
