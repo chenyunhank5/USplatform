@@ -1,4 +1,3 @@
-import random
 from decimal import Decimal
 from uuid import uuid4
 from datetime import datetime, timedelta
@@ -12,7 +11,7 @@ from django.contrib.auth import update_session_auth_hash, authenticate, login, l
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 from django.db import transaction
-from django.db.models import Count, Q, Max, Min, Sum
+from django.db.models import Count, Q, Max, Sum
 from django.urls import reverse
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -93,26 +92,6 @@ def get_user_earning_stats(user):
         'team_earnings': team_earnings,
     }
 
-
-def get_random_product():
-    """Choose a product without SQLite's expensive ORDER BY RANDOM()."""
-    product_bounds = Product.objects.aggregate(
-        minimum_id=Min("id"),
-        maximum_id=Max("id"),
-    )
-    minimum_id = product_bounds["minimum_id"]
-    maximum_id = product_bounds["maximum_id"]
-
-    if minimum_id is None or maximum_id is None:
-        return None
-
-    random_id = random.randint(minimum_id, maximum_id)
-    product = Product.objects.filter(id__gte=random_id).order_by("id").first()
-
-    if product is None:
-        product = Product.objects.order_by("id").first()
-
-    return product
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -1845,12 +1824,21 @@ def start_order(request):
             order_id=order.id
         )
 
-    product = get_random_product()
+    previously_assigned_product_ids = UserOrder.objects.filter(
+        user=request.user,
+        product__isnull=False,
+    ).values('product_id')
+
+    product = Product.objects.filter(
+        price__lt=profile.balance,
+    ).exclude(
+        id__in=previously_assigned_product_ids,
+    ).order_by('-price', 'id').first()
 
     if not product:
         messages.error(
             request,
-            "No product found."
+            "No new product is available below your current balance."
         )
         return redirect("user_order")
 
