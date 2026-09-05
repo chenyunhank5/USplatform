@@ -529,7 +529,11 @@ body{
 
             <div class="summary-item">
                 <div class="summary-label">
-                    Commission
+                    {% if order.is_successive_order %}
+                        High Profit Commission
+                    {% else %}
+                        Commission
+                    {% endif %}
                 </div>
 
                 <div class="summary-value">
