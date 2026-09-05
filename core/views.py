@@ -947,6 +947,9 @@ def staff_product_list(request):
     name = request.GET.get('name', '').strip()
     min_price = request.GET.get('min_price', '').strip()
     max_price = request.GET.get('max_price', '').strip()
+    min_score = request.GET.get('min_score', '').strip()
+    max_score = request.GET.get('max_score', '').strip()
+    sort = request.GET.get('sort', 'newest').strip()
 
     if name:
         products = products.filter(name__icontains=name)
@@ -954,12 +957,25 @@ def staff_product_list(request):
     for value, lookup in (
         (min_price, 'price__gte'),
         (max_price, 'price__lte'),
+        (min_score, 'score__gte'),
+        (max_score, 'score__lte'),
     ):
         try:
             if value:
-                products = products.filter(**{lookup: Decimal(value)})
+                products = products.filter(**{
+                    lookup: Decimal(value) if 'price' in lookup else int(value)
+                })
         except (ArithmeticError, ValueError):
             pass
+
+    sort_options = {
+        'newest': '-id',
+        'oldest': 'id',
+        'price_low': 'price',
+        'price_high': '-price',
+        'score_high': '-score',
+    }
+    products = products.order_by(sort_options.get(sort, '-id'))
 
     return render(request, 'staff/product_list.html', {
         'products': products,
@@ -967,6 +983,9 @@ def staff_product_list(request):
             'name': name,
             'min_price': min_price,
             'max_price': max_price,
+            'min_score': min_score,
+            'max_score': max_score,
+            'sort': sort if sort in sort_options else 'newest',
         },
     })
 

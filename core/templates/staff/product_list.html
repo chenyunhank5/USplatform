@@ -23,6 +23,46 @@
         height:38px;
     }
 
+    .filter-toggle{
+        background:#409eff;
+        color:white;
+        border:0;
+        padding:9px 16px;
+        border-radius:3px;
+        cursor:pointer;
+        height:38px;
+        font-size:14px;
+    }
+
+    .filter-panel{
+        display:flex;
+        gap:14px;
+        align-items:center;
+        flex-wrap:wrap;
+        padding:14px;
+        margin:0 0 18px;
+        border:1px solid #333;
+        background:#171717;
+    }
+
+    .filter-panel[hidden]{
+        display:none;
+    }
+
+    .filter-panel label{
+        color:#ddd;
+        font-size:13px;
+    }
+
+    .filter-panel select{
+        background:#202020;
+        border:1px solid #444;
+        color:white;
+        padding:9px 12px;
+        border-radius:3px;
+        height:38px;
+    }
+
     .query-btn,
     .add-btn{
         background:#409eff;
@@ -146,7 +186,11 @@
 
 <div class="panel">
 
-    <form class="filter-bar" method="get" action="{% url 'staff_product_list' %}">
+    <button type="button" class="filter-toggle" id="filterToggle" aria-expanded="false">
+        &#9881; Filters
+    </button>
+
+    <form class="filter-bar filter-panel" id="productFilterPanel" method="get" action="{% url 'staff_product_list' %}" hidden>
 
         <label>Goods name:</label>
         <input type="text" name="name" value="{{ product_filters.name }}" placeholder="Please enter goods name">
@@ -157,6 +201,20 @@
         <span>-</span>
 
         <input type="number" name="max_price" value="{{ product_filters.max_price }}" min="0" step="0.01" placeholder="Maximum price">
+
+        <label>Score:</label>
+        <input type="number" name="min_score" value="{{ product_filters.min_score }}" min="0" placeholder="Minimum score">
+        <span>-</span>
+        <input type="number" name="max_score" value="{{ product_filters.max_score }}" min="0" placeholder="Maximum score">
+
+        <label>Sort:</label>
+        <select name="sort">
+            <option value="newest" {% if product_filters.sort == 'newest' %}selected{% endif %}>Newest first</option>
+            <option value="oldest" {% if product_filters.sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+            <option value="price_low" {% if product_filters.sort == 'price_low' %}selected{% endif %}>Price: low to high</option>
+            <option value="price_high" {% if product_filters.sort == 'price_high' %}selected{% endif %}>Price: high to low</option>
+            <option value="score_high" {% if product_filters.sort == 'score_high' %}selected{% endif %}>Score: high to low</option>
+        </select>
 
         <button type="submit" class="query-btn">
             ⌕ Query
@@ -288,5 +346,18 @@
 {% include 'staff/product_list_partials/add_product.html' %}
 {% include 'staff/product_list_partials/edit_product.html' %}
 {% include 'staff/product_list_partials/delete_product.html' %}
+
+<script>
+const filterToggle = document.getElementById('filterToggle');
+const productFilterPanel = document.getElementById('productFilterPanel');
+
+if(filterToggle && productFilterPanel){
+    filterToggle.addEventListener('click', function(){
+        const isHidden = productFilterPanel.hasAttribute('hidden');
+        productFilterPanel.toggleAttribute('hidden');
+        filterToggle.setAttribute('aria-expanded', String(isHidden));
+    });
+}
+</script>
 
 {% endblock %}
