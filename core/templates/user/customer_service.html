@@ -899,7 +899,7 @@
         if(data.id && messagesArea.querySelector(`[data-message-id="${data.id}"]`)){
             return;
         }
-        if(data.sender_is_staff && typeof window.playNotificationSound === "function"){
+        if(isGuest && data.sender_is_staff && typeof window.playNotificationSound === "function"){
             window.playNotificationSound();
         }
         if(data.created_date && data.created_date !== messagesArea.dataset.lastDate){

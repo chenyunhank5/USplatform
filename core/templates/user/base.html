@@ -274,15 +274,21 @@ function showAlert(message){
 
     const prepareNotificationSound = () => {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
+        if (!AudioContext) return Promise.resolve();
         notificationAudioContext ||= new AudioContext();
         if (notificationAudioContext.state === 'suspended') {
-            notificationAudioContext.resume().catch(() => {});
+            return notificationAudioContext.resume().catch(() => {});
         }
+        return Promise.resolve();
     };
 
     const playNotificationSound = () => {
-        if (!notificationAudioContext || notificationAudioContext.state !== 'running') return;
+        if (!notificationAudioContext) return;
+        if (notificationAudioContext.state === 'suspended') {
+            prepareNotificationSound().then(playNotificationSound);
+            return;
+        }
+        if (notificationAudioContext.state !== 'running') return;
         const oscillator = notificationAudioContext.createOscillator();
         const gain = notificationAudioContext.createGain();
         oscillator.type = 'sine';
