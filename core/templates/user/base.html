@@ -150,6 +150,25 @@
             visibility:visible;
         }
 
+        .sound-toggle{
+            position:fixed;
+            right:12px;
+            bottom:86px;
+            z-index:1200;
+            padding:9px 12px;
+            border:1px solid #0da34e;
+            border-radius:20px;
+            background:#fff;
+            color:#0da34e;
+            font-size:12px;
+            font-weight:700;
+            box-shadow:0 3px 12px rgb(0 0 0 / 15%);
+        }
+
+        .sound-toggle[hidden]{
+            display:none;
+        }
+
         .wallet-stats[hidden]{
             display:none !important;
         }
@@ -244,6 +263,10 @@
 
 <div class="custom-alert" id="customAlertBox"></div>
 
+<button class="sound-toggle" id="soundToggle" type="button">
+    Enable sound
+</button>
+
 {% include 'user/user_partials/withdrawal_password.html' %}
 
 <script>
@@ -269,6 +292,7 @@ function showAlert(message){
     const endpoint = '{% url "user_unread_count" %}';
     let previousUnreadCount = null;
     let notificationAudioContext = null;
+    const soundToggle = document.getElementById('soundToggle');
 
     if (!badgeHost) return;
 
@@ -283,7 +307,10 @@ function showAlert(message){
     };
 
     const playNotificationSound = () => {
-        if (!notificationAudioContext) return;
+        if (!notificationAudioContext) {
+            prepareNotificationSound();
+            return;
+        }
         if (notificationAudioContext.state === 'suspended') {
             prepareNotificationSound().then(playNotificationSound);
             return;
@@ -304,6 +331,20 @@ function showAlert(message){
     };
 
     window.playNotificationSound = playNotificationSound;
+
+    const enableSound = () => {
+        prepareNotificationSound().then(() => {
+            if (notificationAudioContext?.state !== 'running') return;
+            localStorage.setItem('userNotificationSoundEnabled', 'true');
+            soundToggle?.setAttribute('hidden', 'hidden');
+            playNotificationSound();
+        });
+    };
+
+    if (localStorage.getItem('userNotificationSoundEnabled') === 'true') {
+        soundToggle?.setAttribute('hidden', 'hidden');
+    }
+    soundToggle?.addEventListener('click', enableSound);
 
     ['pointerdown', 'touchstart', 'keydown'].forEach((eventName) => {
         window.addEventListener(eventName, prepareNotificationSound, { once: true, passive: true });
