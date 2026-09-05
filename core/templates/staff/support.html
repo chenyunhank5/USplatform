@@ -149,22 +149,6 @@
         flex-shrink:0;
     }
 
-    .nav-notification-badge{
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-        min-width:20px;
-        height:20px;
-        margin-left:auto;
-        padding:0 6px;
-        border-radius:999px;
-        background:#dc2626;
-        color:#fff;
-        font-size:11px;
-        font-weight:bold;
-        line-height:1;
-    }
-
     .chat-main{
         display:flex;
         flex-direction:column;
@@ -643,45 +627,6 @@
 <script>
     const selectedUserId = "{{ selected_user.id }}";
 
-    let notificationAudioContext;
-
-    function enableNotificationAudio(){
-        if(!notificationAudioContext){
-            notificationAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        if(notificationAudioContext.state === "suspended"){
-            notificationAudioContext.resume();
-        }
-    }
-
-    function playNotificationSound(){
-        enableNotificationAudio();
-
-        if(!notificationAudioContext || notificationAudioContext.state !== "running"){
-            return;
-        }
-
-        const oscillator = notificationAudioContext.createOscillator();
-        const gain = notificationAudioContext.createGain();
-        const startTime = notificationAudioContext.currentTime;
-
-        oscillator.type = "sine";
-        oscillator.frequency.setValueAtTime(880, startTime);
-        oscillator.frequency.setValueAtTime(660, startTime + 0.12);
-        gain.gain.setValueAtTime(0.0001, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.28);
-
-        oscillator.connect(gain);
-        gain.connect(notificationAudioContext.destination);
-        oscillator.start(startTime);
-        oscillator.stop(startTime + 0.3);
-    }
-
-    document.addEventListener("pointerdown", enableNotificationAudio, {once:true});
-    document.addEventListener("keydown", enableNotificationAudio, {once:true});
-
     document.addEventListener("keydown", function(event){
         if(event.key !== "Escape"){
             return;
@@ -790,9 +735,6 @@
         messagesArea.appendChild(row);
         if(data.id){
             messagesArea.dataset.lastMessageId = data.id;
-        }
-        if(!data.sender_is_staff){
-            playNotificationSound();
         }
         scrollBottom();
     }

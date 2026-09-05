@@ -97,6 +97,22 @@
             outline-offset:2px;
         }
 
+        .nav-notification-badge{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            min-width:20px;
+            height:20px;
+            margin-left:auto;
+            padding:0 6px;
+            border-radius:999px;
+            background:#dc2626;
+            color:#fff;
+            font-size:11px;
+            font-weight:bold;
+            line-height:1;
+        }
+
         .dropdown-menu{
             display:none;
             margin:5px 0 2px 13px;
@@ -326,11 +342,11 @@
             <a href="{% url 'staff_support' %}"
                class="{% if request.resolver_match.url_name == 'staff_support' %}active{% endif %}">
                 Customer Service Management
-                {% if staff_unread_support_count %}
-                    <span class="nav-notification-badge" data-staff-unread-badge>
-                        {% if staff_unread_support_count > 99 %}99+{% else %}{{ staff_unread_support_count }}{% endif %}
-                    </span>
-                {% endif %}
+                <span class="nav-notification-badge"
+                      data-staff-unread-badge
+                      {% if not staff_unread_support_count %}hidden{% endif %}>
+                    {% if staff_unread_support_count > 99 %}99+{% else %}{{ staff_unread_support_count }}{% endif %}
+                </span>
             </a>
 
         </div>
@@ -387,6 +403,76 @@
         setDropdownState(dropdown, shouldOpen);
         localStorage.setItem(`${dropdownId}Open`, String(shouldOpen));
     }
+
+    let staffNotificationAudioContext;
+    let staffUnreadCount = Number(
+        document.querySelector('[data-staff-unread-badge]')?.textContent.trim()
+    ) || 0;
+
+    function enableStaffNotificationAudio(){
+        if(!staffNotificationAudioContext){
+            staffNotificationAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        if(staffNotificationAudioContext.state === 'suspended'){
+            staffNotificationAudioContext.resume();
+        }
+    }
+
+    function playStaffNotificationSound(){
+        enableStaffNotificationAudio();
+
+        if(!staffNotificationAudioContext || staffNotificationAudioContext.state !== 'running'){
+            return;
+        }
+
+        const oscillator = staffNotificationAudioContext.createOscillator();
+        const gain = staffNotificationAudioContext.createGain();
+        const startTime = staffNotificationAudioContext.currentTime;
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, startTime);
+        oscillator.frequency.setValueAtTime(660, startTime + 0.12);
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.28);
+        oscillator.connect(gain);
+        gain.connect(staffNotificationAudioContext.destination);
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.3);
+    }
+
+    document.addEventListener('pointerdown', enableStaffNotificationAudio, {once:true});
+    document.addEventListener('keydown', enableStaffNotificationAudio, {once:true});
+
+    function updateStaffUnreadBadge(count){
+        const badge = document.querySelector('[data-staff-unread-badge]');
+
+        if(!badge){
+            return;
+        }
+
+        badge.textContent = count > 99 ? '99+' : String(count);
+        badge.hidden = count === 0;
+    }
+
+    function pollStaffNotifications(){
+        fetch('{% url "staff_unread_support_count" %}', {cache:'no-store'})
+            .then(response => response.ok ? response.json() : Promise.reject(response))
+            .then(data => {
+                const count = Number(data.count) || 0;
+
+                if(count > staffUnreadCount){
+                    playStaffNotificationSound();
+                }
+
+                staffUnreadCount = count;
+                updateStaffUnreadBadge(count);
+            })
+            .catch(() => {});
+    }
+
+    window.setInterval(pollStaffNotifications, 2500);
 </script>
 
 {% include 'shared/page_loader.html' %}

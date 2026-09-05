@@ -2104,6 +2104,15 @@ def staff_support_poll(request, user_id):
     return JsonResponse({'messages': support_messages_after(user, message_id)})
 
 
+@staff_required
+def staff_unread_support_count(request):
+    count = SupportMessage.objects.filter(
+        sender__is_staff=False,
+        is_read_by_staff=False,
+    ).count()
+    return JsonResponse({'count': count})
+
+
 @login_required(login_url='user_login')
 def user_transaction_notification(request, transaction_type, record_id):
     if transaction_type == 'deposit':
