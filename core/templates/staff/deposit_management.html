@@ -1,0 +1,78 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Deposit Management{% endblock %}
+{% block page_title %}Transaction management{% endblock %}
+{% block page_subtitle %}Deposit management{% endblock %}
+
+{% block extra_css %}
+<style>
+.deposit-panel{background:#111;border:1px solid #2a2a2a;padding:16px;}
+.deposit-table-wrap{width:100%;overflow:auto;border:1px solid #333;background:#111;}
+.deposit-table{width:100%;border-collapse:collapse;font-size:13px;}
+.deposit-table th{background:#171717;color:#9ca3af;padding:13px 12px;text-align:left;border:1px solid #333;white-space:nowrap;}
+.deposit-table td{padding:13px 12px;border:1px solid #333;color:#e5e7eb;background:#151515;white-space:nowrap;}
+.deposit-table tr:nth-child(even) td{background:#202020;}
+.deposit-status{padding:5px 10px;border-radius:3px;font-size:12px;font-weight:bold;}
+.deposit-status.visible{background:#14532d;color:#86efac;}
+.deposit-status.hidden{background:#3b1111;color:#fca5a5;}
+.deposit-action{border:0;padding:7px 12px;border-radius:3px;color:#fff;cursor:pointer;font-weight:bold;}
+.deposit-action.hide{background:#f59e0b;}
+.deposit-action.unhide{background:#16a34a;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="deposit-panel">
+    <div class="deposit-table-wrap">
+        <table class="deposit-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Phone</th>
+                    <th>Amount</th>
+                    <th>Transaction ID</th>
+                    <th>Status</th>
+                    <th>Remark</th>
+                    <th>Created At</th>
+                    <th>Visibility</th>
+                    <th>Operate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in deposits %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.user.username }}</td>
+                    <td>{{ item.user.userprofile.phone_number }}</td>
+                    <td>{{ item.amount }}</td>
+                    <td>{{ item.transaction_id }}</td>
+                    <td>{{ item.status|title }}</td>
+                    <td>{{ item.remark|default:'-' }}</td>
+                    <td>{{ item.created_at|date:'Y-m-d H:i:s' }}</td>
+                    <td>
+                        {% if item.is_hidden_from_user %}
+                            <span class="deposit-status hidden">Hidden from user</span>
+                        {% else %}
+                            <span class="deposit-status visible">Visible to user</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'staff_toggle_deposit_visibility' item.id %}">
+                            {% csrf_token %}
+                            {% if item.is_hidden_from_user %}
+                                <button type="submit" class="deposit-action unhide">Unhide</button>
+                            {% else %}
+                                <button type="submit" class="deposit-action hide">Hide</button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="10" style="text-align:center;padding:30px;">No deposit records found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

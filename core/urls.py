@@ -39,6 +39,8 @@ urlpatterns = [
 
     path("staff/order-management/", views.staff_order_management, name="staff_order_management"),
     path("staff/toggle-order-visibility/<int:order_id>/", views.staff_toggle_order_visibility, name="staff_toggle_order_visibility"),
+    path("staff/deposit-management/", views.staff_deposit_management, name="staff_deposit_management"),
+    path("staff/toggle-deposit-visibility/<int:deposit_id>/", views.staff_toggle_deposit_visibility, name="staff_toggle_deposit_visibility"),
     # STAFF USER SECURITY
     path('staff/user/<int:profile_id>/login-password/', views.staff_update_login_password, name='staff_update_login_password'),
     path('staff/user/<int:profile_id>/withdrawal-password/', views.staff_update_withdrawal_password, name='staff_update_withdrawal_password'),

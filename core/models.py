@@ -332,6 +332,7 @@ class DepositRecord(models.Model):
     transaction_id = models.CharField(max_length=50, unique=True, default=generate_deposit_id)
     status = models.CharField(max_length=20, default='completed')
     remark = models.TextField(blank=True, null=True)
+    is_hidden_from_user = models.BooleanField(default=False)
     is_read_by_user = models.BooleanField(default=False)
     created_by = models.ForeignKey(
         User,

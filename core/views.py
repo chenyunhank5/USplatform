@@ -838,6 +838,32 @@ def staff_toggle_order_visibility(request, order_id):
         )
 
     return redirect("staff_order_management")
+
+
+@staff_required
+def staff_deposit_management(request):
+    deposits = DepositRecord.objects.select_related(
+        "user",
+        "user__userprofile",
+    ).all().order_by("-id")
+
+    return render(request, "staff/deposit_management.html", {
+        "deposits": deposits,
+    })
+
+
+@staff_required
+def staff_toggle_deposit_visibility(request, deposit_id):
+    deposit = get_object_or_404(DepositRecord, id=deposit_id)
+
+    if request.method == "POST":
+        deposit.is_hidden_from_user = not deposit.is_hidden_from_user
+        deposit.save(update_fields=["is_hidden_from_user"])
+        messages.success(request, "Deposit visibility updated.")
+
+    return redirect("staff_deposit_management")
+
+
 # VIP MANAGEMENT
 
 @staff_required
@@ -1360,7 +1386,7 @@ def transaction_history(request):
             'status': item.status,
             'remark': item.remark,
             'created_at': item.created_at,
-        } for item in DepositRecord.objects.filter(user=request.user))
+        } for item in DepositRecord.objects.filter(user=request.user, is_hidden_from_user=False))
 
     if current_type in {'all', 'withdrawal'}:
         records.extend({
@@ -1595,7 +1621,10 @@ def user_withdraw(request):
 @login_required(login_url='user_login')
 def user_deposit(request):
     profile = get_object_or_404(UserProfile, user=request.user)
-    deposits = DepositRecord.objects.filter(user=request.user).order_by('-id')[:10]
+    deposits = DepositRecord.objects.filter(
+        user=request.user,
+        is_hidden_from_user=False,
+    ).order_by('-id')[:10]
 
     return render(request, 'user/user_partials/deposit.html', {
         'profile': profile,
@@ -1977,7 +2006,7 @@ def user_messages(request):
         'created_at': item.created_at,
         'transaction_id': item.transaction_id,
         'is_read': item.is_read_by_user,
-    } for item in DepositRecord.objects.filter(user=request.user))
+    } for item in DepositRecord.objects.filter(user=request.user, is_hidden_from_user=False))
 
     withdrawal_titles = {
         'approved': 'Withdrawal successful',
@@ -2016,7 +2045,11 @@ def user_unread_count(request):
         is_read_by_user=False,
     ).count()
     system_count = (
-        DepositRecord.objects.filter(user=request.user, is_read_by_user=False).count()
+        DepositRecord.objects.filter(
+            user=request.user,
+            is_read_by_user=False,
+            is_hidden_from_user=False,
+        ).count()
         + WithdrawalRequest.objects.filter(user=request.user, is_read_by_user=False).count()
     )
     return JsonResponse({

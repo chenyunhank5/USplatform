@@ -264,7 +264,7 @@
             <div class="dropdown" id="transactionDropdown">
 
                 <button type="button"
-                        class="dropdown-btn {% if request.resolver_match.url_name == 'staff_withdrawal_management' or request.resolver_match.url_name == 'staff_order_management' %}section-active{% endif %}"
+                        class="dropdown-btn {% if request.resolver_match.url_name == 'staff_withdrawal_management' or request.resolver_match.url_name == 'staff_order_management' or request.resolver_match.url_name == 'staff_deposit_management' %}section-active{% endif %}"
                         aria-expanded="false"
                         aria-controls="transactionMenu"
                         onclick="toggleDropdown('transactionDropdown')">
@@ -277,6 +277,11 @@
                     <a href="{% url 'staff_withdrawal_management' %}"
                        class="{% if request.resolver_match.url_name == 'staff_withdrawal_management' %}active{% endif %}">
                         Withdrawal management
+                    </a>
+
+                    <a href="{% url 'staff_deposit_management' %}"
+                       class="{% if request.resolver_match.url_name == 'staff_deposit_management' %}active{% endif %}">
+                        Deposit management
                     </a>
 
                     <a href="{% url 'staff_order_management' %}"
