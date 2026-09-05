@@ -451,10 +451,8 @@ body{
 </div>
 
 <div class="price-box">
-    <span class="currency">USD</span>
-
     <span class="price">
-        {{ order.order_price }}
+        ${{ order.product.price|floatformat:2 }}/{{ order.order_price|floatformat:2 }}
     </span>
 
     <div class="stock">
