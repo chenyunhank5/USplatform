@@ -86,8 +86,8 @@ def get_user_earning_stats(user):
     return {
         'today_earnings': today_order_earnings + today_team_earnings,
         'total_earnings': total_order_earnings + team_earnings,
-        'today_order_revenue': today_orders.aggregate(total=Sum('order_price'))['total'] or Decimal('0.00'),
-        'order_revenue': completed_orders.aggregate(total=Sum('order_price'))['total'] or Decimal('0.00'),
+        'today_order_revenue': today_order_earnings,
+        'order_revenue': total_order_earnings,
         'today_team_earnings': today_team_earnings,
         'team_earnings': team_earnings,
     }
