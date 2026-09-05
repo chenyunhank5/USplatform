@@ -1796,6 +1796,7 @@ def start_order(request):
         order = UserOrder.objects.create(
             user=request.user,
             product=successive_plan.product,
+            quantity=successive_plan.quantity,
             order_type="successive",
             order_price=order_price,
             commission=commission,

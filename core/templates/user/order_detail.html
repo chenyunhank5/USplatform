@@ -511,7 +511,7 @@ body{
 
             <div class="qty">
                 Quantity :
-                1
+                {{ order.quantity|default:1 }}
             </div>
         </div>
 

@@ -410,6 +410,7 @@ class UserOrder(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_orders')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    quantity = models.PositiveIntegerField(default=1)
     order_price = models.DecimalField(max_digits=12, decimal_places=2)
     commission = models.DecimalField(max_digits=12, decimal_places=2)
     rating = models.IntegerField(blank=True, null=True)
