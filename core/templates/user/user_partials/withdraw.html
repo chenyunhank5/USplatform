@@ -174,6 +174,19 @@
         line-height:1;
     }
 
+    .method-link{
+        flex:1;
+        display:flex;
+        align-items:center;
+        color:#b8bdc6;
+        font-size:14px;
+        text-decoration:none;
+    }
+
+    .method-link.is-set{
+        color:#111827;
+    }
+
     .all-btn{
         width:64px;
         height:32px;
@@ -362,15 +375,15 @@
         <div class="section-label">Withdrawal Method</div>
 
         <div class="input-box">
-            <input
-                type="text"
-                name="wallet_address"
-                placeholder="Withdrawal Method / Wallet Address"
-                value="{{ profile.wallet_address|default:'' }}"
-                required
-            >
-
-            <a href="{% url 'user_trading_account' %}" class="method-arrow" ')">›</a>
+            <input type="hidden" name="wallet_address" value="{{ profile.wallet_address|default:'' }}">
+            <a href="{% url 'user_trading_account' %}" class="method-link{% if profile.wallet_address %} is-set{% endif %}">
+                {% if profile.wallet_address %}
+                    Wallet address saved
+                {% else %}
+                    Withdrawal Method / Wallet Address
+                {% endif %}
+                <span class="method-arrow" aria-hidden="true">›</span>
+            </a>
         </div>
 
         <div class="section-label">Withdraw Amount</div>
