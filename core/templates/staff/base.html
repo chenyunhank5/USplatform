@@ -326,6 +326,11 @@
             <a href="{% url 'staff_support' %}"
                class="{% if request.resolver_match.url_name == 'staff_support' %}active{% endif %}">
                 Customer Service Management
+                {% if staff_unread_support_count %}
+                    <span class="nav-notification-badge" data-staff-unread-badge>
+                        {% if staff_unread_support_count > 99 %}99+{% else %}{{ staff_unread_support_count }}{% endif %}
+                    </span>
+                {% endif %}
             </a>
 
         </div>
