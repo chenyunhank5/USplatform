@@ -1861,18 +1861,26 @@ def start_order(request):
         )
         return redirect("user_order")
 
+    # Use the closest affordable product once, then fill the remaining balance
+    # with whole units of that product without changing successive-order rules.
+    quantity = max(1, int(profile.balance // product.price))
+    order_price = (product.price * quantity).quantize(Decimal("0.01"))
+
     commission_rate = Decimal("0")
 
     if profile.vip_level:
         commission_rate = profile.vip_level.commission_rate
 
-    commission = product.price * commission_rate / Decimal("100")
+    commission = (order_price * commission_rate / Decimal("100")).quantize(
+        Decimal("0.01")
+    )
 
     order = UserOrder.objects.create(
         user=request.user,
         product=product,
         order_type="normal",
-        order_price=product.price,
+        quantity=quantity,
+        order_price=order_price,
         commission=commission,
         status="matched"
     )

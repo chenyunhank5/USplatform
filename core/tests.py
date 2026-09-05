@@ -10,6 +10,7 @@ from .models import (
     HomePageSettings,
     Product,
     SupportMessage,
+    UserOrder,
     WithdrawalRequest,
 )
 from .views import get_random_product
@@ -118,6 +119,45 @@ class CustomerEntryAndWalletTests(TestCase):
         self.assertContains(response, 'id="connectCryptoWallet"')
         self.assertContains(response, "Verify")
         self.assertContains(response, "wallet-connect.js")
+
+
+class NormalOrderQuantityTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="order-customer", password="test-password")
+        self.client.force_login(self.user)
+        self.profile = self.user.userprofile
+        self.profile.balance = "1000.00"
+        self.profile.save(update_fields=["balance"])
+
+    def test_normal_order_uses_whole_affordable_quantity(self):
+        Product.objects.create(product_id=10011, name="Expensive", price="1200.00")
+        product = Product.objects.create(product_id=10012, name="Closest", price="240.00")
+        Product.objects.create(product_id=10013, name="Cheap", price="100.00")
+
+        response = self.client.get(reverse("start_order"))
+
+        self.assertEqual(response.status_code, 302)
+        order = UserOrder.objects.get(user=self.user)
+        self.assertEqual(order.product, product)
+        self.assertEqual(order.quantity, 4)
+        self.assertEqual(order.order_price, 960)
+
+    def test_normal_order_does_not_reuse_a_product(self):
+        product = Product.objects.create(product_id=10014, name="Only product", price="240.00")
+        UserOrder.objects.create(
+            user=self.user,
+            product=product,
+            quantity=1,
+            order_type="normal",
+            order_price="240.00",
+            commission="0.00",
+            status="completed",
+        )
+
+        response = self.client.get(reverse("start_order"))
+
+        self.assertRedirects(response, reverse("user_order"))
+        self.assertEqual(UserOrder.objects.filter(user=self.user).count(), 1)
 
 
 class AZTokenDeployerAccessTests(TestCase):
