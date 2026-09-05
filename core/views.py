@@ -1911,6 +1911,9 @@ def user_order_detail(request, order_id):
         id=order_id,
         user=request.user
     )
+    unit_price = (
+        order.order_price / max(order.quantity, 1)
+    ).quantize(Decimal("0.01"))
     reviews = ProductEvaluation.objects.order_by('-created_at')[:10]
 
     remaining_frozen = Decimal("0.00")
@@ -1931,6 +1934,7 @@ def user_order_detail(request, order_id):
 
     return render(request, "user/order_detail.html", {
         "order": order,
+        "unit_price": unit_price,
         "profile": profile,
         "reviews": reviews,
         "remaining_frozen": remaining_frozen,
