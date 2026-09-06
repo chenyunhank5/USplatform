@@ -233,6 +233,16 @@
             overflow:auto;
         }
 
+        .staff-message{
+            padding:11px 14px;
+            margin-bottom:14px;
+            border:1px solid #b91c1c;
+            border-radius:4px;
+            background:#450a0a;
+            color:#fecaca;
+            font-weight:bold;
+        }
+
         .panel{
             background:#181818;
             border:1px solid #333;
@@ -379,6 +389,11 @@
         </div>
 
         <div class="content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="staff-message" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
             {% block content %}{% endblock %}
         </div>
 
