@@ -234,13 +234,26 @@
         }
 
         .staff-message{
-            padding:11px 14px;
-            margin-bottom:14px;
-            border:1px solid #b91c1c;
-            border-radius:4px;
-            background:#450a0a;
-            color:#fecaca;
+            position:fixed;
+            top:138px;
+            left:50%;
+            transform:translateX(-50%);
+            z-index:10000;
+            min-width:280px;
+            max-width:min(520px, calc(100vw - 32px));
+            padding:14px 24px;
+            border-radius:6px;
+            background:#3f3f3f;
+            color:#fff;
             font-weight:bold;
+            text-align:center;
+            box-shadow:0 8px 22px rgba(0,0,0,.35);
+            animation:staffToastIn .2s ease-out;
+        }
+
+        @keyframes staffToastIn{
+            from{opacity:0;transform:translate(-50%, -8px)}
+            to{opacity:1;transform:translate(-50%, 0)}
         }
 
         .panel{
@@ -391,7 +404,7 @@
         <div class="content">
             {% if messages %}
                 {% for message in messages %}
-                    <div class="staff-message" role="alert">{{ message }}</div>
+                    <div class="staff-message" role="alert" data-staff-message>{{ message }}</div>
                 {% endfor %}
             {% endif %}
             {% block content %}{% endblock %}
@@ -402,6 +415,12 @@
 </div>
 
 <script>
+    window.setTimeout(function(){
+        document.querySelectorAll('[data-staff-message]').forEach(function(message){
+            message.remove();
+        });
+    }, 3500);
+
     document.querySelectorAll('.dropdown').forEach((dropdown) => {
         const hasActivePage = Boolean(dropdown.querySelector('.dropdown-menu a.active'));
         const savedOpen = localStorage.getItem(`${dropdown.id}Open`) === 'true';
