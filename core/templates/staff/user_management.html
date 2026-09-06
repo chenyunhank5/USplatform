@@ -321,6 +321,7 @@ tr:hover .action-column{
                     <th>Invited by</th>
                     <th>Credit score</th>
                     <th>Task progress</th>
+                    <th>Reset count</th>
                     <th>IP address</th>
                     <th>Authorized</th>
                     <th>Need auth</th>
@@ -399,6 +400,10 @@ tr:hover .action-column{
                             0
                         {% endif %}
 
+                    </td>
+
+                    <td>
+                        {{ profile.display_reset_count_today }}/{{ profile.reset_count_total }}
                     </td>
 
                     <td>{{ profile.ip_address }}</td>

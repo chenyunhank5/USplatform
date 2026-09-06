@@ -337,12 +337,18 @@ def staff_user_management(request):
     vip_levels = VipLevel.objects.all().order_by('id')
 
     now = timezone.now()
+    today = timezone.localdate()
 
     for profile in profiles:
         if profile.recent_login and profile.recent_login >= now - timedelta(seconds=30):
             profile.live_status = 'online'
         else:
             profile.live_status = 'offline'
+        profile.display_reset_count_today = (
+            profile.reset_count_today
+            if profile.reset_count_date == today
+            else 0
+        )
 
     return render(request, 'staff/user_management.html', {
         'profiles': profiles,
@@ -1739,6 +1745,14 @@ def staff_reset_user_tasks(request, profile_id):
 
     if request.method == "POST":
 
+        today = timezone.localdate()
+        if profile.reset_count_date == today:
+            profile.reset_count_today += 1
+        else:
+            profile.reset_count_today = 1
+            profile.reset_count_date = today
+        profile.reset_count_total += 1
+
         UserOrder.objects.filter(
             user=profile.user,
             status="matched"
@@ -1748,7 +1762,13 @@ def staff_reset_user_tasks(request, profile_id):
 
         profile.task_progress = 0
         profile.task_set_id = uuid4()
-        profile.save(update_fields=['task_progress', 'task_set_id'])
+        profile.save(update_fields=[
+            'task_progress',
+            'task_set_id',
+            'reset_count_today',
+            'reset_count_total',
+            'reset_count_date',
+        ])
 
         messages.success(
             request,
