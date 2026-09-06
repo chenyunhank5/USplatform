@@ -321,6 +321,7 @@ class WithdrawalRequest(models.Model):
     transaction_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     remark = models.TextField(blank=True, null=True)
+    is_hidden_from_user = models.BooleanField(default=False)
     is_read_by_user = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     handled_at = models.DateTimeField(blank=True, null=True)

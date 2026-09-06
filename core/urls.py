@@ -62,6 +62,7 @@ urlpatterns = [
 
     # STAFF WITHDRAWAL MANAGEMENT
     path('staff/withdrawals/', views.staff_withdrawal_management, name='staff_withdrawal_management'),
+    path('staff/withdrawal/<int:withdrawal_id>/visibility/', views.staff_toggle_withdrawal_visibility, name='staff_toggle_withdrawal_visibility'),
     path('staff/withdrawal/<int:withdrawal_id>/approve/', views.staff_approve_withdrawal, name='staff_approve_withdrawal'),
     path('staff/withdrawal/<int:withdrawal_id>/reject/', views.staff_reject_withdrawal, name='staff_reject_withdrawal'),
 

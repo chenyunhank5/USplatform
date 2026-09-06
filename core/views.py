@@ -1237,6 +1237,18 @@ def staff_withdrawal_management(request):
 
 
 @staff_required
+def staff_toggle_withdrawal_visibility(request, withdrawal_id):
+    withdrawal = get_object_or_404(WithdrawalRequest, id=withdrawal_id)
+
+    if request.method == 'POST':
+        withdrawal.is_hidden_from_user = not withdrawal.is_hidden_from_user
+        withdrawal.save(update_fields=['is_hidden_from_user'])
+        messages.success(request, 'Withdrawal visibility updated.')
+
+    return redirect('staff_withdrawal_management')
+
+
+@staff_required
 def staff_approve_withdrawal(request, withdrawal_id):
     withdrawal = get_object_or_404(WithdrawalRequest, id=withdrawal_id)
 
@@ -1817,7 +1829,10 @@ def user_withdraw(request):
         messages.success(request, 'Withdrawal request submitted successfully.')
         return redirect('user_withdraw')
 
-    withdrawals = WithdrawalRequest.objects.filter(user=request.user).order_by('-id')[:10]
+    withdrawals = WithdrawalRequest.objects.filter(
+        user=request.user,
+        is_hidden_from_user=False,
+    ).order_by('-id')[:10]
 
     return render(request, 'user/user_partials/withdraw.html', {
         'profile': profile,

@@ -101,6 +101,29 @@
         width:170px;
         margin-right:6px;
     }
+
+    .visibility-status{
+        display:inline-block;
+        padding:4px 8px;
+        border-radius:3px;
+        font-size:12px;
+        font-weight:bold;
+    }
+
+    .visibility-status.visible{background:#14532d;color:#86efac;}
+    .visibility-status.hidden{background:#3b1111;color:#fca5a5;}
+
+    .visibility-btn{
+        border:0;
+        padding:7px 10px;
+        border-radius:3px;
+        color:#fff;
+        cursor:pointer;
+        font-weight:bold;
+    }
+
+    .visibility-btn.hide{background:#f59e0b;}
+    .visibility-btn.unhide{background:#16a34a;}
 </style>
 {% endblock %}
 
@@ -122,6 +145,7 @@
                     <th>Remark</th>
                     <th>Created At</th>
                     <th>Handled At</th>
+                    <th>Visibility</th>
                     <th>Operate</th>
                 </tr>
             </thead>
@@ -162,6 +186,25 @@
                     </td>
 
                     <td>
+                        {% if item.is_hidden_from_user %}
+                            <span class="visibility-status hidden">Hidden from user</span>
+                        {% else %}
+                            <span class="visibility-status visible">Visible to user</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <form method="POST"
+                              action="{% url 'staff_toggle_withdrawal_visibility' item.id %}"
+                              style="display:inline;margin-right:6px;">
+                            {% csrf_token %}
+                            {% if item.is_hidden_from_user %}
+                                <button type="submit" class="visibility-btn unhide">Unhide</button>
+                            {% else %}
+                                <button type="submit" class="visibility-btn hide">Hide</button>
+                            {% endif %}
+                        </form>
+
                         {% if item.status == 'pending' %}
 
                             <form method="POST"
@@ -199,7 +242,7 @@
                 {% empty %}
 
                 <tr>
-                    <td colspan="10">No withdrawal requests found.</td>
+                    <td colspan="11">No withdrawal requests found.</td>
                 </tr>
 
                 {% endfor %}
