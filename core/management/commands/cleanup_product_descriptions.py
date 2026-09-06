@@ -26,7 +26,12 @@ def clean_description(description, product_name):
     cleaned = FENCE_END_RE.sub('', cleaned, count=1)
 
     heading = HEADING_RE.search(cleaned)
-    if heading and _heading_text(heading.group(1)) == product_name.strip().casefold():
+    heading_text = _heading_text(heading.group(1))
+    product_text = product_name.strip().casefold()
+    if heading and heading_text and (
+        heading_text == product_text
+        or product_text.startswith(heading_text)
+    ):
         cleaned = cleaned[:heading.start()] + cleaned[heading.end():]
 
     return cleaned.strip()
