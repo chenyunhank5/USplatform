@@ -439,7 +439,11 @@
             >
         </div>
 
-        <button type="submit" class="submit-btn"{% if tasks_pending %} disabled{% endif %}>
+        <button
+            type="submit"
+            class="submit-btn"
+            {% if tasks_pending %}onclick="showAlert('You have a pending task. Complete {{ profile.task_progress }}/{{ max_tasks }} before requesting a withdrawal.'); return false;"{% endif %}
+        >
             Confirmation Of Withdrawal
         </button>
     </form>
