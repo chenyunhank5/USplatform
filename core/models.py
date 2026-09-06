@@ -7,6 +7,7 @@ from django.utils import timezone
 
 import random
 import string
+import uuid
 
 
 def generate_invite_code():
@@ -278,6 +279,7 @@ class UserProfile(models.Model):
     vip_level = models.ForeignKey(VipLevel, on_delete=models.SET_NULL, blank=True, null=True, related_name='users', default=get_default_vip)
     credit_score = models.IntegerField(default=100)
     task_progress = models.IntegerField(default=0)
+    task_set_id = models.UUIDField(default=uuid.uuid4, editable=False)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
     is_authorized = models.BooleanField(default=False)
     need_authorization = models.BooleanField(default=False)
@@ -412,6 +414,7 @@ class UserOrder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_orders')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
+    task_set_id = models.UUIDField(null=True, blank=True, editable=False)
     order_price = models.DecimalField(max_digits=12, decimal_places=2)
     commission = models.DecimalField(max_digits=12, decimal_places=2)
     rating = models.IntegerField(blank=True, null=True)

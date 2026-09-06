@@ -1747,7 +1747,8 @@ def staff_reset_user_tasks(request, profile_id):
         )
 
         profile.task_progress = 0
-        profile.save()
+        profile.task_set_id = uuid4()
+        profile.save(update_fields=['task_progress', 'task_set_id'])
 
         messages.success(
             request,
@@ -1841,7 +1842,8 @@ def start_order(request):
             status="matched",
             is_successive_order=True,
             successive_order_number=next_order_number,
-            negative_amount=successive_plan.negative_amount
+            negative_amount=successive_plan.negative_amount,
+            task_set_id=profile.task_set_id
         )
 
         successive_plan.status = "matched"
@@ -1856,6 +1858,8 @@ def start_order(request):
 
     previously_assigned_product_ids = UserOrder.objects.filter(
         user=request.user,
+        task_set_id=profile.task_set_id,
+        order_type="normal",
         product__isnull=False,
     ).values('product_id')
 
@@ -1893,6 +1897,7 @@ def start_order(request):
         quantity=quantity,
         order_price=order_price,
         commission=commission,
+        task_set_id=profile.task_set_id,
         status="matched"
     )
 
