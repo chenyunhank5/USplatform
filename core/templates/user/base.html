@@ -393,6 +393,23 @@ function showAlert(message){
     window.setInterval(refreshUnreadCount, 3000);
 })();
 
+// Keep staff online status accurate while the user is actively viewing a page.
+(() => {
+    const presenceUrl = "{% url 'user_presence' %}";
+    const pingPresence = () => {
+        if (document.visibilityState !== 'visible') return;
+        fetch(presenceUrl, {
+            credentials: 'same-origin',
+            cache: 'no-store',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).catch(() => {});
+    };
+
+    pingPresence();
+    window.setInterval(pingPresence, 15000);
+    document.addEventListener('visibilitychange', pingPresence);
+})();
+
 // Warm the browser cache for the other primary pages after the current page
 // is interactive. Navigation remains normal and still works without JS.
 (() => {

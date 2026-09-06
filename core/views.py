@@ -1520,6 +1520,15 @@ def verify_withdrawal_password(request):
 
     return JsonResponse({'success': False})
 
+@login_required(login_url='user_login')
+def user_presence(request):
+    profile = UserProfile.objects.filter(user=request.user).first()
+    if profile:
+        profile.online_status = 'online'
+        profile.recent_login = timezone.now()
+        profile.save(update_fields=['online_status', 'recent_login'])
+    return JsonResponse({'online': True})
+
 def user_logout(request):
     if request.user.is_authenticated:
         profile = UserProfile.objects.filter(user=request.user).first()

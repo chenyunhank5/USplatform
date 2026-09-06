@@ -97,6 +97,7 @@ urlpatterns = [
     path('user/please-note/', views.user_order_info_page, {'page_key': 'please_note'}, name='please_note'),
     path('user/messages/', views.user_messages, name='user_messages'),
     path('user/messages/unread-count/', views.user_unread_count, name='user_unread_count'),
+    path('user/presence/', views.user_presence, name='user_presence'),
     path('user/customer-service/poll/', views.user_support_poll, name='user_support_poll'),
     path('user/messages/transaction/<str:transaction_type>/<int:record_id>/', views.user_transaction_notification, name='user_transaction_notification'),
     path('user/customer-service/', views.customer_service, name='customer_service'),
