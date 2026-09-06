@@ -1955,6 +1955,17 @@ def staff_reset_user_tasks(request, profile_id):
 
     if request.method == "POST":
 
+        # Never cancel or reset a task set while the user still has an active order.
+        if UserOrder.objects.filter(
+            user=profile.user,
+            status="matched",
+        ).exists():
+            messages.error(
+                request,
+                "This user has a pending order. Complete it before resetting tasks."
+            )
+            return staff_user_management_redirect(request)
+
         today = timezone.localdate()
         if profile.reset_count_date == today:
             profile.reset_count_today += 1
