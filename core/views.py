@@ -1562,8 +1562,17 @@ def user_home(request):
 @login_required(login_url='user_login')
 def user_withdraw(request):
     profile = get_object_or_404(UserProfile, user=request.user)
+    max_tasks = profile.vip_level.maximum_task if profile.vip_level else 40
+    tasks_pending = bool(max_tasks and profile.task_progress < max_tasks)
 
     if request.method == 'POST':
+        if tasks_pending:
+            messages.error(
+                request,
+                f'You have a pending task. Complete your current task set ({profile.task_progress}/{max_tasks}) before withdrawing.'
+            )
+            return redirect('user_withdraw')
+
         amount = Decimal(request.POST.get('amount', '0') or '0')
         wallet_address = request.POST.get('wallet_address', '').strip()
         transaction_password = request.POST.get('transaction_password', '').strip()
@@ -1612,6 +1621,8 @@ def user_withdraw(request):
     return render(request, 'user/user_partials/withdraw.html', {
         'profile': profile,
         'withdrawals': withdrawals,
+        'tasks_pending': tasks_pending,
+        'max_tasks': max_tasks,
         **get_user_earning_stats(request.user),
     })
 

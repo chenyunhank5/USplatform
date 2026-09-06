@@ -187,6 +187,21 @@
         color:#111827;
     }
 
+    .pending-task-notice{
+        margin:0 14px 12px;
+        padding:12px 14px;
+        background:#fff4e5;
+        border:1px solid #f0b35b;
+        color:#8a4b08;
+        font-size:14px;
+        line-height:1.4;
+    }
+
+    .submit-btn:disabled{
+        opacity:.55;
+        cursor:not-allowed;
+    }
+
     .all-btn{
         width:64px;
         height:32px;
@@ -378,13 +393,19 @@
             <input type="hidden" name="wallet_address" value="{{ profile.wallet_address|default:'' }}">
             <a href="{% url 'user_trading_account' %}" class="method-link{% if profile.wallet_address %} is-set{% endif %}">
                 {% if profile.wallet_address %}
-                    Wallet address saved
+                    Wallet address ****{{ profile.wallet_address|slice:"-4:" }}
                 {% else %}
                     Withdrawal Method / Wallet Address
                 {% endif %}
                 <span class="method-arrow" aria-hidden="true">›</span>
             </a>
         </div>
+
+        {% if tasks_pending %}
+            <div class="pending-task-notice" role="alert">
+                You have a pending task. Complete your task set ({{ profile.task_progress }}/{{ max_tasks }}) before requesting a withdrawal.
+            </div>
+        {% endif %}
 
         <div class="section-label">Withdraw Amount</div>
 
@@ -418,7 +439,7 @@
             >
         </div>
 
-        <button type="submit" class="submit-btn">
+        <button type="submit" class="submit-btn"{% if tasks_pending %} disabled{% endif %}>
             Confirmation Of Withdrawal
         </button>
     </form>
