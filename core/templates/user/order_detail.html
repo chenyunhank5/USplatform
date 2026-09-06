@@ -565,29 +565,6 @@ body{
     </div>
 
     <div class="order-details-box" id="orderDetailsBox">
-
-        <div class="extra-info-box">
-            <div class="extra-row">
-                <span>Created At</span>
-
-                <b>
-                    {{ order.created_at|date:"m-d-Y h:i:s a" }}
-                </b>
-            </div>
-
-            <div class="extra-row">
-                <span>NO :</span>
-
-                <b>
-                    {% if order.order_number %}
-                        {{ order.order_number }}
-                    {% else %}
-                        {{ order.id }}
-                    {% endif %}
-                </b>
-            </div>
-        </div>
-
         <div class="review-submit-box">
             <div class="review-top">
                 <div class="review-label">
