@@ -1166,7 +1166,20 @@ def staff_support(request):
             )
         ),
         last_message_time=Max('support_messages__created_at')
-    ).distinct().order_by('-last_message_time')
+    ).select_related('userprofile').distinct()
+
+    search = request.GET.get('search', '').strip()
+    if search:
+        users = users.filter(
+            Q(username__icontains=search)
+            | Q(userprofile__phone_number__icontains=search)
+        )
+
+    users = users.order_by(
+        '-userprofile__support_is_pinned',
+        'userprofile__support_pin_order',
+        '-last_message_time',
+    )
 
     selected_user_id = request.GET.get('user_id')
     selected_user = None
@@ -1209,8 +1222,54 @@ def staff_support(request):
     return render(request, 'staff/support.html', {
         'users': users,
         'selected_user': selected_user,
-        'messages_list': messages_list
+        'messages_list': messages_list,
+        'support_search': search,
     })
+
+
+@staff_required
+def staff_support_toggle_pin(request, user_id):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False}, status=405)
+
+    profile = get_object_or_404(UserProfile, user_id=user_id)
+    profile.support_is_pinned = not profile.support_is_pinned
+    if profile.support_is_pinned and not profile.support_pin_order:
+        highest = UserProfile.objects.filter(
+            support_is_pinned=True,
+        ).aggregate(max_order=Max('support_pin_order'))['max_order'] or 0
+        profile.support_pin_order = highest + 1
+    profile.save(update_fields=['support_is_pinned', 'support_pin_order'])
+    return JsonResponse({'ok': True, 'pinned': profile.support_is_pinned})
+
+
+@staff_required
+def staff_support_reorder(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False}, status=405)
+
+    try:
+        user_ids = request.POST.getlist('user_ids[]') or request.POST.getlist('user_ids')
+        user_ids = [int(user_id) for user_id in user_ids]
+    except (TypeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Invalid chat order.'}, status=400)
+
+    profiles = UserProfile.objects.filter(
+        user_id__in=user_ids,
+        support_is_pinned=True,
+    )
+    profiles_by_user_id = {profile.user_id: profile for profile in profiles}
+    changed = []
+    for position, user_id in enumerate(user_ids):
+        profile = profiles_by_user_id.get(user_id)
+        if profile and profile.support_pin_order != position:
+            profile.support_pin_order = position
+            changed.append(profile)
+
+    if changed:
+        UserProfile.objects.bulk_update(changed, ['support_pin_order'])
+
+    return JsonResponse({'ok': True})
 
 # USER
 

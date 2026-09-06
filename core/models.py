@@ -294,6 +294,8 @@ class UserProfile(models.Model):
     registration_time = models.DateTimeField(auto_now_add=True)
     last_activity_at = models.DateTimeField(blank=True, null=True)
     is_hidden_from_staff = models.BooleanField(default=False)
+    support_is_pinned = models.BooleanField(default=False)
+    support_pin_order = models.PositiveIntegerField(default=0)
 
     # NEW FIELDS FOR VERIFICATION/RECOVERY
     is_wallet_verified = models.BooleanField(default=False)

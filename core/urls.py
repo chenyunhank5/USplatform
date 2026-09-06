@@ -71,6 +71,8 @@ urlpatterns = [
 
     # STAFF CUSTOMER SERVICE
     path('staff/support/', views.staff_support, name='staff_support'),
+    path('staff/support/<int:user_id>/toggle-pin/', views.staff_support_toggle_pin, name='staff_support_toggle_pin'),
+    path('staff/support/reorder/', views.staff_support_reorder, name='staff_support_reorder'),
     path('staff/support/<int:user_id>/poll/', views.staff_support_poll, name='staff_support_poll'),
     path('staff/support/unread-count/', views.staff_unread_support_count, name='staff_unread_support_count'),
 

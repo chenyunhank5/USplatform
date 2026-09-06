@@ -30,7 +30,7 @@
     }
 
     .sidebar-header{
-        height:60px;
+        min-height:60px;
         background:#1f1f1f;
         border-bottom:1px solid #333;
         display:flex;
@@ -40,6 +40,27 @@
         font-size:16px;
         font-weight:bold;
         flex-shrink:0;
+    }
+
+    .chat-search{
+        padding:10px 12px;
+        background:#181818;
+        border-bottom:1px solid #333;
+    }
+
+    .chat-search input{
+        width:100%;
+        box-sizing:border-box;
+        padding:9px 10px;
+        border:1px solid #444;
+        border-radius:5px;
+        background:#111;
+        color:white;
+        outline:none;
+    }
+
+    .chat-search input:focus{
+        border-color:#0d6efd;
     }
 
     .chat-list{
@@ -55,6 +76,21 @@
         color:white;
         border-bottom:1px solid #2a2a2a;
         transition:.15s;
+        cursor:grab;
+        position:relative;
+    }
+
+    .chat-item:active{cursor:grabbing;}
+
+    .chat-item.dragging{opacity:.45;}
+
+    .chat-item.pinned::after{
+        content:"Pinned";
+        position:absolute;
+        right:10px;
+        bottom:7px;
+        color:#fbbf24;
+        font-size:10px;
     }
 
     .chat-item:hover{
@@ -418,6 +454,33 @@
         font-size:14px;
     }
 
+    .chat-context-menu{
+        position:fixed;
+        z-index:6000;
+        display:none;
+        min-width:130px;
+        padding:5px;
+        background:#222;
+        border:1px solid #444;
+        border-radius:5px;
+        box-shadow:0 8px 20px rgba(0,0,0,.45);
+    }
+
+    .chat-context-menu.show{display:block;}
+
+    .chat-context-menu button{
+        width:100%;
+        padding:8px 10px;
+        border:0;
+        border-radius:3px;
+        background:transparent;
+        color:white;
+        text-align:left;
+        cursor:pointer;
+    }
+
+    .chat-context-menu button:hover{background:#0d6efd;}
+
 </style>
 {% endblock %}
 
@@ -431,12 +494,22 @@
             Customer Messages
         </div>
 
+        <form class="chat-search" method="GET" action="{% url 'staff_support' %}">
+            <input type="search"
+                   name="search"
+                   value="{{ support_search }}"
+                   placeholder="Search username or phone..."
+                   aria-label="Search username or phone number">
+        </form>
+
         <div class="chat-list">
 
             {% for user in users %}
 
-                <a href="{% url 'staff_support' %}?user_id={{ user.id }}"
-                   class="chat-item {% if selected_user and selected_user.id == user.id %}active{% endif %}">
+                <a href="{% url 'staff_support' %}?user_id={{ user.id }}{% if support_search %}&search={{ support_search|urlencode }}{% endif %}"
+                   class="chat-item {% if selected_user and selected_user.id == user.id %}active{% endif %}{% if user.userprofile.support_is_pinned %} pinned{% endif %}"
+                   data-user-id="{{ user.id }}"
+                   draggable="true">
 
                     <div class="avatar">
                         {{ user.username|first|upper }}
@@ -609,6 +682,10 @@
 
 </div>
 
+<div class="chat-context-menu" id="chatContextMenu">
+    <button type="button" id="togglePinButton">Pin chat</button>
+</div>
+
 <div class="staff-image-modal"
      id="staffImageModal"
      role="dialog"
@@ -621,6 +698,97 @@
             onclick="closeStaffImageModal()">&times;</button>
     <img id="staffImageModalContent" alt="Full-size support image">
 </div>
+
+<script>
+    (function(){
+        const chatList = document.querySelector('.chat-list');
+        const contextMenu = document.getElementById('chatContextMenu');
+        const togglePinButton = document.getElementById('togglePinButton');
+        let contextUserId = null;
+        let draggedItem = null;
+
+        if(!chatList || !contextMenu || !togglePinButton){
+            return;
+        }
+
+        function csrfToken(){
+            const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+            return match ? decodeURIComponent(match[1]) : '';
+        }
+
+        function closeContextMenu(){
+            contextMenu.classList.remove('show');
+            contextUserId = null;
+        }
+
+        chatList.querySelectorAll('.chat-item').forEach(function(item){
+            item.addEventListener('contextmenu', function(event){
+                event.preventDefault();
+                contextUserId = item.dataset.userId;
+                togglePinButton.textContent = item.classList.contains('pinned')
+                    ? 'Unpin chat'
+                    : 'Pin chat';
+                contextMenu.style.left = Math.min(event.clientX, window.innerWidth - 160) + 'px';
+                contextMenu.style.top = Math.min(event.clientY, window.innerHeight - 55) + 'px';
+                contextMenu.classList.add('show');
+            });
+
+            item.addEventListener('dragstart', function(){
+                draggedItem = item;
+                item.classList.add('dragging');
+            });
+
+            item.addEventListener('dragend', function(){
+                item.classList.remove('dragging');
+                draggedItem = null;
+                savePinnedOrder();
+            });
+
+            item.addEventListener('dragover', function(event){
+                event.preventDefault();
+                if(!draggedItem || draggedItem === item){
+                    return;
+                }
+                const box = item.getBoundingClientRect();
+                const before = event.clientY < box.top + box.height / 2;
+                chatList.insertBefore(draggedItem, before ? item : item.nextSibling);
+            });
+        });
+
+        function savePinnedOrder(){
+            const pinnedIds = Array.from(chatList.querySelectorAll('.chat-item.pinned'))
+                .map(item => item.dataset.userId);
+            const body = new URLSearchParams();
+            pinnedIds.forEach(id => body.append('user_ids[]', id));
+            fetch('{% url "staff_support_reorder" %}', {
+                method:'POST',
+                headers:{'X-CSRFToken':csrfToken(), 'X-Requested-With':'XMLHttpRequest'},
+                body:body
+            }).catch(() => {});
+        }
+
+        togglePinButton.addEventListener('click', function(){
+            if(!contextUserId){
+                return;
+            }
+            fetch('{% url "staff_support" %}' + contextUserId + '/toggle-pin/', {
+                method:'POST',
+                headers:{'X-CSRFToken':csrfToken(), 'X-Requested-With':'XMLHttpRequest'}
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.ok){
+                    window.location.reload();
+                }
+            })
+            .catch(() => {});
+            closeContextMenu();
+        });
+
+        document.addEventListener('click', closeContextMenu);
+        window.addEventListener('resize', closeContextMenu);
+    })();
+</script>
 
 {% if selected_user %}
 
