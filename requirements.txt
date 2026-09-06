@@ -9,3 +9,5 @@ asgiref
 sqlparse
 tzdata
 python-dotenv
+openpyxl>=3.1,<4
+xlrd>=2.0,<3

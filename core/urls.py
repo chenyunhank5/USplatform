@@ -54,6 +54,8 @@ urlpatterns = [
 
     # PRODUCT MANAGEMENT
     path('staff/product-list/', views.staff_product_list, name='staff_product_list'),
+    path('staff/product/import/', views.staff_product_import, name='staff_product_import'),
+    path('staff/product/import/confirm/', views.staff_product_import_confirm, name='staff_product_import_confirm'),
     path('staff/product/add/', views.staff_add_product, name='staff_add_product'),
     path('staff/product/<int:product_id>/edit/', views.staff_edit_product, name='staff_edit_product'),
     path('staff/product/<int:product_id>/delete/', views.staff_delete_product, name='staff_delete_product'),

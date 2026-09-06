@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.db import transaction
 from django.db.models import Count, Q, Max, Sum
 from django.urls import reverse
+from django.core.cache import cache
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
@@ -997,6 +998,129 @@ def staff_product_list(request):
             'sort': sort if sort in sort_options else 'newest',
         },
     })
+
+
+@staff_required
+def staff_product_import(request):
+    """Preview spreadsheet rows before creating products in bulk."""
+    if request.method == 'GET':
+        return render(request, 'staff/product_import.html')
+
+    upload = request.FILES.get('file')
+    if not upload:
+        messages.error(request, 'Please choose an .xlsx, .xls, or .csv file.')
+        return redirect('staff_product_import')
+
+    suffix = upload.name.lower().rsplit('.', 1)[-1] if '.' in upload.name else ''
+    try:
+        if suffix == 'xlsx':
+            from openpyxl import load_workbook
+            workbook = load_workbook(upload, read_only=True, data_only=True)
+            sheet = workbook.active
+            values = list(sheet.iter_rows(values_only=True))
+        elif suffix == 'xls':
+            import xlrd
+            workbook = xlrd.open_workbook(file_contents=upload.read())
+            sheet = workbook.sheet_by_index(0)
+            values = [sheet.row_values(row_index) for row_index in range(sheet.nrows)]
+        elif suffix == 'csv':
+            import csv
+            import io
+            values = list(csv.reader(io.TextIOWrapper(upload.file, encoding='utf-8-sig')))
+        else:
+            raise ValueError('Unsupported file type. Use .xlsx, .xls, or .csv.')
+
+        if not values:
+            raise ValueError('The spreadsheet is empty.')
+
+        headers = [str(value or '').strip().lower() for value in values[0]]
+        required = {'name', 'price', 'score', 'description', 'cover'}
+        missing = sorted(required - set(headers))
+        if missing:
+            raise ValueError(f'Missing required columns: {", ".join(missing)}.')
+
+        rows = []
+        for row_number, raw_row in enumerate(values[1:], start=2):
+            row = list(raw_row) + [''] * max(0, len(headers) - len(raw_row))
+            item = {headers[index]: row[index] for index in range(len(headers))}
+            if not str(item.get('name') or '').strip():
+                continue
+            try:
+                price = Decimal(str(item.get('price') or '0').replace('$', '').replace(',', '').strip())
+                score = int(float(item.get('score') or 0))
+            except (ArithmeticError, TypeError, ValueError):
+                raise ValueError(f'Row {row_number}: price must be a number and score must be a whole number.')
+            if price < 0 or score < 0 or score > 5:
+                raise ValueError(f'Row {row_number}: price must be non-negative and score must be between 0 and 5.')
+            rows.append({
+                'name': str(item.get('name') or '').strip(),
+                'price': str(price),
+                'score': score,
+                'description': str(item.get('description') or '').strip(),
+                'cover': str(item.get('cover') or '').strip(),
+                'goods_album_1': str(item.get('goods_album_1') or '').strip(),
+                'goods_album_2': str(item.get('goods_album_2') or '').strip(),
+                'goods_album_3': str(item.get('goods_album_3') or '').strip(),
+                'goods_album_4': str(item.get('goods_album_4') or '').strip(),
+            })
+
+        if not rows:
+            raise ValueError('No product rows were found.')
+        if len(rows) > 500:
+            raise ValueError('For safety, import no more than 500 products at a time.')
+
+        token = uuid4().hex
+        cache.set(f'product_import:{token}', rows, timeout=900)
+        return render(request, 'staff/product_import.html', {
+            'preview_rows': rows,
+            'import_token': token,
+        })
+    except Exception as exc:
+        messages.error(request, f'Import preview failed: {exc}')
+        return redirect('staff_product_import')
+
+
+@staff_required
+def staff_product_import_confirm(request):
+    if request.method != 'POST':
+        return redirect('staff_product_import')
+
+    token = request.POST.get('token', '').strip()
+    rows = cache.get(f'product_import:{token}') if token else None
+    if not rows:
+        messages.error(request, 'This preview expired. Upload the file again.')
+        return redirect('staff_product_import')
+
+    existing = set(
+        Product.objects.filter(name__in=[row['name'] for row in rows])
+        .values_list('name', 'price')
+    )
+    unique_rows = []
+    seen = set()
+    for row in rows:
+        key = (row['name'], Decimal(row['price']))
+        if key not in existing and key not in seen:
+            unique_rows.append(row)
+            seen.add(key)
+
+    Product.objects.bulk_create([
+        Product(
+            name=row['name'],
+            price=Decimal(row['price']),
+            score=row['score'],
+            description=row['description'],
+            cover=row['cover'],
+            goods_album_1=row['goods_album_1'],
+            goods_album_2=row['goods_album_2'],
+            goods_album_3=row['goods_album_3'],
+            goods_album_4=row['goods_album_4'],
+        )
+        for row in unique_rows
+    ])
+    cache.delete(f'product_import:{token}')
+    skipped = len(rows) - len(unique_rows)
+    messages.success(request, f'Imported {len(unique_rows)} products successfully.' + (f' Skipped {skipped} duplicate rows.' if skipped else ''))
+    return redirect('staff_product_list')
 
 
 @staff_required
