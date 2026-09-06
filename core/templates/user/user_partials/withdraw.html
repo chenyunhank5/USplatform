@@ -187,21 +187,6 @@
         color:#111827;
     }
 
-    .pending-task-notice{
-        margin:0 14px 12px;
-        padding:12px 14px;
-        background:#fff4e5;
-        border:1px solid #f0b35b;
-        color:#8a4b08;
-        font-size:14px;
-        line-height:1.4;
-    }
-
-    .submit-btn:disabled{
-        opacity:.55;
-        cursor:not-allowed;
-    }
-
     .all-btn{
         width:64px;
         height:32px;
@@ -400,12 +385,6 @@
                 <span class="method-arrow" aria-hidden="true">›</span>
             </a>
         </div>
-
-        {% if tasks_pending %}
-            <div class="pending-task-notice" role="alert">
-                You have a pending task. Complete your task set ({{ profile.task_progress }}/{{ max_tasks }}) before requesting a withdrawal.
-            </div>
-        {% endif %}
 
         <div class="section-label">Withdraw Amount</div>
 
