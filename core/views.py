@@ -2294,7 +2294,10 @@ def user_messages(request):
         'created_at': item.created_at,
         'transaction_id': item.transaction_id,
         'is_read': item.is_read_by_user,
-    } for item in WithdrawalRequest.objects.filter(user=request.user))
+    } for item in WithdrawalRequest.objects.filter(
+        user=request.user,
+        is_hidden_from_user=False,
+    ))
 
     notifications.sort(key=lambda item: item['created_at'], reverse=True)
 
@@ -2315,7 +2318,11 @@ def user_unread_count(request):
             is_read_by_user=False,
             is_hidden_from_user=False,
         ).count()
-        + WithdrawalRequest.objects.filter(user=request.user, is_read_by_user=False).count()
+        + WithdrawalRequest.objects.filter(
+            user=request.user,
+            is_read_by_user=False,
+            is_hidden_from_user=False,
+        ).count()
     )
     return JsonResponse({
         'count': support_count + system_count,
@@ -2364,7 +2371,12 @@ def user_transaction_notification(request, transaction_type, record_id):
     if transaction_type == 'deposit':
         record = get_object_or_404(DepositRecord, id=record_id, user=request.user)
     elif transaction_type == 'withdrawal':
-        record = get_object_or_404(WithdrawalRequest, id=record_id, user=request.user)
+        record = get_object_or_404(
+            WithdrawalRequest,
+            id=record_id,
+            user=request.user,
+            is_hidden_from_user=False,
+        )
     else:
         return redirect('user_messages')
 
