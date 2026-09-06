@@ -310,6 +310,9 @@ def staff_user_management(request):
         'invited_by',
         'invited_by__user',
         'vip_level'
+    ).exclude(
+        user__username__startswith='guest-',
+        is_hidden_from_staff=True,
     ).all().order_by('-id')
 
     keyword = request.GET.get('keyword', '').strip()
@@ -2309,6 +2312,11 @@ def customer_service(request):
             support_user.set_unusable_password()
             support_user.save(update_fields=['password'])
             request.session['guest_support_user_id'] = support_user.id
+
+        guest_profile = UserProfile.objects.get(user=support_user)
+        guest_profile.last_activity_at = timezone.now()
+        guest_profile.is_hidden_from_staff = False
+        guest_profile.save(update_fields=['last_activity_at', 'is_hidden_from_staff'])
 
     if request.method == 'POST':
         message = request.POST.get('message', '').strip()
