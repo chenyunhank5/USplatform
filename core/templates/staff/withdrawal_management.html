@@ -124,12 +124,59 @@
 
     .visibility-btn.hide{background:#f59e0b;}
     .visibility-btn.unhide{background:#16a34a;}
+
+    .withdrawal-search{
+        display:flex;
+        gap:10px;
+        align-items:center;
+        margin-bottom:16px;
+    }
+
+    .withdrawal-search input{
+        width:min(440px, 100%);
+        padding:10px 12px;
+        border:1px solid #444;
+        border-radius:4px;
+        background:#171717;
+        color:#fff;
+        outline:none;
+    }
+
+    .withdrawal-search input:focus{
+        border-color:#0d6efd;
+    }
+
+    .withdrawal-search button,
+    .withdrawal-search a{
+        padding:10px 16px;
+        border:0;
+        border-radius:4px;
+        color:#fff;
+        text-decoration:none;
+        cursor:pointer;
+        font-size:13px;
+    }
+
+    .withdrawal-search button{background:#0d6efd;}
+    .withdrawal-search a{background:#4b5563;}
 </style>
 {% endblock %}
 
 {% block content %}
 
 <div class="panel">
+
+    <form method="GET" class="withdrawal-search">
+        <input type="search"
+               name="keyword"
+               value="{{ withdrawal_keyword }}"
+               placeholder="Search withdrawal ID, user, phone, or wallet..."
+               aria-label="Search withdrawal ID, user, phone number, or wallet address">
+        <button type="submit">Search</button>
+        {% if withdrawal_keyword %}
+            <a href="{% url 'staff_withdrawal_management' %}">Reset</a>
+        {% endif %}
+    </form>
 
     <div class="table-scroll">
 

@@ -1226,13 +1226,24 @@ def staff_delete_product_evaluation(request, comment_id):
 
 @staff_required
 def staff_withdrawal_management(request):
+    keyword = request.GET.get('keyword', '').strip()
     withdrawals = WithdrawalRequest.objects.select_related(
         'user',
         'user__userprofile'
     ).all().order_by('-id')
 
+    if keyword:
+        withdrawals = withdrawals.filter(
+            Q(transaction_id__icontains=keyword)
+            | Q(user__id__icontains=keyword)
+            | Q(user__username__icontains=keyword)
+            | Q(user__userprofile__phone_number__icontains=keyword)
+            | Q(wallet_address__icontains=keyword)
+        )
+
     return render(request, 'staff/withdrawal_management.html', {
-        'withdrawals': withdrawals
+        'withdrawals': withdrawals,
+        'withdrawal_keyword': keyword,
     })
 
 
