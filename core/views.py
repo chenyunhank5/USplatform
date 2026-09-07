@@ -1314,7 +1314,6 @@ def staff_support(request):
     users = users.order_by(
         '-userprofile__support_is_pinned',
         'userprofile__support_pin_order',
-        '-unread_count',
         '-last_message_time',
     )
 
@@ -1345,12 +1344,6 @@ def staff_support(request):
                     return JsonResponse({'ok': True, **support_message_payload(support_message)})
 
             return redirect(f'/staff/support/?user_id={selected_user.id}')
-
-        SupportMessage.objects.filter(
-            user=selected_user,
-            sender__is_staff=False,
-            is_read_by_staff=False
-        ).update(is_read_by_staff=True)
 
         messages_list = SupportMessage.objects.filter(
             user=selected_user
