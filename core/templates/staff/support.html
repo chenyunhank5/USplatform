@@ -837,6 +837,7 @@
     const imagePreviewSize = document.getElementById("imagePreviewSize");
     const removeImageButton = document.getElementById("removeImageButton");
     let imagePreviewUrl = null;
+    let recentlyActiveChatId = null;
 
     function clearImagePreview(){
         if(imagePreviewUrl){
@@ -908,6 +909,26 @@
         });
     }
 
+    function promoteChatItem(userId){
+        const chatList = document.querySelector(".chat-list");
+        const chatItem = chatList && chatList.querySelector(`[data-user-id="${userId}"]`);
+
+        if(!chatItem){
+            return;
+        }
+
+        const selector = chatItem.classList.contains("pinned")
+            ? ".chat-item.pinned"
+            : ".chat-item:not(.pinned)";
+        const firstInGroup = chatList.querySelector(selector);
+
+        if(firstInGroup && firstInGroup !== chatItem){
+            firstInGroup.parentNode.insertBefore(chatItem, firstInGroup);
+        }
+
+        chatList.scrollTop = Math.max(0, chatItem.offsetTop - 8);
+    }
+
     function appendMessage(data){
         if(data.id && messagesArea.querySelector(`[data-message-id="${data.id}"]`)){
             return;
@@ -935,15 +956,8 @@
         scrollBottom();
 
         if(!data.sender_is_staff){
-            const chatItem = document.querySelector(`.chat-item[data-user-id="${selectedUserId}"]`);
-            if(chatItem){
-                const firstUnpinned = document.querySelector('.chat-list .chat-item:not(.pinned)');
-                if(firstUnpinned && firstUnpinned !== chatItem){
-                    firstUnpinned.parentNode.insertBefore(chatItem, firstUnpinned);
-                }else if(!firstUnpinned){
-                    chatItem.parentNode.appendChild(chatItem);
-                }
-            }
+            recentlyActiveChatId = selectedUserId;
+            promoteChatItem(recentlyActiveChatId);
         }
     }
 
@@ -1069,6 +1083,10 @@
                     currentChatList.innerHTML = newChatList.innerHTML;
                     if(window.bindStaffChatItems){
                         window.bindStaffChatItems();
+                    }
+
+                    if(recentlyActiveChatId){
+                        promoteChatItem(recentlyActiveChatId);
                     }
 
                     if(pinnedOrderChanged || unpinnedOrderChanged){

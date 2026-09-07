@@ -1314,7 +1314,6 @@ def staff_support(request):
     users = users.order_by(
         '-userprofile__support_is_pinned',
         'userprofile__support_pin_order',
-        '-unread_count',
         '-last_message_time',
     )
 
