@@ -274,6 +274,16 @@
             padding-right:18px;
         }
 
+        .message-bubble a{
+            color:#0b7f3d;
+            text-decoration:underline;
+            overflow-wrap:anywhere;
+        }
+
+        .message-row.user .message-bubble a{
+            color:#fff;
+        }
+
         .message-menu-btn{
             position:absolute;
             top:4px;
@@ -681,7 +691,7 @@
 
                     {% if msg.message %}
                         <div class="copy-text">
-                            {{ msg.message }}
+                            {{ msg.message|urlize }}
                         </div>
                     {% endif %}
 
@@ -811,6 +821,21 @@
         return div.innerHTML;
     }
 
+    function linkifyMessage(text){
+        const escaped = escapeHtml(text);
+        return escaped.replace(/https?:\/\/[^\s<]+/gi, function(match){
+            let url = match;
+            let trailing = "";
+
+            while(/[.,!?;:)}\]]$/.test(url)){
+                trailing = url.slice(-1) + trailing;
+                url = url.slice(0, -1);
+            }
+
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer nofollow">${url}</a>${trailing}`;
+        });
+    }
+
     function openImageModal(src){
         document.getElementById("modalImage").src = src;
         document.getElementById("imageModal").classList.add("show");
@@ -918,7 +943,7 @@
             ? `<img src="${data.image_url}" class="message-image" alt="Support attachment" loading="lazy" decoding="async" onclick="openImageModal('${data.image_url}')">`
             : "";
         const text = data.message
-            ? `<div class="copy-text">${escapeHtml(data.message)}</div>`
+            ? `<div class="copy-text">${linkifyMessage(data.message)}</div>`
             : "";
         const menu = data.message
             ? `<button type="button" class="message-menu-btn" aria-label="Message options" onclick="showMessageMenu(event, this)">&#8942;</button>`

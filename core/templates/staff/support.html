@@ -328,6 +328,12 @@
         color:#d1d5db;
     }
 
+    .bubble a{
+        color:#8ecbff;
+        text-decoration:underline;
+        overflow-wrap:anywhere;
+    }
+
     .chat-input-bar{
         min-height:72px;
         background:#1f1f1f;
@@ -608,7 +614,7 @@
                             {% endif %}
 
                             {% if msg.message %}
-                                <div>{{ msg.message }}</div>
+                                <div>{{ msg.message|urlize }}</div>
                             {% endif %}
 
                             <div class="message-time">
@@ -880,6 +886,21 @@
         return div.innerHTML;
     }
 
+    function linkifyMessage(text){
+        const escaped = escapeHtml(text);
+        return escaped.replace(/https?:\/\/[^\s<]+/gi, function(match){
+            let url = match;
+            let trailing = "";
+
+            while(/[.,!?;:)}\]]$/.test(url)){
+                trailing = url.slice(-1) + trailing;
+                url = url.slice(0, -1);
+            }
+
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer nofollow">${url}</a>${trailing}`;
+        });
+    }
+
     function appendMessage(data){
         if(data.id && messagesArea.querySelector(`[data-message-id="${data.id}"]`)){
             return;
@@ -894,7 +915,7 @@
         const image = data.image_url
             ? `<img src="${data.image_url}" class="message-image" alt="Support attachment" loading="lazy">`
             : "";
-        const text = data.message ? `<div>${escapeHtml(data.message)}</div>` : "";
+        const text = data.message ? `<div>${linkifyMessage(data.message)}</div>` : "";
 
         row.innerHTML = `
             <div class="bubble">${image}${text}<div class="message-time">${data.created_at}</div></div>
