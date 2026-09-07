@@ -1345,6 +1345,12 @@ def staff_support(request):
 
             return redirect(f'/staff/support/?user_id={selected_user.id}')
 
+        SupportMessage.objects.filter(
+            user=selected_user,
+            sender__is_staff=False,
+            is_read_by_staff=False,
+        ).update(is_read_by_staff=True)
+
         messages_list = SupportMessage.objects.filter(
             user=selected_user
         ).order_by('created_at')
