@@ -76,7 +76,7 @@
         color:white;
         border-bottom:1px solid #2a2a2a;
         transition:.15s;
-        cursor:grab;
+        cursor:pointer;
         position:relative;
     }
 
@@ -727,7 +727,7 @@
             contextUserId = null;
         }
 
-        chatList.querySelectorAll('.chat-item').forEach(function(item){
+        function bindChatItem(item){
             item.addEventListener('contextmenu', function(event){
                 event.preventDefault();
                 contextUserId = item.dataset.userId;
@@ -759,7 +759,14 @@
                 const before = event.clientY < box.top + box.height / 2;
                 chatList.insertBefore(draggedItem, before ? item : item.nextSibling);
             });
-        });
+        }
+
+        function bindChatItems(){
+            chatList.querySelectorAll('.chat-item').forEach(bindChatItem);
+        }
+
+        window.bindStaffChatItems = bindChatItems;
+        bindChatItems();
 
         function savePinnedOrder(){
             const pinnedIds = Array.from(chatList.querySelectorAll('.chat-item.pinned'))
@@ -926,6 +933,18 @@
             messagesArea.dataset.lastMessageId = data.id;
         }
         scrollBottom();
+
+        if(!data.sender_is_staff){
+            const chatItem = document.querySelector(`.chat-item[data-user-id="${selectedUserId}"]`);
+            if(chatItem){
+                const firstUnpinned = document.querySelector('.chat-list .chat-item:not(.pinned)');
+                if(firstUnpinned && firstUnpinned !== chatItem){
+                    firstUnpinned.parentNode.insertBefore(chatItem, firstUnpinned);
+                }else if(!firstUnpinned){
+                    chatItem.parentNode.appendChild(chatItem);
+                }
+            }
+        }
     }
 
     function submitChatFormWithoutRefresh(){
@@ -1038,7 +1057,32 @@
                 const currentChatList = document.querySelector(".chat-list");
 
                 if(newChatList && currentChatList){
+                    const firstPinned = currentChatList.querySelector(".chat-item.pinned");
+                    const firstUnpinned = currentChatList.querySelector(".chat-item:not(.pinned)");
+                    const newFirstPinned = newChatList.querySelector(".chat-item.pinned");
+                    const newFirstUnpinned = newChatList.querySelector(".chat-item:not(.pinned)");
+                    const pinnedOrderChanged = (firstPinned?.dataset.userId || "")
+                        !== (newFirstPinned?.dataset.userId || "");
+                    const unpinnedOrderChanged = (firstUnpinned?.dataset.userId || "")
+                        !== (newFirstUnpinned?.dataset.userId || "");
+
                     currentChatList.innerHTML = newChatList.innerHTML;
+                    if(window.bindStaffChatItems){
+                        window.bindStaffChatItems();
+                    }
+
+                    if(pinnedOrderChanged || unpinnedOrderChanged){
+                        const promotedId = pinnedOrderChanged
+                            ? newFirstPinned?.dataset.userId
+                            : newFirstUnpinned?.dataset.userId;
+                        const promotedItem = promotedId
+                            ? currentChatList.querySelector(`[data-user-id="${promotedId}"]`)
+                            : null;
+
+                        if(promotedItem){
+                            currentChatList.scrollTop = Math.max(0, promotedItem.offsetTop - 8);
+                        }
+                    }
                 }
 
                 const newUnreadBadge = newDoc.querySelector("[data-staff-unread-badge]");
