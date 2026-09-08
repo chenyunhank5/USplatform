@@ -18,11 +18,38 @@
 .deposit-action{border:0;padding:7px 12px;border-radius:3px;color:#fff;cursor:pointer;font-weight:bold;}
 .deposit-action.hide{background:#f59e0b;}
 .deposit-action.unhide{background:#16a34a;}
+.deposit-search{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.deposit-search label{color:#e5e7eb;font-weight:bold;font-size:13px;}
+.deposit-search input{padding:9px 10px;border:1px solid #444;border-radius:4px;background:#171717;color:#fff;outline:none;}
+.deposit-search input[type="search"]{width:min(300px,100%);}
+.deposit-search input:focus{border-color:#0d6efd;}
+.deposit-search button,.deposit-search a{padding:9px 16px;border:0;border-radius:4px;color:#fff;text-decoration:none;cursor:pointer;font-size:13px;}
+.deposit-search button{background:#0d6efd;}.deposit-search a{background:#4b5563;}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="deposit-panel">
+    <form method="get" class="deposit-search">
+        <label for="deposit-keyword">Keyword:</label>
+        <input id="deposit-keyword"
+               type="search"
+               name="keyword"
+               value="{{ deposit_keyword }}"
+               placeholder="Username or phone number..."
+               aria-label="Search username or phone number">
+
+        <label for="deposit-start-date">Deposit time:</label>
+        <input id="deposit-start-date" type="date" name="start_date" value="{{ deposit_start_date }}" aria-label="Start deposit date">
+        <span>To</span>
+        <input type="date" name="end_date" value="{{ deposit_end_date }}" aria-label="End deposit date">
+
+        <button type="submit">Query</button>
+        {% if deposit_keyword or deposit_start_date or deposit_end_date %}
+            <a href="{% url 'staff_deposit_management' %}">Reset</a>
+        {% endif %}
+    </form>
+
     <div class="deposit-table-wrap">
         <table class="deposit-table">
             <thead>

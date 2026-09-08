@@ -839,13 +839,31 @@ def staff_toggle_order_visibility(request, order_id):
 
 @staff_required
 def staff_deposit_management(request):
+    keyword = request.GET.get("keyword", "").strip()
+    start_date = request.GET.get("start_date", "").strip()
+    end_date = request.GET.get("end_date", "").strip()
     deposits = DepositRecord.objects.select_related(
         "user",
         "user__userprofile",
     ).all().order_by("-id")
 
+    if keyword:
+        deposits = deposits.filter(
+            Q(user__username__icontains=keyword)
+            | Q(user__userprofile__phone_number__icontains=keyword)
+        )
+
+    if start_date:
+        deposits = deposits.filter(created_at__date__gte=start_date)
+
+    if end_date:
+        deposits = deposits.filter(created_at__date__lte=end_date)
+
     return render(request, "staff/deposit_management.html", {
         "deposits": deposits,
+        "deposit_keyword": keyword,
+        "deposit_start_date": start_date,
+        "deposit_end_date": end_date,
     })
 
 
