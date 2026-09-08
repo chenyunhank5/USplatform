@@ -142,6 +142,10 @@
         outline:none;
     }
 
+    .withdrawal-search input[type="date"]{
+        width:150px;
+    }
+
     .withdrawal-search input:focus{
         border-color:#0d6efd;
     }
@@ -172,8 +176,19 @@
                value="{{ withdrawal_keyword }}"
                placeholder="Search withdrawal ID, user, phone, or wallet..."
                aria-label="Search withdrawal ID, user, phone number, or wallet address">
+        <label for="withdrawal-start-date">Withdrawal time:</label>
+        <input id="withdrawal-start-date"
+               type="date"
+               name="start_date"
+               value="{{ withdrawal_start_date }}"
+               aria-label="Start withdrawal date">
+        <span>To</span>
+        <input type="date"
+               name="end_date"
+               value="{{ withdrawal_end_date }}"
+               aria-label="End withdrawal date">
         <button type="submit">Search</button>
-        {% if withdrawal_keyword %}
+        {% if withdrawal_keyword or withdrawal_start_date or withdrawal_end_date %}
             <a href="{% url 'staff_withdrawal_management' %}">Reset</a>
         {% endif %}
     </form>

@@ -1253,6 +1253,8 @@ def staff_delete_product_evaluation(request, comment_id):
 @staff_required
 def staff_withdrawal_management(request):
     keyword = request.GET.get('keyword', '').strip()
+    start_date = request.GET.get('start_date', '').strip()
+    end_date = request.GET.get('end_date', '').strip()
     withdrawals = WithdrawalRequest.objects.select_related(
         'user',
         'user__userprofile'
@@ -1267,9 +1269,17 @@ def staff_withdrawal_management(request):
             | Q(wallet_address__icontains=keyword)
         )
 
+    if start_date:
+        withdrawals = withdrawals.filter(created_at__date__gte=start_date)
+
+    if end_date:
+        withdrawals = withdrawals.filter(created_at__date__lte=end_date)
+
     return render(request, 'staff/withdrawal_management.html', {
         'withdrawals': withdrawals,
         'withdrawal_keyword': keyword,
+        'withdrawal_start_date': start_date,
+        'withdrawal_end_date': end_date,
     })
 
 
