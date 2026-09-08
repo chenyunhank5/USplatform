@@ -798,6 +798,7 @@ def user_has_blocking_lucky_reward(profile):
 
 @staff_required
 def staff_order_management(request):
+    keyword = request.GET.get("keyword", "").strip()
     orders = UserOrder.objects.select_related(
         "user",
         "user__userprofile",
@@ -805,8 +806,15 @@ def staff_order_management(request):
         "lucky_reward"
     ).all().order_by("-id")
 
+    if keyword:
+        orders = orders.filter(
+            Q(user__username__icontains=keyword)
+            | Q(user__userprofile__phone_number__icontains=keyword)
+        )
+
     return render(request, "staff/order_management.html", {
         "orders": orders,
+        "order_keyword": keyword,
     })
 
 
