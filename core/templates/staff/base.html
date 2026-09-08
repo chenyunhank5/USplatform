@@ -320,6 +320,11 @@
                     <a href="{% url 'staff_withdrawal_management' %}"
                        class="{% if request.resolver_match.url_name == 'staff_withdrawal_management' %}active{% endif %}">
                         Withdrawal management
+                        <span class="nav-notification-badge"
+                              data-staff-withdrawal-badge
+                              {% if not staff_pending_withdrawal_count %}hidden{% endif %}>
+                            {% if staff_pending_withdrawal_count > 99 %}99+{% else %}{{ staff_pending_withdrawal_count }}{% endif %}
+                        </span>
                     </a>
 
                     <a href="{% url 'staff_deposit_management' %}"
@@ -446,6 +451,9 @@
     let staffUnreadCount = Number(
         document.querySelector('[data-staff-unread-badge]')?.textContent.trim()
     ) || 0;
+    let staffPendingWithdrawalCount = Number(
+        document.querySelector('[data-staff-withdrawal-badge]')?.textContent.trim()
+    ) || 0;
 
     function enableStaffNotificationAudio(){
         if(!staffNotificationAudioContext){
@@ -494,6 +502,17 @@
         badge.hidden = count === 0;
     }
 
+    function updateStaffPendingWithdrawalBadge(count){
+        const badge = document.querySelector('[data-staff-withdrawal-badge]');
+
+        if(!badge){
+            return;
+        }
+
+        badge.textContent = count > 99 ? '99+' : String(count);
+        badge.hidden = count === 0;
+    }
+
     function pollStaffNotifications(){
         fetch('{% url "staff_unread_support_count" %}', {cache:'no-store'})
             .then(response => response.ok ? response.json() : Promise.reject(response))
@@ -506,6 +525,14 @@
 
                 staffUnreadCount = count;
                 updateStaffUnreadBadge(count);
+                const withdrawalCount = Number(data.withdrawal_count) || 0;
+
+                if(withdrawalCount > staffPendingWithdrawalCount){
+                    playStaffNotificationSound();
+                }
+
+                staffPendingWithdrawalCount = withdrawalCount;
+                updateStaffPendingWithdrawalBadge(withdrawalCount);
             })
             .catch(() => {});
     }

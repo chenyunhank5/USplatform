@@ -2381,11 +2381,15 @@ def staff_support_poll(request, user_id):
 
 @staff_required
 def staff_unread_support_count(request):
-    count = SupportMessage.objects.filter(
+    support_count = SupportMessage.objects.filter(
         sender__is_staff=False,
         is_read_by_staff=False,
     ).count()
-    return JsonResponse({'count': count})
+    withdrawal_count = WithdrawalRequest.objects.filter(status='pending').count()
+    return JsonResponse({
+        'count': support_count,
+        'withdrawal_count': withdrawal_count,
+    })
 
 
 @login_required(login_url='user_login')

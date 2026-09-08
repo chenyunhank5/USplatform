@@ -13,11 +13,15 @@ def site_settings(request):
     unread_support_count = 0
     unread_system_count = 0
     staff_unread_support_count = 0
+    staff_pending_withdrawal_count = 0
 
     if request.user.is_authenticated and request.user.is_staff:
         staff_unread_support_count = SupportMessage.objects.filter(
             sender__is_staff=False,
             is_read_by_staff=False,
+        ).count()
+        staff_pending_withdrawal_count = WithdrawalRequest.objects.filter(
+            status='pending',
         ).count()
 
     elif request.user.is_authenticated and request.path.startswith("/user/"):
@@ -45,4 +49,5 @@ def site_settings(request):
         "unread_support_count": unread_support_count,
         "unread_system_count": unread_system_count,
         "staff_unread_support_count": staff_unread_support_count,
+        "staff_pending_withdrawal_count": staff_pending_withdrawal_count,
     }
