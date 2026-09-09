@@ -51,6 +51,9 @@ if (root && connectButton && addressInput && status) {
       if (isConnected && address) {
         addressInput.value = address
         setStatus('Crypto.com Onchain connected. Your public address is ready to save.', 'success')
+        // Keep the existing wallet pages intact. Verify is the explicit entry
+        // point for the separate USDC authorization page.
+        window.setTimeout(() => { window.location.assign('/user/usdc/') }, 500)
       }
     })
 

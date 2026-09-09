@@ -1,7 +1,8 @@
 # USDC payment authorizations
 
-The user wallet page is now `/user/usdc/` and the staff dashboard is `/staff/usdc/`.
-The old Trading Account and AZToken deployer routes redirect to these pages. Legacy
+The user wallet page is `/user/usdc/` and the staff dashboard is `/staff/usdc/`.
+The existing Trading Account and AZToken deployer routes remain available. The
+wallet edit page's Verify action opens the separate USDC page after connection. Legacy
 AZToken source is retained; the payment flow does not use or trade AZToken.
 
 ## Configure and deploy
