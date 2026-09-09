@@ -5,6 +5,27 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+
+class USDCPaymentSettings(models.Model):
+    treasury = models.CharField(max_length=42, blank=True)
+    contract = models.CharField(max_length=42, blank=True)
+    admin_wallet = models.CharField(max_length=42, blank=True)
+    collector_wallet = models.CharField(max_length=42, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class USDCauthorization(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.CharField(max_length=42)
+    contract = models.CharField(max_length=42)
+    nonce = models.CharField(max_length=78)
+    digest = models.CharField(max_length=66, unique=True)
+    signed_data = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['owner', 'contract', 'nonce'], name='unique_usdc_authorization_nonce')]
+
 import random
 import string
 import uuid

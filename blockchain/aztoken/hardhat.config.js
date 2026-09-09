@@ -17,10 +17,20 @@ if (process.env.SEPOLIA_RPC_URL && process.env.SEPOLIA_PRIVATE_KEY) {
   };
 }
 
+if (process.env.ETHEREUM_RPC_URL && process.env.ETHEREUM_PRIVATE_KEY) {
+  networks.mainnet = {
+    url: process.env.ETHEREUM_RPC_URL,
+    accounts: [process.env.ETHEREUM_PRIVATE_KEY],
+    chainId: 1,
+  };
+}
+
 module.exports = {
   solidity: {
-    version: "0.8.24",
+    version: "0.8.28",
     settings: {
+      viaIR: true,
+      evmVersion: "cancun",
       optimizer: {
         enabled: true,
         runs: 200,

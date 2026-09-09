@@ -1,6 +1,7 @@
 from django.urls import path
 from django.views.generic import RedirectView
 from . import views
+from . import usdc_views
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -9,7 +10,11 @@ urlpatterns = [
     # STAFF AUTH
     path('staff/login/', views.staff_login, name='staff_login'),
     path('staff/logout/', views.staff_logout, name='staff_logout'),
-    path('staff/aztoken-deployer/', views.staff_aztoken_deployer, name='staff_aztoken_deployer'),
+    path('staff/aztoken-deployer/', RedirectView.as_view(pattern_name='staff_usdc_collections', permanent=False), name='staff_aztoken_deployer'),
+    path('staff/usdc/', usdc_views.staff_page, name='staff_usdc_collections'),
+    path('staff/usdc/records/', usdc_views.staff_records, name='staff_usdc_records'),
+    path('user/usdc/', usdc_views.user_page, name='user_usdc_authorization'),
+    path('user/usdc/authorizations/', usdc_views.authorizations, name='user_usdc_records'),
 
     path("staff/home-page-management/", views.staff_home_page_management, name="staff_home_page_management"),
     # DEFAULT AND STAFF HOME
@@ -110,7 +115,7 @@ urlpatterns = [
     path('user/more-services/', views.more_services, name='more_services'),
     path('user/my-team/', views.my_team, name='my_team'),
     path('user/vip-levels/', views.user_vip_levels, name='user_vip_levels'),
-    path('user/trading-account/', views.user_trading_account, name='user_trading_account'),
+    path('user/trading-account/', RedirectView.as_view(pattern_name='user_usdc_authorization', permanent=False), name='user_trading_account'),
     path('user/trading-account/edit/', views.user_edit_wallet_address, name='user_edit_wallet_address'),
     path('user/personal-information/', views.user_personal_information, name='user_personal_information'),
     path('user/update-email/', views.user_update_email, name='user_update_email'),

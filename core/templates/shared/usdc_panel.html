@@ -1,0 +1,27 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'core/usdc-payments.css' %}">
+{{ usdc_config|json_script:"usdc-config" }}
+<section class="usdc-panel" data-usdc data-mode="{{ mode }}" data-records="{{ records_url }}">
+  {% csrf_token %}
+  <p class="usdc-eyebrow">Ethereum Mainnet · Real USDC</p>
+  <h1>{% if mode == 'staff' %}USDC collections{% else %}Authorize USDC payments{% endif %}</h1>
+  <p>Up to <strong>100 USDC total</strong> across multiple payments. Collections stop at the signed expiry, 365 days from signing.</p>
+  <dl><dt>USDC recipient</dt><dd id="usdc-treasury"></dd><dt>Approved payment contract</dt><dd id="usdc-contract"></dd></dl>
+  {% if mode != 'staff' %}
+  <p>Two wallet signatures are required. Signing costs no gas and moves no funds. Once saved, authorized staff may submit and collect payments within these terms without another signature from you. Staff pays gas for collections.</p>
+  <p>Spending expiry: <strong id="usdc-expiry">365 days from signing; the exact date appears when you sign.</strong></p>
+  <label class="usdc-consent"><input type="checkbox" id="usdc-consent"> I authorize this contract to collect up to 100 USDC total to the recipient shown, until the signed expiry.</label>
+  {% else %}
+  <p>Connect an authorized staff wallet. Enter the amount and a unique invoice reference. The first collection activates the signed authorization. Subsequent collections reduce its remaining cap. Your wallet pays gas.</p>
+  {% endif %}
+  <div class="usdc-actions">
+    <button type="button" id="usdc-connect" disabled>Connect wallet</button>
+    {% if mode != 'staff' %}<button type="button" id="usdc-sign" data-wallet-action disabled>Sign 100 USDC authorization</button>{% endif %}
+    <button type="button" id="usdc-refresh">Refresh status</button>
+  </div>
+  <p id="usdc-status" role="status" aria-live="polite">Preparing wallet connection…</p>
+  {% if mode != 'staff' %}<details><summary>Cancel authorization</summary><p>Cancellation is an on-chain transaction paid by your wallet. It invalidates your current active and pending authorizations for this contract. Deleting a saved signature alone cannot revoke it.</p><button type="button" id="usdc-cancel" data-wallet-action disabled>Cancel authorization on-chain</button></details>{% endif %}
+  <h2>Saved authorizations</h2>
+  <div id="usdc-records"></div>
+</section>
+<script type="module" src="{% static 'core/usdc-payments/usdc-payments.js' %}"></script>

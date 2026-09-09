@@ -1,0 +1,20 @@
+{% extends 'staff/base.html' %}
+{% block title %}USDC Collections{% endblock %}
+{% block page_title %}USDC Collections{% endblock %}
+{% block content %}
+<section class="usdc-panel">
+<h2>Payment wallet settings</h2>
+<p>Changing the receiving wallet applies to new signatures. Existing authorizations keep their signed recipient. Admin and collection wallet settings are used for deployment; changing them here does not change an existing contract's roles.</p>
+<form method="post" class="usdc-settings">{% csrf_token %}
+<label>Receiving wallet <input name="treasury" value="{{ usdc_config.treasury }}" required pattern="0x[0-9a-fA-F]{40}"></label>
+<label>Admin wallet <input name="admin_wallet" value="{{ usdc_config.admin }}" pattern="0x[0-9a-fA-F]{40}"></label>
+<label>Staff collection wallet <input name="collector_wallet" value="{{ usdc_config.collector }}" pattern="0x[0-9a-fA-F]{40}"></label>
+<label>Deployed collection contract <input name="contract" value="{{ usdc_config.contract }}" pattern="0x[0-9a-fA-F]{40}"></label>
+<button type="submit">Save payment settings</button>
+</form>
+<p>Save the admin and staff wallet addresses, then connect your wallet below to deploy the payment contract. Deployment costs real ETH. After confirmation, save the returned contract address above.</p>
+<button type="button" id="usdc-deploy">Review and deploy payment contract</button>
+</section>
+{% url 'staff_usdc_records' as records_url %}
+{% include 'shared/usdc_panel.html' with mode='staff' records_url=records_url %}
+{% endblock %}

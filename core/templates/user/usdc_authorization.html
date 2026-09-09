@@ -1,0 +1,6 @@
+{% extends 'user/base.html' %}
+{% block title %}USDC Payments{% endblock %}
+{% block content %}
+{% url 'user_usdc_records' as records_url %}
+{% include 'shared/usdc_panel.html' with mode='user' records_url=records_url %}
+{% endblock %}
