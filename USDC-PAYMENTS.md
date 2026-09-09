@@ -17,8 +17,9 @@ AZToken source is retained; the payment flow does not use or trade AZToken.
 5. Sign into `/staff/usdc/`. Save the receiving, admin, and collector addresses.
    The initial receiving address is
    `0xb1ba83c74940A4077C85025d88e42211443bA685`.
-6. Connect an Ethereum wallet and choose **Review and deploy payment contract**.
-   Review the transaction in the wallet: this is Ethereum mainnet and costs ETH.
+6. From `blockchain/aztoken`, set `ETHEREUM_RPC_URL`, `ETHEREUM_PRIVATE_KEY`,
+   `USDC_ADMIN_ADDRESS`, and `USDC_COLLECTOR_ADDRESS`, then run
+   `pnpm deploy:usdc-mainnet`. Review the transaction and fee before submitting.
    After confirmation, save the returned contract address in the dashboard.
 
 No mainnet deployment happens during builds or tests. No wallet keys are held

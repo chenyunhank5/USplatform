@@ -12,8 +12,8 @@
 <label>Deployed collection contract <input name="contract" value="{{ usdc_config.contract }}" pattern="0x[0-9a-fA-F]{40}"></label>
 <button type="submit">Save payment settings</button>
 </form>
-<p>Save the admin and staff wallet addresses, then connect your wallet below to deploy the payment contract. Deployment costs real ETH. After confirmation, save the returned contract address above.</p>
-<button type="button" id="usdc-deploy">Review and deploy payment contract</button>
+<p>Save the admin and staff wallet addresses, then deploy from the server’s blockchain directory using the mainnet command in the payment guide. Deployment costs real ETH. After confirmation, save the returned contract address above.</p>
+<button type="button" id="usdc-deploy">Show deployment instructions</button>
 </section>
 {% url 'staff_usdc_records' as records_url %}
 {% include 'shared/usdc_panel.html' with mode='staff' records_url=records_url %}

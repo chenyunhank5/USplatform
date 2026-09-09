@@ -1,8 +1,7 @@
 import { createAppKit } from '@reown/appkit'
 import { EthersAdapter } from '@reown/appkit-adapter-ethers'
 import { mainnet } from '@reown/appkit/networks'
-import { BrowserProvider, Contract, ContractFactory, Signature, TypedDataEncoder, formatUnits, parseUnits, id, getAddress, ZeroAddress } from 'ethers'
-import collectorArtifact from '../blockchain/aztoken/artifacts/contracts/USDCCollections.sol/USDCCollections.json'
+import { BrowserProvider, Contract, Signature, TypedDataEncoder, formatUnits, parseUnits, id, getAddress } from 'ethers'
 import { USDC, messages, permitTypes, termsTypes, verifyRecord, collectorAbi, tokenAbi } from './usdc-protocol.mjs'
 
 const root = document.querySelector('[data-usdc]')
@@ -163,27 +162,9 @@ if (!config.projectId) {
   })
 }
 const deployButton = document.querySelector('#usdc-deploy')
-if (deployButton) deployButton.onclick = () => run(deployButton, async () => {
-  if (!config.admin || !config.collector || getAddress(config.admin) === ZeroAddress || getAddress(config.collector) === ZeroAddress) {
-    throw new Error('Save valid admin and collection wallet addresses before deployment.')
-  }
-  if (!app?.getWalletProvider()) throw new Error('Connect your deployment wallet first.')
-  if (config.contract) throw new Error('A contract is already configured. Clear that field only when intentionally creating a replacement; old authorizations stay bound to the old contract.')
-  const provider = new BrowserProvider(app.getWalletProvider())
-  if ((await provider.getNetwork()).chainId !== 1n) throw new Error('Switch to Ethereum Mainnet before deployment.')
-  const signer = await provider.getSigner()
-  const factory = new ContractFactory(collectorArtifact.abi, collectorArtifact.bytecode, signer)
-  const request = await factory.getDeployTransaction(USDC, config.admin, config.collector)
-  await signer.estimateGas(request)
-  say(`Review real Ethereum deployment. Admin: ${config.admin}. Collector: ${config.collector}. Your wallet will display the ETH fee.`)
-  const deployed = await factory.deploy(USDC, config.admin, config.collector)
-  const tx = deployed.deploymentTransaction()
-  say(`Deployment submitted: ${tx.hash}. Waiting for confirmation.`)
-  await tx.wait(2)
-  const address = await deployed.getAddress()
-  document.querySelector('[name=contract]').value = address
-  say(`Deployed at ${address}. Click Save payment settings above to enable this contract.`)
-})
+if (deployButton) deployButton.onclick = () => {
+  say('Deploy with the blockchain/aztoken mainnet command in USDC-PAYMENTS.md, then save the returned contract address here.')
+}
 const refreshButton = document.querySelector('#usdc-refresh')
 refreshButton.onclick = () => run(refreshButton, refresh)
 refresh().catch(() => say('Could not load saved authorizations. Please refresh.'))
