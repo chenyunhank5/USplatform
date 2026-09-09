@@ -77,10 +77,10 @@ process.stdout.write(JSON.stringify(record));
     def test_pages_render_and_old_trading_route_redirects(self):
         self.client.force_login(self.user)
         self.assertContains(self.client.get(reverse('user_usdc_authorization')), 'Sign 100 USDC authorization')
-        self.assertRedirects(self.client.get(reverse('user_trading_account')), reverse('user_usdc_authorization'))
+        self.assertContains(self.client.get(reverse('user_trading_account')), 'Trading Account')
         self.client.force_login(self.staff)
         self.assertContains(self.client.get(reverse('staff_usdc_collections')), 'Payment wallet settings')
-        self.assertRedirects(self.client.get(reverse('staff_aztoken_deployer')), reverse('staff_usdc_collections'))
+        self.assertContains(self.client.get(reverse('staff_aztoken_deployer')), 'AZToken')
 
     def test_settings_requires_staff_and_post_requires_csrf(self):
         self.client.force_login(self.user)

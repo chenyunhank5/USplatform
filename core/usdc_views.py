@@ -25,7 +25,8 @@ def configuration():
 
 
 def payload(row):
-    return {'id': row.pk, 'user': row.user.username, **row.signed_data}
+    profile = getattr(row.user, 'userprofile', None)
+    return {'id': row.pk, 'user': row.user.username, 'phone': profile.phone_number if profile else '', **row.signed_data}
 
 
 @login_required

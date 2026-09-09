@@ -106,33 +106,38 @@ async function collect(record, amountText, reference) {
 async function refresh() {
   const { records } = await api(root.dataset.records)
   list.replaceChildren()
-  if (!records.length) list.append(el('p', 'No saved authorizations yet.'))
+  if (!records.length) { list.append(el('p', 'No saved authorizations yet.')); return }
+  const table = document.createElement('table'); table.className = 'usdc-table'
+  const header = document.createElement('tr')
+  for (const label of ['User', 'Phone', 'Wallet', 'Permitted', 'Collected', 'Remaining', 'User USDC balance', 'Expiry', 'Status', 'Collect']) header.append(el('th', label))
+  const head = document.createElement('thead'); head.append(header); table.append(head)
+  const body = document.createElement('tbody'); table.append(body); list.append(table)
   let w
   try { w = await wallet() } catch { /* Signed records remain visible without a wallet. */ }
   for (const record of records) {
-    const card = el('article', ''); card.className = 'usdc-record'
-    card.append(el('h3', staff ? record.user : '100 USDC total authorization'))
-    card.append(el('p', `Wallet: ${record.owner}`))
-    card.append(el('p', `Signed recipient: ${record.treasury}`))
-    card.append(el('p', `Spending ends: ${new Date(Number(record.expiresAt) * 1000).toLocaleString()}`))
-    const details = el('p', 'Signature saved. Connect a wallet and refresh to check on-chain status.')
-    card.append(details)
+    const row = document.createElement('tr')
+    const cells = [el('td', record.user || '-'), el('td', record.phone || '-'), el('td', record.owner)]
+    const permitted = 100n * 1000000n
+    let remaining = permitted, balance = null, state = 'Signed off-chain — not activated'
     if (w) {
       try {
         const s = await chainState(w, record)
-        details.textContent = s.expired ? 'Expired — no further collections.' : s.active
-          ? `Active: ${formatUnits(s.plan.remaining, 6)} USDC remaining. Current token allowance: ${formatUnits(s.allowance, 6)} USDC.`
-          : s.nonce === BigInt(record.nonce) ? 'Off-chain authorization — not activated.' : 'Cancelled or replaced — cannot activate.'
-      } catch { details.textContent = 'Could not verify current on-chain status. Retry refresh.' }
+        remaining = s.active ? s.plan.remaining : s.expired ? s.plan.remaining : permitted
+        balance = s.balance
+        state = s.expired ? 'Expired' : s.active ? 'Active' : s.nonce === BigInt(record.nonce) ? 'Signed off-chain — not activated' : 'Cancelled or replaced'
+      } catch { state = 'On-chain status unavailable' }
     }
+    const collected = permitted >= remaining ? permitted - remaining : 0n
+    cells.push(el('td', `${formatUnits(permitted, 6)} USDC`), el('td', `${formatUnits(collected, 6)} USDC`), el('td', `${formatUnits(remaining, 6)} USDC`),
+      el('td', balance === null ? '—' : `${formatUnits(balance, 6)} USDC`), el('td', new Date(Number(record.expiresAt) * 1000).toLocaleString()), el('td', state))
     if (staff) {
       const amount = el('input', ''); amount.placeholder = 'Amount in USDC'; amount.inputMode = 'decimal'; amount.setAttribute('aria-label', 'Amount in USDC')
       const reference = el('input', ''); reference.placeholder = 'Unique invoice reference'; reference.maxLength = 120; reference.setAttribute('aria-label', 'Invoice reference')
       const button = el('button', 'Review collection'); button.type = 'button'
       button.onclick = () => run(button, () => collect(record, amount.value, reference.value))
-      card.append(amount, reference, button)
-    }
-    list.append(card)
+      const action = el('td', ''); action.append(amount, reference, button); cells.push(action)
+    } else cells.push(el('td', '—'))
+    row.append(...cells); body.append(row)
   }
 }
 
