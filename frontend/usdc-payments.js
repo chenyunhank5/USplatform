@@ -1,5 +1,6 @@
 import { createAppKit } from '@reown/appkit'
 import { EthersAdapter } from '@reown/appkit-adapter-ethers'
+import { createAppKitWalletButton } from '@reown/appkit-wallet-button'
 import { mainnet } from '@reown/appkit/networks'
 import { BrowserProvider, Contract, Signature, TypedDataEncoder, formatUnits, parseUnits, id, getAddress } from 'ethers'
 import { USDC, messages, permitTypes, termsTypes, verifyRecord, collectorAbi, tokenAbi } from './usdc-protocol.mjs'
@@ -143,8 +144,19 @@ if (!config.projectId) {
   app = createAppKit({ adapters: [new EthersAdapter()], networks: [mainnet], defaultNetwork: mainnet,
     projectId: config.projectId, metadata: { name: 'USDC Payments', description: 'Authorize up to 100 USDC in collections for one year', url: location.origin, icons: [] },
     features: { analytics: false, email: false, socials: [] } })
-  document.querySelector('#usdc-connect').disabled = false
-  document.querySelector('#usdc-connect').onclick = () => app.open({ view: 'Connect' })
+  const walletButton = createAppKitWalletButton({ namespace: 'eip155' })
+  walletButton.subscribeIsReady(({ isReady }) => { document.querySelector('#usdc-connect').disabled = !isReady })
+  document.querySelector('#usdc-connect').onclick = async () => {
+    const button = document.querySelector('#usdc-connect')
+    button.disabled = true
+    say('Opening Crypto.com Onchain…')
+    try { await walletButton.connect('crypto-com') }
+    catch (error) {
+      console.error('Crypto.com wallet connection failed', error)
+      say('Crypto.com Onchain could not complete the connection. Reopen this page inside the wallet app or choose Crypto.com from the wallet list.')
+      app.open({ view: 'Connect', namespace: 'eip155' })
+    } finally { button.disabled = false }
+  }
   app.subscribeAccount(({ address, isConnected }) => {
     selectedOwner = isConnected ? address : undefined
     say(selectedOwner ? `Connected: ${selectedOwner}` : 'Connect your wallet to continue.')
