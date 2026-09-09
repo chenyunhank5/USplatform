@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.db import IntegrityError
 
-from .models import USDCauthorization, USDCPaymentSettings
+from .models import USDCauthorization, USDCPaymentSettings, UserProfile
 from .views import staff_required
 
 
@@ -101,8 +101,24 @@ def authorizations(request):
 @staff_required
 @require_http_methods(['GET'])
 def staff_records(request):
+    # Return the whole member population, including members without a signature.
     # Never expose signed permits through a public listing or a cache.
-    response = JsonResponse({'records': [payload(r) for r in USDCauthorization.objects.filter(
-        contract=configuration()['contract'].lower()).select_related('user').order_by('-id')[:200]]})
+    authorizations = {row.user_id: row for row in USDCauthorization.objects.filter(
+        contract=configuration()['contract'].lower()).select_related('user').order_by('-id')}
+    records = []
+    for profile in UserProfile.objects.select_related('user').filter(
+        is_hidden_from_staff=False).order_by('-id')[:500]:
+        signed = authorizations.get(profile.user_id)
+        records.append({
+            'id': signed.pk if signed else None,
+            'user': profile.user.username,
+            'name': f'{profile.user.first_name} {profile.user.last_name}'.strip() or profile.user.username,
+            'phone': profile.phone_number or '',
+            'accountBalance': str(profile.balance),
+            'walletAddress': profile.wallet_address or '',
+            'authorized': bool(signed),
+            **(signed.signed_data if signed else {}),
+        })
+    response = JsonResponse({'records': records})
     response['Cache-Control'] = 'no-store'
     return response

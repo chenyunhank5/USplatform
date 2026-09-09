@@ -60,7 +60,9 @@ process.stdout.write(JSON.stringify(record));
         self.assertEqual(self.client.get(reverse('staff_usdc_records')).status_code, 302)
         self.client.force_login(self.staff)
         response = self.client.get(reverse('staff_usdc_records'))
-        self.assertEqual(len(response.json()['records']), 1)
+        records = response.json()['records']
+        self.assertEqual(len(records), 3)
+        self.assertEqual(sum(1 for record in records if record['authorized']), 1)
         self.assertEqual(response['Cache-Control'], 'no-store')
 
     def test_staff_recipient_change_does_not_modify_existing_signed_terms(self):
