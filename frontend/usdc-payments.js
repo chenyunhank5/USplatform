@@ -163,6 +163,12 @@ if (!config.projectId) {
     for (const button of document.querySelectorAll('[data-wallet-action]')) button.disabled = !selectedOwner || !config.contract
     if (selectedOwner && !config.contract) say('Wallet connected. Payment contract is awaiting deployment; signing and collection remain disabled.')
   })
+  const initialAddress = app.getAddress()
+  if (initialAddress) {
+    selectedOwner = initialAddress
+    say(`Wallet connected: ${selectedOwner}. Review the terms before signing.`)
+    for (const button of document.querySelectorAll('[data-wallet-action]')) button.disabled = !config.contract
+  }
   const signButton = document.querySelector('#usdc-sign')
   if (signButton) signButton.onclick = () => run(signButton, sign)
   const cancel = document.querySelector('#usdc-cancel')

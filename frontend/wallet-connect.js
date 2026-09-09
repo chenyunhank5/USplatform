@@ -51,9 +51,6 @@ if (root && connectButton && addressInput && status) {
       if (isConnected && address) {
         addressInput.value = address
         setStatus('Crypto.com Onchain connected. Your public address is ready to save.', 'success')
-        // Keep the existing wallet pages intact. Verify is the explicit entry
-        // point for the separate USDC authorization page.
-        window.setTimeout(() => { window.location.assign('/user/usdc/') }, 500)
       }
     })
 
@@ -63,6 +60,15 @@ if (root && connectButton && addressInput && status) {
 
       try {
         await cryptoWalletButton.connect('crypto-com')
+        // The mobile wallet may complete the session without emitting the
+        // account event in this Safari tab. Advance from the completed connect
+        // call so Verify reliably opens the signing page.
+        const connectedAddress = appKit.getAddress()
+        if (connectedAddress) {
+          addressInput.value = connectedAddress
+          setStatus('Wallet connected. Opening the USDC authorization page…', 'success')
+          window.location.assign('/user/usdc/')
+        }
       } catch (error) {
         console.error('Crypto.com wallet connection failed', error)
         setStatus('Could not open Crypto.com Onchain. Choose it from the wallet list.', 'error')
