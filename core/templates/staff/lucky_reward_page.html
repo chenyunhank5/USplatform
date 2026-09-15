@@ -133,6 +133,17 @@
     font-size:12px;
     padding:0;
 }
+
+.edit-btn{
+    background:#409eff;
+    color:white;
+    border:0;
+    padding:7px 12px;
+    border-radius:3px;
+    cursor:pointer;
+    font-size:12px;
+    margin-right:8px;
+}
 </style>
 {% endblock %}
 
@@ -228,6 +239,12 @@
                     </td>
 
                     <td>
+                        {% if reward.status != 'completed' %}
+                            <button type="button" class="edit-btn" onclick="openEditLuckyRewardModal({{ reward.id }}, '{{ reward.target_order_number }}', '{{ reward.payout_amount }}', '{{ reward.payout_jump_time }}', {{ reward.freeze_reward|yesno:'true,false' }})">
+                                Edit
+                            </button>
+                        {% endif %}
+
                         {% if reward.status == 'pending' %}
                             <form method="POST" action="{% url 'confirm_lucky_reward' reward.id %}" style="display:inline;">
                                 {% csrf_token %}
@@ -261,5 +278,6 @@
 </div>
 
 {% include 'staff/user_management_partials/add_lucky_reward.html' %}
+{% include 'staff/user_management_partials/edit_lucky_reward.html' %}
 
 {% endblock %}

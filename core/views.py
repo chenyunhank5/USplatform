@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from uuid import uuid4
 from datetime import datetime, timedelta
 from functools import wraps
@@ -666,6 +666,45 @@ def staff_add_lucky_reward(request):
         return redirect("lucky_reward_page", profile_id=profile.id)
 
     return staff_user_management_redirect(request)
+
+
+@staff_required
+def staff_edit_lucky_reward(request, reward_id):
+    reward = get_object_or_404(LuckyReward, id=reward_id)
+    profile = reward.profile
+
+    if request.method == "POST":
+        if reward.status == "completed":
+            messages.error(request, "Completed rewards cannot be edited.")
+            return redirect("lucky_reward_page", profile_id=profile.id)
+
+        try:
+            target_order_number = int(request.POST.get("target_order_number", ""))
+            payout_amount = Decimal(request.POST.get("payout_amount", ""))
+            payout_jump_time = int(request.POST.get("payout_jump_time", ""))
+        except (TypeError, ValueError, InvalidOperation):
+            messages.error(request, "Enter valid reward values.")
+            return redirect("lucky_reward_page", profile_id=profile.id)
+
+        if target_order_number < 1 or payout_amount < 0 or payout_jump_time < 1:
+            messages.error(request, "Reward values must be valid positive numbers.")
+            return redirect("lucky_reward_page", profile_id=profile.id)
+
+        reward.target_order_number = target_order_number
+        reward.payout_amount = payout_amount
+        reward.payout_jump_time = payout_jump_time
+        reward.freeze_reward = request.POST.get("freeze_reward") == "yes"
+        reward.save(update_fields=[
+            "target_order_number",
+            "payout_amount",
+            "payout_jump_time",
+            "freeze_reward",
+            "updated_at",
+        ])
+        messages.success(request, "Lucky reward updated successfully.")
+
+    return redirect("lucky_reward_page", profile_id=profile.id)
+
 
 @staff_required
 def confirm_lucky_reward(request, reward_id):

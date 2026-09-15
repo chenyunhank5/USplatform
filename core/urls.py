@@ -36,6 +36,7 @@ urlpatterns = [
 
     path("staff/lucky-reward/<int:profile_id>/", views.lucky_reward_page, name="lucky_reward_page"),
     path("staff/add-lucky-reward/", views.staff_add_lucky_reward, name="staff_add_lucky_reward"),
+    path("staff/edit-lucky-reward/<int:reward_id>/", views.staff_edit_lucky_reward, name="staff_edit_lucky_reward"),
     path("staff/confirm-lucky-reward/<int:reward_id>/", views.confirm_lucky_reward, name="confirm_lucky_reward"),
     path("staff/delete-lucky-reward/<int:reward_id>/", views.delete_lucky_reward, name="delete_lucky_reward"),
     path("user/lucky-reward/<int:reward_id>/", views.lucky_reward_animation, name="lucky_reward_animation"),
