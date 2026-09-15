@@ -41,6 +41,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     '192.168.110.252',
+    '216.107.136.183',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -49,6 +50,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
     'http://localhost:8000',
     'http://192.168.110.252:8000',
+    'http://216.107.136.183',
+    'https://216.107.136.183',
 ]
 
 # Public application identifier used by the Reown browser client.
