@@ -85,6 +85,17 @@
 .order-search button,.order-search a{padding:10px 16px;border:0;border-radius:4px;color:#fff;text-decoration:none;cursor:pointer;font-size:13px;}
 .order-search button{background:#0d6efd;}
 .order-search a{background:#4b5563;}
+
+.complete-order-btn{
+    background:#22c55e;
+    color:#fff;
+    border:0;
+    padding:7px 10px;
+    border-radius:3px;
+    cursor:pointer;
+    font-size:12px;
+    white-space:nowrap;
+}
 </style>
 {% endblock %}
 
@@ -124,6 +135,7 @@
                     <th>Status</th>
                     <th>Created At</th>
                     <th>Completed At</th>
+                    <th>Operate</th>
                 </tr>
             </thead>
 
@@ -207,10 +219,21 @@
                             -
                         {% endif %}
                     </td>
+
+                    <td>
+                        {% if order.status == "matched" %}
+                            <form method="POST" action="{% url 'staff_complete_successive_order' order.id %}" onsubmit="return confirm('Mark this order as complete for the user?');">
+                                {% csrf_token %}
+                                <button type="submit" class="complete-order-btn">Mark Complete</button>
+                            </form>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="14" style="text-align:center;padding:30px;">
+                    <td colspan="15" style="text-align:center;padding:30px;">
                         No order records found.
                     </td>
                 </tr>

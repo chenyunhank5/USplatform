@@ -621,7 +621,6 @@ def staff_complete_successive_order(request, order_id):
             UserOrder.objects.select_for_update().select_related("user"),
             id=order_id,
             status="matched",
-            is_successive_order=True,
         )
         profile = UserProfile.objects.select_for_update().get(user=order.user)
 
@@ -648,8 +647,10 @@ def staff_complete_successive_order(request, order_id):
             inviter.balance += referral_amount
             inviter.save(update_fields=["balance"])
 
-    messages.success(request, "Successive order marked complete successfully.")
-    return redirect("staff_successive_order_page", profile_id=profile.id)
+    messages.success(request, "Order marked complete successfully.")
+    if order.is_successive_order:
+        return redirect("staff_successive_order_page", profile_id=profile.id)
+    return redirect("staff_order_management")
 
 
 @staff_required
