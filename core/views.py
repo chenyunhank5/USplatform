@@ -708,11 +708,8 @@ def delete_lucky_reward(request, reward_id):
     profile = reward.profile
 
     if request.method == "POST":
-        if reward.status in ["waiting", "cancelled"]:
+        if reward.status != "completed":
             reward.delete()
-        else:
-            reward.status = "cancelled"
-            reward.save()
 
     return redirect("lucky_reward_page", profile_id=profile.id)
 
@@ -2200,14 +2197,14 @@ def user_order_detail(request, order_id):
     profile = request.user.userprofile
 
     if user_has_blocking_lucky_reward(profile):
-        pending_reward = LuckyReward.objects.filter(
+        blocking_reward = LuckyReward.objects.filter(
             profile=profile,
-            status="pending"
-        ).first()
+            status__in=["processing", "pending"],
+        ).order_by("target_order_number", "id").first()
 
         return redirect(
             "lucky_reward_animation",
-            reward_id=pending_reward.id
+            reward_id=blocking_reward.id
         )
 
     order = get_object_or_404(
@@ -2251,14 +2248,14 @@ def submit_order(request, order_id):
     profile = request.user.userprofile
 
     if user_has_blocking_lucky_reward(profile):
-        pending_reward = LuckyReward.objects.filter(
+        blocking_reward = LuckyReward.objects.filter(
             profile=profile,
-            status="pending"
-        ).first()
+            status__in=["processing", "pending"],
+        ).order_by("target_order_number", "id").first()
 
         return redirect(
             "lucky_reward_animation",
-            reward_id=pending_reward.id
+            reward_id=blocking_reward.id
         )
 
     if request.method != "POST":

@@ -237,11 +237,11 @@
                             </form>
                         {% endif %}
 
-                        {% if reward.status == 'waiting' or reward.status == 'cancelled' %}
-                            <form method="POST" action="{% url 'delete_lucky_reward' reward.id %}" style="display:inline;">
+                        {% if reward.status != 'completed' %}
+                            <form method="POST" action="{% url 'delete_lucky_reward' reward.id %}" style="display:inline;" onsubmit="return confirm('Remove this unresolved lucky reward?');">
                                 {% csrf_token %}
                                 <button type="submit" class="delete-btn">
-                                    🗑 Delete
+                                    Delete
                                 </button>
                             </form>
                         {% endif %}
