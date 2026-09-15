@@ -690,7 +690,7 @@ def confirm_lucky_reward(request, reward_id):
         )
 
         profile.balance += reward.payout_amount
-        profile.task_progress += 1
+        profile.task_progress = reward.target_order_number
         profile.save()
 
         reward.status = "completed"
@@ -763,7 +763,7 @@ def claim_lucky_reward(request, reward_id):
     )
 
     profile.balance += reward.payout_amount
-    profile.task_progress += 1
+    profile.task_progress = reward.target_order_number
     profile.save()
 
     reward.status = "completed"
@@ -792,7 +792,7 @@ def lucky_reward_animation_failed(request, reward_id):
 def user_has_blocking_lucky_reward(profile):
     return LuckyReward.objects.filter(
         profile=profile,
-        status="pending"
+        status__in=["processing", "pending"],
     ).exists()
 
 
@@ -2055,23 +2055,40 @@ def start_order(request):
     if profile.vip_level:
         max_tasks = profile.vip_level.maximum_task
 
+    next_order_number = profile.task_progress + 1
+
+    unresolved_reward = LuckyReward.objects.filter(
+        profile=profile,
+        status__in=["processing", "pending"],
+        target_order_number__lte=next_order_number,
+    ).order_by("target_order_number", "id").first()
+
+    if unresolved_reward:
+        return redirect(
+            "lucky_reward_animation",
+            reward_id=unresolved_reward.id,
+        )
+
+    waiting_reward = LuckyReward.objects.filter(
+        profile=profile,
+        status="waiting",
+        target_order_number__lte=next_order_number,
+    ).order_by("target_order_number", "id").first()
+
+    if waiting_reward:
+        waiting_reward.status = "processing"
+        waiting_reward.save(update_fields=["status", "updated_at"])
+        return redirect(
+            "lucky_reward_animation",
+            reward_id=waiting_reward.id,
+        )
+
     if max_tasks and profile.task_progress >= max_tasks:
         messages.error(
             request,
             "You have reached your daily task limit."
         )
         return redirect("user_order")
-
-    pending_reward = LuckyReward.objects.filter(
-        profile=profile,
-        status="pending"
-    ).first()
-
-    if pending_reward:
-        return redirect(
-            "lucky_reward_animation",
-            reward_id=pending_reward.id
-        )
 
     active_order = UserOrder.objects.filter(
         user=request.user,
@@ -2084,23 +2101,6 @@ def start_order(request):
             "You have a pending order. Please complete it before starting a new order."
         )
         return redirect("user_order")
-
-    next_order_number = profile.task_progress + 1
-
-    reward = LuckyReward.objects.filter(
-        profile=profile,
-        target_order_number=next_order_number,
-        status="waiting"
-    ).first()
-
-    if reward:
-        reward.status = "processing"
-        reward.save()
-
-        return redirect(
-            "lucky_reward_animation",
-            reward_id=reward.id
-        )
 
     successive_plan = SuccessiveOrderPlan.objects.filter(
         profile=profile,
