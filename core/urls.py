@@ -30,6 +30,7 @@ urlpatterns = [
     path("staff/user/<int:profile_id>/successive-order/", views.staff_successive_order_page, name="staff_successive_order_page"),
     path("staff/add-successive-order/", views.staff_add_successive_order, name="staff_add_successive_order"),
     path("staff/edit-successive-order-frozen/<int:order_id>/", views.staff_edit_successive_order_frozen, name="staff_edit_successive_order_frozen"),
+    path("staff/complete-successive-order/<int:order_id>/", views.staff_complete_successive_order, name="staff_complete_successive_order"),
     path("staff/delete-successive-order/<int:order_id>/", views.staff_delete_successive_order, name="staff_delete_successive_order"),
 
     path("staff/reset-user-tasks/<int:profile_id>/", views.staff_reset_user_tasks, name="staff_reset_user_tasks"),

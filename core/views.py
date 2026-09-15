@@ -613,6 +613,45 @@ def staff_edit_successive_order_frozen(request, order_id):
 
     return redirect("staff_successive_order_page", profile_id=profile.id)
 
+
+@staff_required
+def staff_complete_successive_order(request, order_id):
+    with transaction.atomic():
+        order = get_object_or_404(
+            UserOrder.objects.select_for_update().select_related("user"),
+            id=order_id,
+            status="matched",
+            is_successive_order=True,
+        )
+        profile = UserProfile.objects.select_for_update().get(user=order.user)
+
+        order.status = "completed"
+        order.completed_at = timezone.now()
+        order.save(update_fields=["status", "completed_at"])
+
+        profile.balance += order.commission
+        profile.task_progress += 1
+        profile.save(update_fields=["balance", "task_progress"])
+
+        inviter = profile.invited_by
+        if inviter:
+            inviter = UserProfile.objects.select_for_update().get(pk=inviter.pk)
+            referral_amount = (
+                order.commission * Decimal("20.00") / Decimal("100.00")
+            ).quantize(Decimal("0.01"))
+            ReferralCommission.objects.create(
+                inviter=inviter,
+                invitee=profile,
+                order=order,
+                amount=referral_amount,
+            )
+            inviter.balance += referral_amount
+            inviter.save(update_fields=["balance"])
+
+    messages.success(request, "Successive order marked complete successfully.")
+    return redirect("staff_successive_order_page", profile_id=profile.id)
+
+
 @staff_required
 def staff_delete_successive_order(request, order_id):
     plan = get_object_or_404(SuccessiveOrderPlan, id=order_id)

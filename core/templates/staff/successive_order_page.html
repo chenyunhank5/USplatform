@@ -154,6 +154,17 @@
     padding:0;
 }
 
+.successive-confirm-btn{
+    background:#22c55e;
+    border:0;
+    color:#fff;
+    cursor:pointer;
+    font-size:12px;
+    padding:7px 10px;
+    border-radius:3px;
+    margin-right:8px;
+}
+
 </style>
 {% endblock %}
 
@@ -357,6 +368,21 @@
                     </td>
 
                     <td>
+
+                        {% if order.status == 'matched' and order.matched_order %}
+                            <form
+                                method="POST"
+                                action="{% url 'staff_complete_successive_order' order.matched_order.id %}"
+                                style="display:inline;"
+                                onsubmit="return confirm('Mark this matched order as complete for the user?');"
+                            >
+                                {% csrf_token %}
+                                <button type="submit" class="successive-confirm-btn">
+                                    Mark Complete
+                                </button>
+                            </form>
+
+                        {% endif %}
 
                         <button
                             type="button"
